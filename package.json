@@ -1,0 +1,46 @@
+{
+  "name": "stem-virtual-lab",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b --pretty",
+    "test": "node --experimental-strip-types --test tests/catalogSelectors.test.mjs tests/routeStates.test.mjs tests/workspaceData.test.mjs tests/sceneState.test.mjs tests/sceneComposition.test.mjs tests/saltSimulation.test.mjs tests/workflowEngine.test.mjs tests/experimentExperience.test.mjs tests/directInteractions.test.mjs tests/physicalActions.test.mjs tests/simulationEvents.test.mjs tests/contextualGuidance.test.mjs tests/affordanceHints.test.mjs tests/mouseInteractionCoach.test.mjs tests/mouseGestures.test.mjs tests/placementHintMotion.test.mjs",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.2",
+    "@react-three/rapier": "^2.2.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "lucide-react": "^1.66.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router": "^8.5.1",
+    "tailwindcss": "^4.3.3",
+    "three": "^0.187.0",
+    "zustand": "^5.0.16"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.187.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "eslint": "^10.14.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.14.0",
+    "prettier": "^3.9.10",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^8.3.5"
+  }
+}

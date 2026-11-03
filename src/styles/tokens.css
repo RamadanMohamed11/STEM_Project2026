@@ -1,0 +1,33 @@
+@theme {
+  --font-sans: 'Segoe UI', Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  --color-navy: #162635;
+  --color-ink: #203342;
+  --color-teal: #138b85;
+  --color-teal-dark: #0d6f6a;
+  --color-teal-light: #76d5cb;
+  --color-teal-soft: #e4f4f1;
+  --color-canvas: #f4f6f7;
+  --color-slate: #71818c;
+  --color-line: #e4e9ed;
+  --color-line-strong: #cdd7dd;
+  --color-surface-muted: #edf1f3;
+  --color-warning: #dc8a38;
+  --color-warning-soft: #fff2e3;
+  --color-warning-dark: #995312;
+  --color-success: #1e8062;
+  --color-danger: #b44848;
+  --color-info: #347a9b;
+
+  --spacing: 0.25rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
+  --shadow-card: 0 6px 24px -18px rgba(22, 38, 53, 0.24);
+  --shadow-elevated: 0 18px 55px -32px rgba(22, 38, 53, 0.3);
+
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+}

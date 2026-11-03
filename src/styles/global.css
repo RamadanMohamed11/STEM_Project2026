@@ -1,0 +1,68 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+:root {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: var(--color-canvas);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-teal);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--color-teal-soft);
+  color: var(--color-navy);
+}
+
+/* Native progress meter, used only for informational guide position. */
+.lab-guide-progress {
+  appearance: none;
+  border: 0;
+}
+
+.lab-guide-progress::-webkit-progress-bar {
+  background: var(--color-surface-muted);
+  border-radius: 999px;
+}
+
+.lab-guide-progress::-webkit-progress-value {
+  background: var(--color-teal);
+  border-radius: 999px;
+}
+
+.lab-guide-progress::-moz-progress-bar {
+  background: var(--color-teal);
+  border-radius: 999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
