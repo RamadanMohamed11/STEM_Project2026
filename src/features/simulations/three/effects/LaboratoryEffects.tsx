@@ -1,6 +1,6 @@
 import { useLayoutEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { InstancedMesh, Object3D, QuadraticBezierCurve3, Vector3 } from 'three'
+import { DynamicDrawUsage, InstancedMesh, Object3D, QuadraticBezierCurve3, Vector3 } from 'three'
 import type { Vector3Tuple } from 'three'
 
 /** World coordinates in the lab scene: metres, Y-up. */
@@ -19,143 +19,196 @@ type Endpoints =
   | { start: WorldPoint; end: WorldPoint; source?: never; target?: never }
   | { source: WorldPoint; target: WorldPoint; start?: never; end?: never }
 
-type PourStreamProps = ProgressProps & Endpoints & { radius?: number }
+/** Reused mutable samples: update in useFrame, without a React state write. */
+export interface PourFrame {
+  start: Vector3
+  end: Vector3
+  angle: number
+  progress: number
+}
 
-/** Thin coherent stream with regularly spaced highlights indicating moving water. */
-export function PourStream(props: PourStreamProps) {
-  const { progress, radius = 0.012 } = props
-  const start = props.source ?? props.start!
-  const end = props.target ?? props.end!
-  const [sx, sy, sz] = start
-  const [ex, ey, ez] = end
-  const p = boundedProgress(progress)
-  const active = p > 0 && p < 1
-  const streamRadius = Math.min(0.025, Math.max(0.004, radius))
-  const curve = useMemo(() => {
-    const startPoint = new Vector3(sx, sy, sz)
-    const endPoint = new Vector3(ex, ey, ez)
-    // Nearly horizontal at the outlet, then falling toward the receiving vessel.
-    const control = new Vector3(
-      (startPoint.x + endPoint.x) / 2,
-      startPoint.y + (endPoint.y - startPoint.y) * 0.12,
-      (startPoint.z + endPoint.z) / 2,
-    )
-    return new QuadraticBezierCurve3(startPoint, control, endPoint)
-  }, [sx, sy, sz, ex, ey, ez])
-  const hasLength = curve.getLength() > 0.03
-  const droplets = Array.from({ length: 6 }, (_, index) =>
-    curve.getPointAt((p * 3.2 + index / 6) % 1),
+/** Return false to hide a stream when a gesture/effect is no longer active. */
+export type PourFrameUpdater = (frame: PourFrame) => boolean
+
+type FrameDriven = { updateFrame?: PourFrameUpdater }
+type PourStreamProps = ProgressProps & Endpoints & FrameDriven & { radius?: number }
+
+function usePourFrame() {
+  return useRef<PourFrame>({ start: new Vector3(), end: new Vector3(), angle: 0, progress: 0 })
+}
+
+const LIVE_DROPLET_COUNT = 14
+
+interface WaterJetProps extends FrameDriven {
+  start: WorldPoint
+  end: WorldPoint
+  progress: number
+  angle: number
+  live: boolean
+  radius?: number
+}
+
+/** One persistent geometry/draw call; only instance matrices change per frame. */
+function WaterJet({
+  start,
+  end,
+  progress,
+  angle,
+  live,
+  radius = 0.012,
+  updateFrame,
+}: WaterJetProps) {
+  const drops = useRef<InstancedMesh>(null)
+  const frameRef = usePourFrame()
+  const marker = useMemo(() => new Object3D(), [])
+  const tangent = useMemo(() => new Vector3(), [])
+  const up = useMemo(() => new Vector3(0, 1, 0), [])
+  const curve = useMemo(
+    () => new QuadraticBezierCurve3(new Vector3(), new Vector3(), new Vector3()),
+    [],
   )
 
+  useLayoutEffect(() => {
+    drops.current?.instanceMatrix.setUsage(DynamicDrawUsage)
+  }, [])
+
+  useFrame(({ clock }) => {
+    const frame = frameRef.current
+    const mesh = drops.current
+    if (!mesh) return
+    frame.start.fromArray(start)
+    frame.end.fromArray(end)
+    frame.angle = angle
+    frame.progress = progress
+    const sampled = updateFrame ? updateFrame(frame) : true
+    const p = boundedProgress(frame.progress)
+    mesh.visible =
+      sampled &&
+      (live || (p > 0 && p < 1)) &&
+      Number.isFinite(frame.start.lengthSq() + frame.end.lengthSq()) &&
+      frame.start.distanceToSquared(frame.end) > 0.0009
+    if (!mesh.visible) return
+
+    curve.v0.copy(frame.start)
+    curve.v2.copy(frame.end)
+    curve.v1.set(
+      frame.start.x + (frame.end.x - frame.start.x) * 0.41,
+      frame.start.y + (frame.end.y - frame.start.y) * 0.12,
+      frame.start.z + (frame.end.z - frame.start.z) * 0.41,
+    )
+    const safeAngle = Number.isFinite(frame.angle) ? Math.max(0, frame.angle) : 0
+    const r = live
+      ? 0.011 + Math.min(0.008, Math.max(0, safeAngle - 0.45) * 0.025)
+      : Math.min(0.025, Math.max(0.004, Number.isFinite(radius) ? radius : 0.012))
+    const flow = clock.elapsedTime * (1.6 + Math.min(1, safeAngle) * 1.4)
+    for (let index = 0; index < LIVE_DROPLET_COUNT; index += 1) {
+      const t = (flow + index / LIVE_DROPLET_COUNT) % 1
+      curve.getPoint(t, marker.position)
+      tangent.set(
+        2 * ((1 - t) * (curve.v1.x - curve.v0.x) + t * (curve.v2.x - curve.v1.x)),
+        2 * ((1 - t) * (curve.v1.y - curve.v0.y) + t * (curve.v2.y - curve.v1.y)),
+        2 * ((1 - t) * (curve.v1.z - curve.v0.z) + t * (curve.v2.z - curve.v1.z)),
+      )
+      const speed = tangent.length()
+      marker.quaternion.setFromUnitVectors(up, tangent.normalize())
+      // Clip the elongated drops at both ends, rather than extending below the
+      // current liquid surface or back into the source vessel.
+      const halfLength = Math.max(
+        0.0001,
+        Math.min((speed * 0.65) / LIVE_DROPLET_COUNT, speed * t, speed * (1 - t)),
+      )
+      marker.scale.set(r, halfLength, r)
+      marker.updateMatrix()
+      mesh.setMatrixAt(index, marker.matrix)
+    }
+    mesh.instanceMatrix.needsUpdate = true
+  })
+
   return (
-    <group visible={active && hasLength}>
-      <mesh>
-        <tubeGeometry args={[curve, 24, streamRadius, 6, false]} />
-        <meshPhysicalMaterial
-          color="#85dbe9"
-          transparent
-          opacity={0.57}
-          roughness={0.08}
-          depthWrite={false}
-        />
-      </mesh>
-      {droplets.map((point, index) => (
-        <mesh key={index} position={[point.x, point.y, point.z]}>
-          <sphereGeometry args={[streamRadius * 1.23, 7, 5]} />
-          <meshStandardMaterial color="#c9f7fb" transparent opacity={0.55} depthWrite={false} />
-        </mesh>
-      ))}
-    </group>
+    <instancedMesh
+      ref={drops}
+      args={[undefined, undefined, LIVE_DROPLET_COUNT]}
+      visible={false}
+      frustumCulled={false}
+      raycast={() => undefined}
+    >
+      <sphereGeometry args={[1, 8, 6]} />
+      <meshPhysicalMaterial
+        color="#8cdfee"
+        transparent
+        opacity={live ? 0.69 : 0.57}
+        roughness={0.1}
+        depthWrite={false}
+        metalness={0.03}
+      />
+    </instancedMesh>
   )
 }
 
-interface LivePourStreamProps {
+/** Timed legacy API, also supporting live anchor sampling through updateFrame. */
+export function PourStream(props: PourStreamProps) {
+  return (
+    <WaterJet
+      start={props.source ?? props.start!}
+      end={props.target ?? props.end!}
+      progress={props.progress}
+      radius={props.radius}
+      angle={0.5}
+      live={false}
+      updateFrame={props.updateFrame}
+    />
+  )
+}
+
+interface LivePourStreamProps extends FrameDriven {
   start: WorldPoint
   end: WorldPoint
   angle: number
 }
 
-const LIVE_DROPLET_COUNT = 13
-
 /** Continuous water jet driven by the held 3D tilt gesture, not a timed effect. */
-export function LivePourStream({ start, end, angle }: LivePourStreamProps) {
-  const [sx, sy, sz] = start
-  const [ex, ey, ez] = end
-  const drops = useRef<InstancedMesh>(null)
-  const marker = useMemo(() => new Object3D(), [])
-  const radius = 0.011 + Math.min(0.008, Math.max(0, angle - 0.45) * 0.025)
-  const curve = useMemo(() => {
-    const origin = new Vector3(sx, sy, sz)
-    const destination = new Vector3(ex, ey, ez)
-    const guide = new Vector3(sx + (ex - sx) * 0.41, sy - 0.02, sz + (ez - sz) * 0.41)
-    return new QuadraticBezierCurve3(origin, guide, destination)
-  }, [sx, sy, sz, ex, ey, ez])
-
-  useFrame(({ clock }) => {
-    if (!drops.current) return
-    const flow = clock.elapsedTime * (1.6 + (angle - 0.45) * 1.4)
-    for (let index = 0; index < LIVE_DROPLET_COUNT; index += 1) {
-      const t = (flow + index / LIVE_DROPLET_COUNT) % 1
-      const point = curve.getPointAt(t)
-      marker.position.copy(point)
-      marker.scale.setScalar(0.65 + (index % 3) * 0.11)
-      marker.rotation.set(0, 0, 0)
-      marker.updateMatrix()
-      drops.current.setMatrixAt(index, marker.matrix)
-    }
-    drops.current.instanceMatrix.needsUpdate = true
-  })
-
+export function LivePourStream({ start, end, angle, updateFrame }: LivePourStreamProps) {
   return (
-    <group raycast={() => undefined}>
-      <mesh raycast={() => undefined}>
-        <tubeGeometry args={[curve, 28, radius, 7, false]} />
-        <meshPhysicalMaterial
-          color="#8cdfee"
-          transparent
-          opacity={0.69}
-          roughness={0.1}
-          depthWrite={false}
-          metalness={0.03}
-        />
-      </mesh>
-      <instancedMesh
-        ref={drops}
-        args={[undefined, undefined, LIVE_DROPLET_COUNT]}
-        raycast={() => undefined}
-      >
-        <sphereGeometry args={[radius * 0.92, 8, 6]} />
-        <meshBasicMaterial color="#d2f8fc" transparent opacity={0.85} depthWrite={false} />
-      </instancedMesh>
-    </group>
+    <WaterJet start={start} end={end} angle={angle} progress={0.5} live updateFrame={updateFrame} />
   )
 }
 
-type SaltGranulesProps = ProgressProps & Endpoints
+type SaltGranulesProps = ProgressProps & Endpoints & FrameDriven
 
 const GRANULE_COUNT = 18
 
-/** Dry salt grain trajectories. Instancing keeps all grains to one draw call. */
+/** Dry salt grain trajectories, sampled from the same actual outlet as water. */
 export function SaltGranules(props: SaltGranulesProps) {
-  const { progress } = props
   const start = props.source ?? props.start!
   const end = props.target ?? props.end!
-  const [sx, sy, sz] = start
-  const [ex, ey, ez] = end
   const mesh = useRef<InstancedMesh>(null)
-  const p = boundedProgress(progress)
+  const frameRef = usePourFrame()
+  const object = useMemo(() => new Object3D(), [])
 
   useLayoutEffect(() => {
+    mesh.current?.instanceMatrix.setUsage(DynamicDrawUsage)
+  }, [])
+
+  useFrame(() => {
     if (!mesh.current) return
-    const object = new Object3D()
+    const frame = frameRef.current
+    frame.start.fromArray(start)
+    frame.end.fromArray(end)
+    frame.progress = props.progress
+    frame.angle = 0
+    const sampled = props.updateFrame ? props.updateFrame(frame) : true
+    const p = boundedProgress(frame.progress)
+    mesh.current.visible =
+      sampled && p > 0 && p < 1 && Number.isFinite(frame.start.lengthSq() + frame.end.lengthSq())
+    if (!mesh.current.visible) return
     for (let i = 0; i < GRANULE_COUNT; i += 1) {
       const t = (p * 3.7 + i / GRANULE_COUNT) % 1
       const lateral = Math.sin((i + 1) * 2.39996) * 0.042 * Math.sin(t * Math.PI)
       const depth = Math.cos((i + 1) * 1.913) * 0.037 * Math.sin(t * Math.PI)
       object.position.set(
-        sx + (ex - sx) * t + lateral,
-        sy + (ey - sy) * t * t,
-        sz + (ez - sz) * t + depth,
+        frame.start.x + (frame.end.x - frame.start.x) * t + lateral,
+        frame.start.y + (frame.end.y - frame.start.y) * t * t,
+        frame.start.z + (frame.end.z - frame.start.z) * t + depth,
       )
       object.rotation.set(i * 0.67 + t * 2.1, i * 1.31 + t * 1.2, i * 0.93)
       object.scale.setScalar(0.68 + (i % 5) * 0.12)
@@ -163,10 +216,16 @@ export function SaltGranules(props: SaltGranulesProps) {
       mesh.current.setMatrixAt(i, object.matrix)
     }
     mesh.current.instanceMatrix.needsUpdate = true
-  }, [p, sx, sy, sz, ex, ey, ez])
+  })
 
   return (
-    <instancedMesh ref={mesh} args={[undefined, undefined, GRANULE_COUNT]} visible={p > 0 && p < 1}>
+    <instancedMesh
+      ref={mesh}
+      args={[undefined, undefined, GRANULE_COUNT]}
+      visible={false}
+      frustumCulled={false}
+      raycast={() => undefined}
+    >
       <boxGeometry args={[0.009, 0.009, 0.009]} />
       <meshStandardMaterial color="#f5f7f5" roughness={0.83} metalness={0} />
     </instancedMesh>

@@ -98,6 +98,28 @@ export function findSpatialAffordance(
   )
 }
 
+/** A cached contact must match its entire tuple and still reference placed apparatus.
+ * This validates semantic contact, not coordinates or renderer pointer history. */
+export function hasValidSpatialRelationship(
+  relationships: Readonly<Record<string, SpatialRelationship>>,
+  placedIds: readonly string[],
+  actorId: string,
+  targetId: string,
+  kind: SpatialRelationKind,
+): boolean {
+  const contact = relationships[actorId]
+  return (
+    placedIds.includes(actorId) &&
+    placedIds.includes(targetId) &&
+    contact?.actorId === actorId &&
+    contact.targetId === targetId &&
+    contact.kind === kind &&
+    SPATIAL_AFFORDANCES.some(
+      (rule) => rule.actor === actorId && rule.target === targetId && rule.relation === kind,
+    )
+  )
+}
+
 /** Physical rules are independent from React components and mesh naming. */
 export function isSpatialTarget(actor: string, target: string): boolean {
   return SPATIAL_AFFORDANCES.some((rule) => rule.actor === actor && rule.target === target)

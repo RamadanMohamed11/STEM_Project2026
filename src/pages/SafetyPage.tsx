@@ -1,4 +1,6 @@
 import { Info } from 'lucide-react'
+import { routePaths } from '@/app/paths'
+import { ButtonLink } from '@/components/ui/ButtonLink'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { StatusPill } from '@/components/ui/StatusPill'
 import { SafetyOverview } from '@/features/safety/components/SafetyOverview'
@@ -22,6 +24,9 @@ export function SafetyPage() {
           These are introductory reminders, not a complete safety manual. Follow local laboratory
           policies, instructor directions, and the risk assessment for each experiment.
         </p>
+      </div>
+      <div className="mt-7">
+        <ButtonLink to={routePaths.grades}>Choose Your Grade</ButtonLink>
       </div>
     </div>
   )

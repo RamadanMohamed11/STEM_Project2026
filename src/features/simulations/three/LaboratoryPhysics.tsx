@@ -1,13 +1,15 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import {
   CuboidCollider,
   CylinderCollider,
   Physics,
   RigidBody,
   useRapier,
+  useBeforePhysicsStep,
   type RapierRigidBody,
 } from '@react-three/rapier'
 import { BENCH_DEPTH, BENCH_TOP, BENCH_WIDTH, type Point2D } from './sceneConfig'
+import { useLabSceneStore } from '../state/useLabSceneStore'
 
 const TABLETOP_HALF_THICKNESS = 0.07
 const TABLETOP_CENTER_Y = BENCH_TOP - TABLETOP_HALF_THICKNESS
@@ -81,44 +83,45 @@ export function EquipmentPhysicsCollider({
   const height = BODY_HEIGHT_BY_ID[id] ?? 0.7
   const halfHeight = height / 2
 
-  useEffect(() => {
-    // Kinematic movement produces contacts in the physics step. No impulses
-    // can move the equipment away from the placement selected by Zustand.
-    body.current?.setNextKinematicTranslation({
-      x: position.x,
-      y: BENCH_TOP,
-      z: position.z,
-    })
-  }, [id, position.x, position.z])
+  useBeforePhysicsStep(() => {
+    // Read current authority, not a possibly batched pointer-render snapshot.
+    // In particular, cancellation must override an already queued kinematic target.
+    const target = useLabSceneStore.getState().positions[id] ?? position
+    body.current?.setNextKinematicTranslation({ x: target.x, y: BENCH_TOP, z: target.z })
+  })
 
   return (
-    <RigidBody
-      key={id}
-      ref={body}
-      type="kinematicPosition"
-      colliders={false}
-      position={[initialPosition.x, BENCH_TOP, initialPosition.z]}
-      enabledRotations={[false, false, false]}
-      userData={{ equipmentId: id }}
-    >
-      {id === 'digital-balance' ? (
-        <CuboidCollider
-          args={[0.36, halfHeight, 0.255]}
-          position={[0, halfHeight, 0]}
-          friction={0.8}
-          restitution={0}
-          activeCollisionTypes={rapier.ActiveCollisionTypes.ALL}
-        />
-      ) : (
-        <CylinderCollider
-          args={[halfHeight, Math.max(0.025, footprintRadius)]}
-          position={[0, halfHeight, 0]}
-          friction={0.8}
-          restitution={0}
-          activeCollisionTypes={rapier.ActiveCollisionTypes.ALL}
-        />
-      )}
-      {children}
-    </RigidBody>
+    <>
+      <RigidBody
+        key={id}
+        ref={body}
+        type="kinematicPosition"
+        colliders={false}
+        position={[initialPosition.x, BENCH_TOP, initialPosition.z]}
+        enabledRotations={[false, false, false]}
+        userData={{ equipmentId: id }}
+      >
+        {id === 'digital-balance' ? (
+          <CuboidCollider
+            args={[0.36, halfHeight, 0.255]}
+            position={[0, halfHeight, 0]}
+            friction={0.8}
+            restitution={0}
+            activeCollisionTypes={rapier.ActiveCollisionTypes.ALL}
+          />
+        ) : (
+          <CylinderCollider
+            args={[halfHeight, Math.max(0.025, footprintRadius)]}
+            position={[0, halfHeight, 0]}
+            friction={0.8}
+            restitution={0}
+            activeCollisionTypes={rapier.ActiveCollisionTypes.ALL}
+          />
+        )}
+      </RigidBody>
+      {/* Rapier may interpolate a stale kinematic transform after a cancelled grab.
+        Visual placement has one authority; physics mirrors it, never owns it. */}
+      <group position={[position.x, BENCH_TOP, position.z]}>{children}</group>
+    </>
   )
 }

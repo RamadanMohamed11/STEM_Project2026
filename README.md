@@ -1,5 +1,13 @@
 # STEM Virtual Lab
 
+[![CI](https://github.com/RamadanMohamed11/STEM_Project2026/actions/workflows/ci.yml/badge.svg)](https://github.com/RamadanMohamed11/STEM_Project2026/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Three.js](https://img.shields.io/badge/Three.js-r187-black?logo=three.js)](https://threejs.org/)
+[![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+
 STEM Virtual Lab is an **independent educational platform prototype** designed for STEM students at the Faculty of Education, Assiut University. Its intended direction includes laboratory safety, an academic experiment catalog, virtual laboratory workspaces, guided demonstrations, and eventually AI-assisted explanations.
 
 **Current scope: Tasks A–F immersive virtual laboratory — viewport-filling 3D workbench, mouse-first 3D equipment handles, direct spatial gestures, camera-aware procedural apparatus, proximity-aware contextual guidance, typed event-driven experiment validation, conserved scientific quantities and deterministic retry.** Official curriculum, experiments, safety protocols, and academic content have not been finalized. No university branding or approval is implied.

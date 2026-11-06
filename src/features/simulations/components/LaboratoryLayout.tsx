@@ -17,6 +17,8 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router'
 import { LaboratoryCanvas } from './LaboratoryCanvas'
+import { PairInteractionPanel } from './PairInteractionPanel'
+import { MaterialTransferController } from '../three/MaterialTransferController'
 import { ContextualInstruction } from './ContextualInstruction'
 import { LaboratoryEquipmentPreview } from './LaboratoryEquipmentPreview'
 import { ExperimentGuide } from './ExperimentGuide'
@@ -48,6 +50,7 @@ export function LaboratoryLayout({
   const chemistry = useSaltSimulationStore((state) => state.experiment)
   const effect = useSaltSimulationStore((state) => state.effect)
   const livePour = useSaltSimulationStore((state) => state.livePour)
+  const transferActive = useSaltSimulationStore((state) => state.transfer !== null)
   const validation = useSaltSimulationStore((state) => state.validation)
   const latestSemanticEvent = useSaltSimulationStore(
     (state) => state.events[state.events.length - 1]?.type ?? null,
@@ -100,6 +103,7 @@ export function LaboratoryLayout({
   }
 
   const onInventoryClick = (id: string) => {
+    if (useSaltSimulationStore.getState().transfer) return
     if (placedIds.includes(id)) {
       select(id)
       return
@@ -224,7 +228,9 @@ export function LaboratoryLayout({
       </header>
 
       <div className="relative min-h-0 flex-1">
+        <MaterialTransferController />
         <LaboratoryCanvas />
+        <PairInteractionPanel inventoryOpen={inventoryOpen || helpOpen} />
 
         {/* Collapsible inventory is overlaid, not stacked under the scene. */}
         {inventoryOpen ? (
@@ -260,7 +266,8 @@ export function LaboratoryLayout({
                   <button
                     key={item.id}
                     type="button"
-                    draggable={!placed}
+                    disabled={transferActive}
+                    draggable={!placed && !transferActive}
                     onDragStart={(event) => {
                       if (placed) {
                         event.preventDefault()
@@ -450,7 +457,7 @@ export function LaboratoryLayout({
               className="max-h-[min(76dvh,520px)] overflow-y-auto overscroll-contain rounded-xl border border-[#cee7e4] bg-white/97 p-3 text-[#102b3a] shadow-2xl backdrop-blur-md"
             >
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold">Mouse gestures · quick help</h2>
+                <h2 className="text-sm font-bold">Selection & direct manipulation</h2>
                 <button
                   onClick={() => setHelpOpen(false)}
                   aria-label="Close help"
@@ -461,22 +468,22 @@ export function LaboratoryLayout({
               </div>
               <ul className="mt-3 space-y-2 text-xs leading-relaxed">
                 <li>
-                  <strong>Left-drag apparatus:</strong> grab and position it beside a compatible
-                  target.
+                  <strong>Click, then click a second object:</strong> select a pair. Ctrl / Command
+                  + click is optional. Click a selected object again to deselect it.
                 </li>
                 <li>
-                  <strong>Left-drag the visible TILT grip on a vessel:</strong> tip and HOLD to
-                  flow; straighten, move away or release to stop actual modelled transfer.
-                  Right-drag the vessel body or Shift + left-drag are optional alternatives.
+                  <strong>Object interaction:</strong> choose a source → receiver direction, type a
+                  quantity and confirm. Transfers position and return equipment automatically; no
+                  tilt gesture is needed.
                 </li>
                 <li>
-                  <strong>Spatula + NaCl jar:</strong> insert the spatula tip and scoop. Move it
-                  above the weighing boat to deposit; position the loaded boat on the balance to
-                  measure its modelled net mass.
+                  <strong>Salt:</strong> select jar + spatula to scoop a precise mass, then spatula
+                  + boat to deposit it. Drag the loaded boat beside the balance pan to record its
+                  modelled net mass.
                 </li>
                 <li>
-                  <strong>Weighing boat + beaker:</strong> use the boat's TILT grip to add weighed
-                  solid salt into the beaker.
+                  <strong>Weighed boat + beaker:</strong> select both to transfer measured solids in
+                  the contextual panel. Sources and receivers need not be positioned precisely.
                 </li>
                 <li>
                   <strong>Drag stirring rod inside beaker:</strong> make repeated circular strokes,
@@ -490,8 +497,9 @@ export function LaboratoryLayout({
                   wheel zooms.
                 </li>
                 <li>
-                  <strong>Esc:</strong> cancel pending placement. Use Reset camera or Restart
-                  experiment in the toolbar.
+                  <strong>Drag apparatus:</strong> hold and move more than 5 pixels to grab; release
+                  to place. Esc cancels a grab, selection, placement or transfer. Material already
+                  delivered is retained. Reset camera and Restart experiment are in the toolbar.
                 </li>
               </ul>
               <p className="mt-3 rounded-lg bg-[#e7f7f4] p-2 text-[11px] leading-relaxed">

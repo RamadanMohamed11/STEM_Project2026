@@ -1,3 +1,4 @@
+import { Vector2 } from 'three'
 import { SaltCrystalCluster } from './SaltCrystalCluster'
 
 interface SpatulaProps {
@@ -5,59 +6,66 @@ interface SpatulaProps {
   saltG?: number
 }
 
+// A closed spoon cross-section: underside to rolled edge, returning down the concavity.
+const scoopProfile = [
+  [0, 0.001],
+  [0.03, 0.002],
+  [0.052, 0.009],
+  [0.068, 0.022],
+  [0.077, 0.031],
+  [0.075, 0.034],
+  [0.07, 0.032],
+  [0.061, 0.023],
+  [0.047, 0.014],
+  [0.028, 0.008],
+  [0, 0.006],
+].map(([radius, height]) => new Vector2(radius, height))
+
 const scoopCrystals = Array.from({ length: 22 }, (_, index) => {
   const angle = index * 2.399963
-  const radius = Math.sqrt((index + 0.5) / 22) * 0.049
+  const radial = Math.sqrt((index + 0.5) / 22)
   return {
-    x: 0.251 + Math.cos(angle) * radius,
-    z: Math.sin(angle) * radius * 0.56,
-    y: 0.134 + ((index * 7) % 5) * 0.007,
-    size: 0.011 + (index % 3) * 0.003,
+    x: Math.cos(angle) * radial * 0.048,
+    z: Math.sin(angle) * radial * 0.026,
+    y: 0.008 + (1 - radial) * 0.017 + (index % 3) * 0.002,
+    size: 0.007 + (index % 3) * 0.002,
     rotation: angle,
   }
 })
+const shaftAngle = -Math.atan2(0.446, -0.125)
+const shaftLength = Math.hypot(0.446, 0.125)
 
-/** A tapered stainless lab spatula, with a shallow spoon at the working end. */
 export function Spatula({ selected, saltG = 0 }: SpatulaProps) {
   const fraction = Number.isFinite(saltG) ? Math.min(1, Math.max(0, saltG / 5)) : 0
-  const crystalCount = Math.ceil(fraction * scoopCrystals.length)
+  const portionScale = Math.cbrt(fraction)
 
   return (
-    // Lower the spoon to the local tabletop while leaving the external pivot at Y=0.
-    <group position={[0, -0.097, 0]}>
-      {/* The shaft rises off the bench so the spoon is easy to grab in 3D. */}
-      <mesh castShadow receiveShadow position={[-0.007, 0.205, 0]} rotation={[0, 0, -1.34]}>
-        <cylinderGeometry args={[0.013, 0.018, 0.49, 14]} />
+    <group>
+      {/* The handle and shaft actually join the scoop; the working end stays at X≈.286. */}
+      <mesh castShadow receiveShadow position={[-0.027, 0.0945, 0]} rotation={[0, 0, shaftAngle]}>
+        <cylinderGeometry args={[0.008, 0.012, shaftLength, 16]} />
+        <meshStandardMaterial color="#c4ceca" metalness={0.88} roughness={0.29} />
+      </mesh>
+      <mesh castShadow receiveShadow position={[-0.224, 0.15, 0]} rotation={[0, 0, shaftAngle]}>
+        <capsuleGeometry args={[0.017, 0.106, 4, 16]} />
         <meshStandardMaterial
-          color={selected ? '#e0f5f7' : '#b8c9d2'}
-          metalness={0.78}
-          roughness={0.23}
+          color={selected ? '#597f75' : '#566c63'}
+          roughness={0.56}
+          metalness={0.05}
         />
       </mesh>
-      <mesh castShadow position={[-0.208, 0.253, 0]} rotation={[0, 0, -1.34]}>
-        <cylinderGeometry args={[0.024, 0.024, 0.15, 16]} />
-        <meshStandardMaterial color={selected ? '#257d94' : '#254d66'} roughness={0.46} />
+      <mesh castShadow receiveShadow position={[0.25, 0, 0]} scale={[1, 1, 0.65]}>
+        <latheGeometry args={[scoopProfile, 48]} />
+        <meshStandardMaterial color="#cdd5ce" metalness={0.9} roughness={0.26} />
       </mesh>
-      {[-0.24, -0.21, -0.18].map((x) => (
-        <mesh key={x} castShadow position={[x, 0.253 + (x + 0.21) * -0.23, 0]}>
-          <boxGeometry args={[0.003, 0.014, 0.045]} />
-          <meshStandardMaterial color="#91b4c2" metalness={0.36} roughness={0.46} />
-        </mesh>
-      ))}
-      {/* Smooth spoon bowl with a clearly raised edge and visible NaCl crystals. */}
-      <mesh castShadow receiveShadow position={[0.25, 0.113, 0]} scale={[1, 0.18, 0.65]}>
-        <sphereGeometry args={[0.077, 24, 12]} />
-        <meshStandardMaterial color="#c8d8df" roughness={0.24} metalness={0.82} />
-      </mesh>
-      <mesh position={[0.25, 0.12, 0]} scale={[1, 0.12, 0.57]}>
-        <sphereGeometry args={[0.072, 24, 12]} />
-        <meshStandardMaterial color="#dce8ed" metalness={0.7} roughness={0.2} />
-      </mesh>
-      <mesh position={[0.25, 0.131, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={[1, 0.59, 1]}>
-        <torusGeometry args={[0.068, 0.0045, 7, 28]} />
-        <meshStandardMaterial color="#9fb8c5" metalness={0.72} roughness={0.24} />
-      </mesh>
-      <SaltCrystalCluster crystals={scoopCrystals} count={crystalCount} />
+      {fraction > 0 && (
+        <group position={[0.251, 0.008, 0]} scale={portionScale}>
+          <SaltCrystalCluster
+            crystals={scoopCrystals}
+            count={Math.ceil(fraction * scoopCrystals.length)}
+          />
+        </group>
+      )}
     </group>
   )
 }

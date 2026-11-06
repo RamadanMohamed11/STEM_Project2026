@@ -1,4 +1,5 @@
 import {
+  isValidSaltExperimentState,
   maximumDissolvedSaltG,
   STIR_DISSOLUTION_G_PER_ACTION,
   undissolvedSaltG,
@@ -13,8 +14,21 @@ import type {
   WorkflowValidation,
 } from './workflowTypes.ts'
 
+export type MaterialTransferEvent = {
+  type: 'MATERIAL_TRANSFER_COMPLETED' | 'MATERIAL_TRANSFER_INTERRUPTED'
+  operationId: string
+  requestId: string
+  experimentId: string
+  sourceId: string
+  targetId: string
+  materialId: 'water' | 'NaCl'
+  quantity: { value: number; unit: 'mL' | 'g' }
+  sequence: number
+}
+
 /** Semantic facts published AFTER the physical action has committed to chemistry. */
 export type SimulationEvent =
+  | MaterialTransferEvent
   | { type: 'SAFETY_ACKNOWLEDGED' }
   | { type: 'EQUIPMENT_PLACEMENT_VALIDATED'; equipmentId: string }
   | {
@@ -48,6 +62,68 @@ export type SimulationEvent =
     }
   | { type: 'OBSERVATION_RECORDED'; observation: 'no-visible-solid' | 'visible-solid' }
   | { type: 'REVIEW_INSPECTED' }
+
+/** Reject malformed JS payloads before indexing event registries or reading fields. */
+export function isSimulationEvent(value: unknown): value is SimulationEvent {
+  if (!value || typeof value !== 'object' || !('type' in value)) return false
+  const event = value as Record<string, unknown>
+  const quantity = event.quantity as Record<string, unknown> | null | undefined
+  const hasQuantity = (unit: string, allowZero = false) =>
+    !!quantity &&
+    typeof quantity === 'object' &&
+    quantity.unit === unit &&
+    typeof quantity.value === 'number' &&
+    Number.isFinite(quantity.value) &&
+    (allowZero ? quantity.value >= 0 : quantity.value > 0)
+  const route = () => typeof event.sourceId === 'string' && typeof event.targetId === 'string'
+  switch (event.type) {
+    case 'MATERIAL_TRANSFER_COMPLETED':
+    case 'MATERIAL_TRANSFER_INTERRUPTED':
+      return (
+        route() &&
+        typeof event.operationId === 'string' &&
+        event.operationId.length > 0 &&
+        typeof event.requestId === 'string' &&
+        event.requestId.length > 0 &&
+        typeof event.experimentId === 'string' &&
+        event.experimentId.length > 0 &&
+        (event.materialId === 'water' || event.materialId === 'NaCl') &&
+        hasQuantity(
+          event.materialId === 'water' ? 'mL' : 'g',
+          event.type === 'MATERIAL_TRANSFER_INTERRUPTED',
+        ) &&
+        Number.isSafeInteger(event.sequence) &&
+        (event.sequence as number) > 0
+      )
+    case 'SAFETY_ACKNOWLEDGED':
+    case 'REVIEW_INSPECTED':
+      return true
+    case 'EQUIPMENT_PLACEMENT_VALIDATED':
+      return typeof event.equipmentId === 'string'
+    case 'LIQUID_TRANSFER_COMPLETED':
+      return (
+        route() &&
+        hasQuantity('mL') &&
+        (event.totalVolumeMl === undefined ||
+          (typeof event.totalVolumeMl === 'number' && Number.isFinite(event.totalVolumeMl)))
+      )
+    case 'SOLID_TRANSFER_COMPLETED':
+    case 'MASS_MEASUREMENT_RECORDED':
+      return route() && event.substance === 'NaCl' && hasQuantity('g')
+    case 'STIRRING_REQUIREMENT_COMPLETED':
+      return (
+        typeof event.toolId === 'string' &&
+        typeof event.targetId === 'string' &&
+        hasQuantity('g') &&
+        Number.isSafeInteger(event.cycles) &&
+        (event.cycles as number) > 0
+      )
+    case 'OBSERVATION_RECORDED':
+      return event.observation === 'no-visible-solid' || event.observation === 'visible-solid'
+    default:
+      return false
+  }
+}
 
 const EPSILON = 0.00001
 const eq = (left: number, right: number): boolean =>
@@ -118,7 +194,10 @@ function massConserved(def: ExperimentWorkflowDefinition, chemistry: SaltExperim
     mass.every((value) => Number.isFinite(value) && value >= 0) &&
     eq(
       mass.reduce((sum, value) => sum + value, 0),
-      def.initialConditions.chemistry.saltStockG,
+      def.initialConditions.chemistry.saltStockG +
+        def.initialConditions.chemistry.saltOnSpatulaG +
+        def.initialConditions.chemistry.saltOnBoatG +
+        def.initialConditions.chemistry.saltInBeakerG,
     ) &&
     chemistry.dissolvedSaltG >= 0 &&
     chemistry.dissolvedSaltG <= chemistry.saltInBeakerG
@@ -136,7 +215,9 @@ function waterConserved(
   ]
   const initial = def.initialConditions.chemistry.waterMl
   return (
-    volumes.every((value) => Number.isInteger(value) && value >= 0) &&
+    volumes.every(
+      (value) => Number.isFinite(value) && Number(value.toFixed(1)) === value && value >= 0,
+    ) &&
     eq(
       volumes.reduce((sum, value) => sum + value, 0),
       initial.water + initial['graduated-cylinder'] + initial.beaker,
@@ -211,6 +292,18 @@ export function applySimulationEvent(
   const step = def.steps[workflow.stepIndex]
   if (!step)
     return reject(workflow, 'unknown', 'INVALID_STEP', 'No current workflow step exists.', 'error')
+  if (!isSimulationEvent(event))
+    return reject(workflow, step.id, 'INVALID_EVENT', 'Malformed or unsupported simulation event.')
+  if (
+    event.type === 'MATERIAL_TRANSFER_COMPLETED' ||
+    event.type === 'MATERIAL_TRANSFER_INTERRUPTED'
+  )
+    return reject(
+      workflow,
+      step.id,
+      'UNAUTHENTICATED_TRANSFER',
+      'Material receipts can only be issued by the authoritative transfer lifecycle, not public emit.',
+    )
   if (workflow.completed)
     return reject(workflow, step.id, 'ALREADY_COMPLETED', 'The experiment is already completed.')
   if (def.chemistryEngine !== 'salt-dissolution')
@@ -219,6 +312,14 @@ export function applySimulationEvent(
       step.id,
       'UNSUPPORTED_ENGINE',
       'No event validator exists for this experiment.',
+      'error',
+    )
+  if (!isValidSaltExperimentState(chemistry))
+    return reject(
+      workflow,
+      step.id,
+      'INVALID_SCIENTIFIC_STATE',
+      'Scientific quantities are invalid.',
       'error',
     )
   if (!identicalChemistry(chemistry, workflow.chemistryCheckpoint))
@@ -230,7 +331,18 @@ export function applySimulationEvent(
       'error',
     )
 
+  if (!massConserved(def, chemistry) || !waterConserved(def, chemistry))
+    return reject(
+      workflow,
+      step.id,
+      'INVALID_SCIENTIFIC_STATE',
+      'Events require physical, capacity-bounded and conserved scientific quantities.',
+      'error',
+    )
+
   const expectedStep: Record<SimulationEvent['type'], readonly string[]> = {
+    MATERIAL_TRANSFER_COMPLETED: [],
+    MATERIAL_TRANSFER_INTERRUPTED: [],
     SAFETY_ACKNOWLEDGED: ['prepare'],
     EQUIPMENT_PLACEMENT_VALIDATED: ['place-beaker'],
     LIQUID_TRANSFER_COMPLETED: ['measure-water', 'transfer-water'],
@@ -573,6 +685,7 @@ export function applySimulationEvent(
 
     case 'OBSERVATION_RECORDED':
       if (
+        !placedIds.includes('beaker') ||
         event.observation !== 'no-visible-solid' ||
         undissolvedSaltG(chemistry) > EPSILON ||
         chemistry.stirCount < 1 ||
@@ -596,6 +709,13 @@ export function applySimulationEvent(
       )
 
     case 'REVIEW_INSPECTED':
+      if (!placedIds.includes('beaker'))
+        return reject(
+          workflow,
+          step.id,
+          'BEAKER_NOT_PLACED',
+          'Place the solution beaker before inspecting it.',
+        )
       return advance(
         def,
         workflow,

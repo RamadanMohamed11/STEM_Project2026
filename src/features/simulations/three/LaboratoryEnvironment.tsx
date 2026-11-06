@@ -4,12 +4,13 @@ import { LaboratoryWorkbench } from './LaboratoryWorkbench'
 const BOX = new BoxGeometry(1, 1, 1)
 const PLANE = new PlaneGeometry(1, 1)
 const ROOM = {
-  floor: new MeshStandardMaterial({ color: '#d7e2e2', roughness: 0.94, metalness: 0 }),
-  backWall: new MeshStandardMaterial({ color: '#e4edef', roughness: 0.98, metalness: 0 }),
-  sideWall: new MeshStandardMaterial({ color: '#dfebed', roughness: 0.96, metalness: 0 }),
-  trim: new MeshStandardMaterial({ color: '#b7cbd0', roughness: 0.75, metalness: 0.06 }),
-  frame: new MeshStandardMaterial({ color: '#b6c9ce', roughness: 0.68, metalness: 0.12 }),
-  board: new MeshStandardMaterial({ color: '#e9f1f1', roughness: 0.91, metalness: 0 }),
+  floor: new MeshStandardMaterial({ color: '#c7ccc4', roughness: 0.9, metalness: 0 }),
+  backWall: new MeshStandardMaterial({ color: '#e7e6dc', roughness: 0.94, metalness: 0 }),
+  sideWall: new MeshStandardMaterial({ color: '#d9ded3', roughness: 0.94, metalness: 0 }),
+  dado: new MeshStandardMaterial({ color: '#c1cbc0', roughness: 0.8, metalness: 0 }),
+  trim: new MeshStandardMaterial({ color: '#a6b5a7', roughness: 0.65, metalness: 0.08 }),
+  frame: new MeshStandardMaterial({ color: '#aab5a8', roughness: 0.4, metalness: 0.48 }),
+  board: new MeshStandardMaterial({ color: '#eef0e5', roughness: 0.64, metalness: 0 }),
   safetyCard: new MeshStandardMaterial({ color: '#f6f9f7', roughness: 0.88, metalness: 0 }),
   safetyAccent: new MeshBasicMaterial({ color: '#6aaba5' }),
   safetyRule: new MeshBasicMaterial({ color: '#b4c7c8' }),
@@ -22,7 +23,7 @@ const ignoreRaycast = () => {}
 export function LaboratoryEnvironment() {
   return (
     <group dispose={null}>
-      <color attach="background" args={['#e9f0f1']} />
+      <color attach="background" args={['#e6e9df']} />
 
       {/* Matte floor grounds the frame and receives the table's soft shadows. */}
       <mesh
@@ -49,6 +50,36 @@ export function LaboratoryEnvironment() {
         material={ROOM.sideWall}
         position={[-7.2, 2.65, -0.7]}
         scale={[0.08, 8, 16]}
+        raycast={ignoreRaycast}
+      />
+
+      {/* Washable lower wall and recessed skirting establish scale without foreground props. */}
+      <mesh
+        geometry={BOX}
+        material={ROOM.dado}
+        position={[0, 0.48, -4.49]}
+        scale={[18, 1.04, 0.025]}
+        raycast={ignoreRaycast}
+      />
+      <mesh
+        geometry={BOX}
+        material={ROOM.trim}
+        position={[0, 0.02, -4.465]}
+        scale={[18, 0.14, 0.035]}
+        raycast={ignoreRaycast}
+      />
+      <mesh
+        geometry={BOX}
+        material={ROOM.dado}
+        position={[-7.14, 0.48, -0.7]}
+        scale={[0.025, 1.04, 16]}
+        raycast={ignoreRaycast}
+      />
+      <mesh
+        geometry={BOX}
+        material={ROOM.trim}
+        position={[-7.115, 0.02, -0.7]}
+        scale={[0.035, 0.14, 16]}
         raycast={ignoreRaycast}
       />
 

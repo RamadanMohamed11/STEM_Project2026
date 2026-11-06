@@ -20,12 +20,57 @@ export function ContextualInstruction({
   const [recentSuccess, setRecentSuccess] = useState<string | null>(null)
   const guidance = useContextualGuidance()
   const workflow = useSaltSimulationStore((state) => state.workflow)
+  const chemistry = useSaltSimulationStore((state) => state.experiment)
+  const transfer = useSaltSimulationStore((state) => state.transfer)
+  const validation = useSaltSimulationStore((state) => state.validation)
+  const feedback = useSaltSimulationStore((state) => state.feedback)
   const selectedId = useLabSceneStore((state) => state.selectedId)
+  const selectionCount = useLabSceneStore((state) => state.selectedIds?.length ?? 0)
   const draggingId = useLabSceneStore((state) => state.draggingId)
   const placement = useLabSceneStore((state) => state.placement)
-  const selectedInteraction = Boolean(selectedId || draggingId || placement)
-  const showInteractionHint = Boolean(guidance.interactionHint && (selectedInteraction || hintOpen))
-  const visibleWarning = guidance.tone === 'warning' ? guidance.feedback : null
+  const selectedInteraction = Boolean(selectionCount || selectedId || draggingId || placement)
+  const transferStep = ['measure-water', 'transfer-water', 'measure-salt', 'add-salt'].includes(
+    guidance.stepId,
+  )
+  const waterGoal = saltExperimentDefinition.measurementRequirements.waterMl.exact
+  const saltGoal = saltExperimentDefinition.measurementRequirements.saltG.exact
+  const remaining = (goal: number, value: number) => Number(Math.max(0, goal - value).toFixed(3))
+  let instruction = guidance.instruction
+  if (guidance.stepId === 'measure-water')
+    instruction = `Select the water container and graduated cylinder. Transfer ${remaining(waterGoal, chemistry.waterMl['graduated-cylinder'])} mL more to measure ${waterGoal} mL water.`
+  else if (guidance.stepId === 'transfer-water')
+    instruction = `Select the graduated cylinder and beaker. Transfer the measured water; ${remaining(waterGoal, chemistry.waterMl.beaker)} mL remains.`
+  else if (guidance.stepId === 'measure-salt') {
+    if (chemistry.saltOnSpatulaG > 0)
+      instruction = `Select the spatula and weighing boat. Deposit the ${chemistry.saltOnSpatulaG} g NaCl on the spatula.`
+    else if (chemistry.saltOnBoatG < saltGoal)
+      instruction = `Select the sodium chloride jar and spatula. Scoop ${remaining(saltGoal, chemistry.saltOnBoatG)} g more, then select the spatula and weighing boat to deposit it.`
+    else
+      instruction = `Drag the weighing boat containing ${chemistry.saltOnBoatG} g NaCl onto the balance to record its modelled net mass.`
+  } else if (guidance.stepId === 'add-salt')
+    instruction = `Select the weighing boat and beaker. Transfer the measured NaCl; ${remaining(saltGoal, chemistry.saltInBeakerG)} g remains.`
+  if (transfer)
+    instruction = transfer.cancelled
+      ? 'Transfer cancelled. Delivered material is retained; wait for equipment to return safely.'
+      : `Transferring ${transfer.amount} ${transfer.unit}. Follow progress in Object interaction; wait for safe return before another action.`
+
+  const interactionHint = transfer
+    ? null
+    : placement
+      ? guidance.interactionHint
+      : transferStep
+        ? 'Click one object, then a second. In Object interaction, choose the direction and enter an amount; no modifier key is needed.'
+        : guidance.interactionHint
+  const showInteractionHint = Boolean(interactionHint && (selectedInteraction || hintOpen))
+  const warning =
+    validation && !validation.valid && validation.stepId === guidance.stepId
+      ? validation.message
+      : feedback && !feedback.ok
+        ? feedback.message
+        : null
+  const visibleWarning = warning?.match(/tilt/i)
+    ? 'Read the current step, then select a source and receiver to transfer a measured amount.'
+    : warning
   const visibleSuccess = !visibleWarning
     ? (recentSuccess ?? (guidance.tone === 'success' ? guidance.feedback : null))
     : null
@@ -57,7 +102,7 @@ export function ContextualInstruction({
   return (
     <section
       aria-label="Current experiment instruction"
-      className={`pointer-events-none absolute bottom-[62px] left-1/2 z-10 w-[min(92vw,470px)] -translate-x-1/2 sm:bottom-[66px] ${inventoryOpen ? 'max-sm:hidden' : ''}`}
+      className={`pointer-events-none absolute left-1/2 z-10 w-[min(92vw,470px)] -translate-x-1/2 ${selectionCount || transfer ? 'top-3 sm:top-4' : 'bottom-[62px] sm:bottom-[66px]'} ${inventoryOpen ? 'max-sm:hidden' : ''}`}
     >
       <div className="pointer-events-auto rounded-xl border border-white/20 bg-[#071d29]/90 px-3 py-2.5 text-white shadow-xl backdrop-blur-md sm:px-3.5">
         <div className="flex items-center justify-between gap-2">
@@ -87,19 +132,17 @@ export function ContextualInstruction({
             )}
           </div>
         </div>
-        <p className="mt-1 text-xs leading-[1.45] font-medium text-white/95">
-          {guidance.instruction}
-        </p>
+        <p className="mt-1 text-xs leading-[1.45] font-medium text-white/95">{instruction}</p>
         {showInteractionHint && (
           <p className="mt-1.5 flex items-start gap-1.5 text-[11px] leading-relaxed text-[#a6e9df]">
             <Lightbulb size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
-            <span>{guidance.interactionHint}</span>
+            <span>{interactionHint}</span>
           </p>
         )}
-        {hintOpen && !guidance.interactionHint && (
+        {hintOpen && !interactionHint && !transfer && (
           <p className="mt-1.5 text-[11px] leading-relaxed text-[#a6e9df]">
             {guidance.actorId
-              ? `Select the ${presentation.inventory.find((item) => item.id === guidance.actorId)?.title ?? 'required apparatus'} to see its gesture hint.`
+              ? `Select the ${presentation.inventory.find((item) => item.id === guidance.actorId)?.title ?? 'required apparatus'} and follow the current step.`
               : 'Follow the current safety or observation instruction. Hints never perform an action.'}
           </p>
         )}

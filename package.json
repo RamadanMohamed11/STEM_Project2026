@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b --pretty",
-    "test": "node --experimental-strip-types --test tests/catalogSelectors.test.mjs tests/routeStates.test.mjs tests/workspaceData.test.mjs tests/sceneState.test.mjs tests/sceneComposition.test.mjs tests/saltSimulation.test.mjs tests/workflowEngine.test.mjs tests/experimentExperience.test.mjs tests/directInteractions.test.mjs tests/physicalActions.test.mjs tests/simulationEvents.test.mjs tests/contextualGuidance.test.mjs tests/affordanceHints.test.mjs tests/mouseInteractionCoach.test.mjs tests/mouseGestures.test.mjs tests/placementHintMotion.test.mjs",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

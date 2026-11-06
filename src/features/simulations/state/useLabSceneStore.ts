@@ -18,6 +18,9 @@ export interface PlacementPreview {
 
 interface LabSceneState {
   selectedId: string | null
+  /** Ordered, unique pair; selection order never determines transfer direction. */
+  selectedIds: readonly string[]
+  pressedId: string | null
   hoveredId: string | null
   /** Which visible tilt grip is hovered (separate from generic body hover). */
   tiltHandleHoveredId: string | null
@@ -31,6 +34,10 @@ interface LabSceneState {
   feedback: string | null
   cameraResetKey: number
   select: (id: string | null) => void
+  toggleSelection: (id: string, additive?: boolean) => void
+  clearSelection: () => void
+  beginPress: (id: string) => void
+  endPress: () => void
   setHovered: (id: string | null) => void
   setTiltHandleHovered: (id: string | null) => void
   beginPlacement: (id: string) => void
@@ -51,6 +58,8 @@ interface LabSceneState {
 const initialRotations = () => Object.fromEntries(equipmentRegistry.map((item) => [item.id, 0]))
 const initialState = () => ({
   selectedId: null,
+  selectedIds: [] as readonly string[],
+  pressedId: null,
   hoveredId: null,
   tiltHandleHoveredId: null,
   draggingId: null,
@@ -67,10 +76,32 @@ export const useLabSceneStore = create<LabSceneState>((set, get) => ({
   ...initialState(),
   cameraResetKey: 0,
   select: (id) =>
-    set((state) => ({
-      selectedId: state.placement ? state.selectedId : state.selectedId === id ? null : id,
-      feedback: null,
-    })),
+    set((state) => {
+      if (state.placement || state.draggingId || state.pressedId) return state
+      const selected = state.selectedId === id ? null : id
+      return { selectedId: selected, selectedIds: selected ? [selected] : [], feedback: null }
+    }),
+  toggleSelection: (id, additive = false) =>
+    set((state) => {
+      if (state.placement || state.draggingId || state.pressedId || !state.placedIds.includes(id))
+        return state
+      const selectedIds = state.selectedIds.includes(id)
+        ? state.selectedIds.filter((selected) => selected !== id)
+        : state.selectedIds.length < 2
+          ? [...state.selectedIds, id]
+          : additive
+            ? [state.selectedIds[0], id]
+            : [id]
+      return { selectedIds, selectedId: selectedIds.at(-1) ?? null, feedback: null }
+    }),
+  clearSelection: () => set({ selectedIds: [], selectedId: null }),
+  beginPress: (id) =>
+    set((state) =>
+      state.placedIds.includes(id) && !state.placement && !state.pressedId && !state.draggingId
+        ? { pressedId: id }
+        : state,
+    ),
+  endPress: () => set({ pressedId: null }),
   setHovered: (id) => set({ hoveredId: id }),
   setTiltHandleHovered: (id) => set({ tiltHandleHoveredId: id }),
   beginPlacement: (id) =>
@@ -80,6 +111,8 @@ export const useLabSceneStore = create<LabSceneState>((set, get) => ({
       const position = findSuggestedPosition(id, state.positions, state.placedIds)
       return {
         selectedId: id,
+        selectedIds: [],
+        pressedId: null,
         draggingId: null,
         feedback: null,
         placement: {
@@ -130,6 +163,7 @@ export const useLabSceneStore = create<LabSceneState>((set, get) => ({
       placedIds: [...state.placedIds, preview.id],
       positions: { ...state.positions, [preview.id]: { ...preview.position } },
       selectedId: preview.id,
+      selectedIds: [preview.id],
       placement: null,
       feedback: `${equipmentRegistry.find((item) => item.id === preview.id)?.label ?? 'Equipment'} placed on the bench.`,
     })
@@ -141,7 +175,9 @@ export const useLabSceneStore = create<LabSceneState>((set, get) => ({
       if (!state.placedIds.includes(id) || state.draggingId) return state
       return {
         placedIds: state.placedIds.filter((item) => item !== id),
-        selectedId: state.selectedId === id ? null : state.selectedId,
+        selectedId: state.selectedIds.filter((selected) => selected !== id).at(-1) ?? null,
+        selectedIds: state.selectedIds.filter((selected) => selected !== id),
+        pressedId: state.pressedId === id ? null : state.pressedId,
         relationships: Object.fromEntries(
           Object.entries(state.relationships).filter(
             ([actor, relation]) => actor !== id && relation.targetId !== id,
@@ -154,7 +190,6 @@ export const useLabSceneStore = create<LabSceneState>((set, get) => ({
     set((state) =>
       state.placedIds.includes(id) && !state.placement
         ? {
-            selectedId: id,
             draggingId: id,
             tiltHandleHoveredId: null,
             relationships: Object.fromEntries(

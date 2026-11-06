@@ -2,6 +2,8 @@ import type { SimulationEvent } from '../engine/simulationEvents'
 
 /** Accepted scientific evidence labels; never a completion trigger. */
 export const semanticEventLabels: Record<SimulationEvent['type'], string> = {
+  MATERIAL_TRANSFER_COMPLETED: 'Precise material transfer validated',
+  MATERIAL_TRANSFER_INTERRUPTED: 'Transfer interrupted; delivered quantity retained',
   SAFETY_ACKNOWLEDGED: 'Safety confirmed',
   EQUIPMENT_PLACEMENT_VALIDATED: 'Beaker position validated',
   LIQUID_TRANSFER_COMPLETED: 'Liquid transfer validated',

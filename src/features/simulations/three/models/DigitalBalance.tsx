@@ -1,13 +1,25 @@
-import { Html } from '@react-three/drei'
+import { useEffect, useMemo } from 'react'
+import { ExtrudeGeometry, Shape, Vector2 } from 'three'
 import { useLabSceneStore } from '@/features/simulations/state/useLabSceneStore'
 import { useSaltSimulationStore } from '@/features/simulations/state/useSaltSimulationStore'
 import { SegmentLabel } from './SegmentLabel'
+import { SurfaceLabel } from './SurfaceLabel'
 
 interface DigitalBalanceProps {
   selected: boolean
 }
 
-/** Net salt mass is derived from a weigh boat resting on the balance. */
+const panProfile = [
+  [0, 0.202],
+  [0.211, 0.202],
+  [0.222, 0.207],
+  [0.225, 0.216],
+  [0.222, 0.226],
+  [0.212, 0.23],
+  [0, 0.23],
+].map(([radius, height]) => new Vector2(radius, height))
+
+/** The display is a model-derived, tared salt mass, not a fabricated sensor signal. */
 export function DigitalBalance({ selected }: DigitalBalanceProps) {
   const hasBoat = useLabSceneStore(
     (state) =>
@@ -16,119 +28,108 @@ export function DigitalBalance({ selected }: DigitalBalanceProps) {
       state.relationships['weighing-boat']?.targetId === 'digital-balance',
   )
   const saltOnBoatG = useSaltSimulationStore((state) => state.experiment.saltOnBoatG)
-  const reading = hasBoat
-    ? `${Math.max(0, Number.isFinite(saltOnBoatG) ? saltOnBoatG : 0).toFixed(1)}g`
-    : '--'
+  const boatMoving = useSaltSimulationStore((state) => state.transfer?.sourceId === 'weighing-boat')
+  const reading =
+    hasBoat && !boatMoving
+      ? `${Math.max(0, Number.isFinite(saltOnBoatG) ? saltOnBoatG : 0)
+          .toFixed(3)
+          .replace(/\.?0+$/, '')}`
+      : '--'
+  const housing = useMemo(() => {
+    // Extruded side elevation: the front console is genuinely sloped, not a decal inside a box.
+    const shape = new Shape()
+    shape.moveTo(-0.232, 0.029)
+    shape.lineTo(-0.243, 0.062)
+    shape.lineTo(-0.151, 0.175)
+    shape.lineTo(0.23, 0.175)
+    shape.lineTo(0.243, 0.156)
+    shape.lineTo(0.243, 0.04)
+    shape.lineTo(0.23, 0.029)
+    shape.closePath()
+    const geometry = new ExtrudeGeometry(shape, {
+      depth: 0.69,
+      bevelEnabled: true,
+      bevelSegments: 3,
+      steps: 1,
+      bevelSize: 0.011,
+      bevelThickness: 0.011,
+      curveSegments: 1,
+    })
+    geometry.rotateY(Math.PI / 2)
+    geometry.translate(-0.345, 0, 0)
+    return geometry
+  }, [])
+  useEffect(() => () => housing.dispose(), [housing])
 
   return (
     <group>
       {[-0.275, 0.275].flatMap((x) =>
         [-0.181, 0.181].map((z) => (
           <mesh key={`${x}-${z}`} position={[x, 0.013, z]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.033, 0.033, 0.026, 16]} />
-            <meshStandardMaterial color="#293b4c" roughness={0.74} />
+            <cylinderGeometry args={[0.031, 0.033, 0.026, 20]} />
+            <meshStandardMaterial color="#343c3b" roughness={0.8} />
           </mesh>
         )),
       )}
-      <mesh castShadow receiveShadow position={[0, 0.087, 0]}>
-        <boxGeometry args={[0.72, 0.132, 0.51]} />
+      <mesh geometry={housing} castShadow receiveShadow>
         <meshStandardMaterial
-          color={selected ? '#678fa0' : '#9bacb6'}
-          metalness={0.31}
-          roughness={0.39}
+          color={selected ? '#b5c6c0' : '#bfc8c2'}
+          roughness={0.43}
+          metalness={0.12}
         />
       </mesh>
-      <mesh castShadow receiveShadow position={[0, 0.166, -0.017]}>
-        <boxGeometry args={[0.706, 0.046, 0.473]} />
-        <meshStandardMaterial color="#dbe4e8" roughness={0.28} metalness={0.25} />
+      <mesh position={[0, 0.183, -0.047]} receiveShadow>
+        <cylinderGeometry args={[0.184, 0.193, 0.014, 56]} />
+        <meshStandardMaterial color="#414d4b" roughness={0.55} metalness={0.12} />
       </mesh>
-      <mesh receiveShadow position={[0, 0.193, -0.047]}>
-        <boxGeometry args={[0.504, 0.018, 0.35]} />
-        <meshStandardMaterial color="#889ba6" roughness={0.3} metalness={0.42} />
+      <mesh position={[0, 0.198, -0.047]}>
+        <cylinderGeometry args={[0.085, 0.103, 0.018, 40]} />
+        <meshStandardMaterial color="#8e9c99" metalness={0.65} roughness={0.32} />
       </mesh>
-      <mesh castShadow receiveShadow position={[0, 0.213, -0.047]}>
-        <cylinderGeometry args={[0.225, 0.225, 0.023, 64]} />
-        <meshPhysicalMaterial
-          color="#e4edf0"
-          metalness={0.7}
-          roughness={0.22}
-          clearcoat={0.65}
-          clearcoatRoughness={0.2}
-        />
+      {/* Pan centre and its Y=.23 contact plane match the existing boat attachment. */}
+      <mesh position={[0, 0, -0.047]} castShadow receiveShadow>
+        <latheGeometry args={[panProfile, 64]} />
+        <meshStandardMaterial color="#c5cfcb" metalness={0.86} roughness={0.3} />
       </mesh>
-      <mesh position={[0, 0.227, -0.047]}>
-        <cylinderGeometry args={[0.212, 0.212, 0.002, 64]} />
-        <meshStandardMaterial color="#f8fbfc" roughness={0.32} metalness={0.64} />
+      <mesh position={[0, 0.2285, -0.047]} rotation={[-Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.213, 0.0015, 6, 64]} />
+        <meshStandardMaterial color="#e5e9e2" metalness={0.8} roughness={0.24} />
       </mesh>
-      <mesh position={[0, 0.229, -0.047]} rotation={[-Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.208, 0.003, 5, 48]} />
-        <meshStandardMaterial color="#6e8f9e" metalness={0.6} roughness={0.34} />
-      </mesh>
-      {[-0.274, 0.274].map((x) => (
-        <mesh key={x} position={[x, 0.16, 0.22]}>
-          <boxGeometry args={[0.034, 0.006, 0.004]} />
-          <meshStandardMaterial color="#7e9ba5" metalness={0.46} roughness={0.3} />
+      <group position={[0, 0.127, 0.211]} rotation={[-0.684, 0, 0]}>
+        <mesh receiveShadow>
+          <boxGeometry args={[0.38, 0.094, 0.012]} />
+          <meshStandardMaterial color="#3b4944" roughness={0.47} />
         </mesh>
-      ))}
-      <mesh position={[0, 0.096, 0.26]} receiveShadow>
-        <boxGeometry args={[0.31, 0.084, 0.013]} />
-        <meshStandardMaterial color="#233a48" metalness={0.12} roughness={0.24} />
-      </mesh>
-      <mesh position={[0, 0.096, 0.268]}>
-        <boxGeometry args={[0.293, 0.067, 0.003]} />
-        <meshStandardMaterial
-          color="#17323a"
-          emissive={selected ? '#064e4e' : '#071c1b'}
-          emissiveIntensity={selected ? 0.35 : 0.1}
-          roughness={0.14}
-        />
-      </mesh>
-      <group position={[-0.038, 0.096, 0.273]}>
-        <SegmentLabel
-          value={reading}
-          height={0.045}
-          color="#a8f7cd"
-          emissive="#44dfa3"
-          glow={selected ? 1.25 : 0.7}
-        />
+        <mesh position={[0, 0, 0.007]}>
+          <planeGeometry args={[0.351, 0.073]} />
+          <meshStandardMaterial
+            color="#bdcda8"
+            roughness={0.4}
+            emissive="#8da678"
+            emissiveIntensity={0.14}
+          />
+        </mesh>
+        <group position={[-0.018, 0.002, 0.009]}>
+          <SegmentLabel value={reading} height={0.049} color="#203e31" />
+        </group>
+        <group position={[0.142, -0.012, 0.01]}>
+          <SurfaceLabel lines={['g']} width={0.018} height={0.025} color="#203e31" />
+        </group>
+        <group position={[0, -0.063, 0.003]}>
+          <SurfaceLabel lines={['SIMULATED · TARED']} width={0.24} height={0.015} color="#344b43" />
+        </group>
+        {[-0.256, 0.256].map((x) => (
+          <group key={x} position={[x, 0, 0]}>
+            <mesh rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.025, 0.027, 0.016, 32]} />
+              <meshStandardMaterial color={x < 0 ? '#607e71' : '#e0e4d9'} roughness={0.55} />
+            </mesh>
+            <group position={[0, -0.039, 0.002]}>
+              <SurfaceLabel lines={[x < 0 ? 'ON/OFF' : 'TARE']} width={0.073} height={0.013} />
+            </group>
+          </group>
+        ))}
       </group>
-      {/* This is a tared educational value, not an actual load-cell reading. */}
-      <Html
-        transform
-        center
-        distanceFactor={0.35}
-        position={[0, 0.035, 0.27]}
-        style={{ pointerEvents: 'none' }}
-      >
-        <span
-          style={{
-            display: 'block',
-            width: 100,
-            textAlign: 'center',
-            font: 'bold 8px/1 sans-serif',
-            color: '#294a55',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          SIMULATED · TARED
-        </span>
-      </Html>
-      <mesh position={[0.24, 0.1, 0.266]} rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0.025, 0.025, 0.012, 32]} />
-        <meshStandardMaterial color="#eff5f7" roughness={0.42} metalness={0.11} />
-      </mesh>
-      <mesh position={[0.24, 0.1, 0.274]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.012, 0.0022, 8, 28]} />
-        <meshStandardMaterial
-          color={selected ? '#34ddb4' : '#5e96a0'}
-          emissive={selected ? '#12b8a6' : '#000000'}
-          emissiveIntensity={0.65}
-        />
-      </mesh>
-      <mesh position={[0.196, 0.15, 0.254]}>
-        <boxGeometry args={[0.04, 0.005, 0.005]} />
-        <meshStandardMaterial color="#677e88" roughness={0.6} />
-      </mesh>
     </group>
   )
 }

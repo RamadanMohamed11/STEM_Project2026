@@ -80,6 +80,52 @@ export function placeEquipment(
         equipmentRegistry.find((part) => part.id === id)?.defaultPosition ?? { x: 0, z: 0 })
 }
 
+/**
+ * Sweep the entire pointer segment, not just its endpoint. Kinematic Rapier bodies
+ * cannot stop one another, and sparse pointer events must not tunnel through tools.
+ * Short bounded steps also let a blocked grab slide along a surface instead of sticking.
+ */
+export function constrainDragMovement(
+  id: string,
+  from: Point2D,
+  requested: Point2D,
+  positions: Record<string, Point2D>,
+  placedIds: readonly string[],
+): Point2D {
+  const item = equipmentRegistry.find((entry) => entry.id === id)
+  if (!item || !Number.isFinite(requested.x) || !Number.isFinite(requested.z)) return from
+  const radius = item.footprintRadius
+  const target = {
+    x: Math.max(
+      EQUIPMENT_LIMITS.minX + radius,
+      Math.min(EQUIPMENT_LIMITS.maxX - radius, requested.x),
+    ),
+    z: Math.max(
+      EQUIPMENT_LIMITS.minZ + radius,
+      Math.min(EQUIPMENT_LIMITS.maxZ - radius, requested.z),
+    ),
+  }
+  const dx = target.x - from.x
+  const dz = target.z - from.z
+  const steps = Math.max(1, Math.ceil(Math.hypot(dx, dz) / 0.025))
+  let current = from
+  const valid = (point: Point2D) => validatePlacement(id, point, positions, placedIds).valid
+  for (let index = 0; index < steps; index++) {
+    const next = { x: current.x + dx / steps, z: current.z + dz / steps }
+    if (valid(next)) current = next
+    else {
+      const alongX = { x: next.x, z: current.z }
+      const alongZ = { x: current.x, z: next.z }
+      // Advance the larger component first for deterministic, natural boundary sliding.
+      const candidates = Math.abs(dx) >= Math.abs(dz) ? [alongX, alongZ] : [alongZ, alongX]
+      const slide = candidates.find(valid)
+      if (slide) current = slide
+      else break
+    }
+  }
+  return current
+}
+
 export function makeInitialPositions(): Record<string, Point2D> {
   return Object.fromEntries(equipmentRegistry.map((part) => [part.id, { ...part.defaultPosition }]))
 }

@@ -1,5 +1,6 @@
 import { ArrowUpRight, Clock3, FlaskConical, ShieldAlert } from 'lucide-react'
 import { Link } from 'react-router'
+import { getExperimentPaths } from '@/app/paths'
 import { StatusPill } from '@/components/ui/StatusPill'
 import { ExperimentIllustration } from '@/features/experiments/components/ExperimentIllustration'
 import {
@@ -69,6 +70,12 @@ export function ExperimentCard({ experiment, category, index }: ExperimentCardPr
         </dl>
 
         <div className="mt-5 border-t border-line pt-4">
+          <Link
+            to={getExperimentPaths(experiment.id).details}
+            className="mb-2 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-teal-dark hover:underline"
+          >
+            View Details <ArrowUpRight size={16} aria-hidden="true" />
+          </Link>
           {available ? (
             <Link
               to={getLabPath(experiment)}

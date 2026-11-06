@@ -1,4 +1,5 @@
 import { BackSide, FrontSide, type Vector2 } from 'three'
+import { glassEdgeOpacity } from './glassMaterial'
 
 interface GlassVesselShellProps {
   profile: Vector2[]
@@ -7,47 +8,46 @@ interface GlassVesselShellProps {
   tint?: string
 }
 
-/**
- * Two inexpensive, transmission-free glass passes: shaded rear glass gives the
- * vessel a readable silhouette and a paler front pass leaves the fill visible.
- * Both use the same physical profile and introduce no new collision geometry.
- */
+/** Closed wall cross-sections, shaded without screen-space transmission or fake opaque glass. */
 export function GlassVesselShell({
   profile,
-  segments = 48,
+  segments = 56,
   selected,
-  tint = '#d4edf1',
+  tint = '#edf3f1',
 }: GlassVesselShellProps) {
   return (
     <group>
-      <mesh receiveShadow renderOrder={2}>
+      <mesh renderOrder={2}>
         <latheGeometry args={[profile, segments]} />
         <meshPhysicalMaterial
-          color="#78aab7"
+          color="#cadbd7"
           side={BackSide}
           transparent
-          opacity={0.33}
+          opacity={0.06}
           depthWrite={false}
           metalness={0}
-          roughness={0.21}
-          clearcoat={0.55}
-          clearcoatRoughness={0.15}
+          roughness={0.16}
+          clearcoat={0.65}
+          clearcoatRoughness={0.1}
+          envMapIntensity={0.65}
         />
       </mesh>
-      <mesh receiveShadow renderOrder={5}>
+      <mesh renderOrder={5}>
         <latheGeometry args={[profile, segments]} />
         <meshPhysicalMaterial
           color={tint}
           side={FrontSide}
           transparent
-          opacity={0.43}
+          opacity={0.65}
+          onBeforeCompile={glassEdgeOpacity}
           depthWrite={false}
-          metalness={0.01}
-          roughness={0.13}
-          clearcoat={0.9}
-          clearcoatRoughness={0.08}
-          emissive={selected ? '#1f93a3' : '#000000'}
-          emissiveIntensity={selected ? 0.13 : 0}
+          metalness={0}
+          roughness={0.12}
+          clearcoat={1}
+          clearcoatRoughness={0.07}
+          envMapIntensity={0.85}
+          emissive={selected ? '#4b817c' : '#000000'}
+          emissiveIntensity={selected ? 0.055 : 0}
         />
       </mesh>
     </group>

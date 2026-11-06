@@ -2,12 +2,16 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import { useLabSceneStore } from '@/features/simulations/state/useLabSceneStore'
+import { useSaltSimulationStore } from '../state/useSaltSimulationStore'
 import { DEFAULT_CAMERA_TARGET, LAB_CAMERA_FOV, cameraPositionForAspect } from './sceneConfig'
 
 export function LaboratoryCamera() {
   const controlsRef = useRef<React.ComponentRef<typeof OrbitControls>>(null)
   const cameraResetKey = useLabSceneStore((state) => state.cameraResetKey)
-  const dragging = useLabSceneStore((state) => state.draggingId !== null)
+  const dragging = useLabSceneStore(
+    (state) => state.draggingId !== null || state.pressedId !== null,
+  )
+  const transferring = useSaltSimulationStore((state) => state.transfer !== null)
   const placing = useLabSceneStore((state) => state.placement !== null)
   const size = useThree((state) => state.size)
   const aspect = size.height > 0 ? size.width / size.height : 16 / 9
@@ -27,6 +31,27 @@ export function LaboratoryCamera() {
     controls.saveState()
   }, [cameraResetKey, defaultPosition])
 
+  // React may not commit before OrbitControls' native pointerdown handler.
+  // Suspend synchronously when a grab starts, and restore on every exit path.
+  useEffect(() => {
+    const sync = () => {
+      const state = useLabSceneStore.getState()
+      if (controlsRef.current)
+        controlsRef.current.enabled =
+          !state.draggingId &&
+          !state.pressedId &&
+          !state.placement &&
+          !useSaltSimulationStore.getState().transfer
+    }
+    sync()
+    const unsubscribeScene = useLabSceneStore.subscribe(sync)
+    const unsubscribeTransfer = useSaltSimulationStore.subscribe(sync)
+    return () => {
+      unsubscribeScene()
+      unsubscribeTransfer()
+    }
+  }, [])
+
   const constrainTarget = useCallback(() => {
     const controls = controlsRef.current
     if (!controls) return
@@ -37,14 +62,16 @@ export function LaboratoryCamera() {
     const deltaX = x - target.x
     const deltaY = y - target.y
     const deltaZ = z - target.z
-    if (deltaX === 0 && deltaY === 0 && deltaZ === 0) return
+    // Stay above the tallest apparatus and worktop, including when panned low.
+    const floorCorrection = Math.max(0, 2.08 - camera.position.y)
+    if (deltaX === 0 && deltaY === 0 && deltaZ === 0 && floorCorrection === 0) return
 
     // Preserve camera-to-target offset when panning reaches a bench boundary.
     // OrbitControls will update on its next frame; invoking update() here
     // recursively fires onChange and can cause camera jitter.
     target.set(x, y, z)
     camera.position.x += deltaX
-    camera.position.y += deltaY
+    camera.position.y += deltaY + floorCorrection
     camera.position.z += deltaZ
   }, [])
 
@@ -61,10 +88,14 @@ export function LaboratoryCamera() {
         ref={controlsRef}
         makeDefault
         target={[...DEFAULT_CAMERA_TARGET]}
-        enabled={!dragging && !placing}
+        enabled={!dragging && !placing && !transferring}
         enableDamping
         dampingFactor={0.095}
         enablePan
+        screenSpacePanning={false}
+        rotateSpeed={0.65}
+        panSpeed={0.7}
+        zoomSpeed={0.7}
         enableZoom
         minDistance={2.95}
         maxDistance={Math.max(12.5, framedDistance * 1.7)}

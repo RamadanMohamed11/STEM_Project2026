@@ -1,4 +1,5 @@
 import { ArrowRight, ArrowUpRight, Info } from 'lucide-react'
+import { routePaths } from '@/app/paths'
 import { Link } from 'react-router'
 import { ButtonLink } from '@/components/ui/ButtonLink'
 import { GettingStarted } from '@/features/home/components/GettingStarted'
@@ -37,6 +38,9 @@ export function HomePage() {
             </ButtonLink>
             <ButtonLink to="/safety" variant="secondary">
               Review safety
+            </ButtonLink>
+            <ButtonLink to={routePaths.signUp} variant="secondary">
+              Sign Up
             </ButtonLink>
           </div>
           <div className="mt-10 flex items-center gap-3 border-t border-line pt-5 text-xs leading-relaxed text-ink/65">

@@ -2,11 +2,15 @@ import { findSpatialAffordance } from '../engine/spatialInteractions.ts'
 import { useLabSceneStore } from './useLabSceneStore.ts'
 import { useSaltSimulationStore } from './useSaltSimulationStore.ts'
 
+/** Trusted renderer-detected intent: proximity and circular-path evidence are
+ * not present in this legacy payload and must be validated by its producer. */
 export interface PhysicalInteraction {
   actorId: string
   targetId: string | null
   gesture: 'release' | 'tilt' | 'stir' | 'scoop'
   magnitude?: number
+  /** Optional active stirring slice; omitted callers retain the legacy action. */
+  elapsedMs?: number
 }
 
 /** Backward-compatible legacy API for older tests; no longer advances progress.
@@ -67,7 +71,14 @@ export function stopPhysicalPour(): void {
  * The reducer checks the full recorded state and can refuse it when premature.
  */
 export function inspectFinalSolution(actorId: string): boolean {
-  if (actorId !== 'beaker' || useLabSceneStore.getState().draggingId) return false
+  const scene = useLabSceneStore.getState()
+  if (
+    actorId !== 'beaker' ||
+    !scene.placedIds.includes(actorId) ||
+    scene.draggingId ||
+    scene.placement
+  )
+    return false
   const session = useSaltSimulationStore.getState()
   if (session.workflow.completed || session.workflow.stepIndex !== 8) return false
   return session.emit({ type: 'REVIEW_INSPECTED' })
@@ -79,11 +90,24 @@ export function handlePhysicalInteraction({
   targetId,
   gesture,
   magnitude = 1,
+  elapsedMs,
 }: PhysicalInteraction): boolean {
   const affordance = findSpatialAffordance(actorId, targetId, gesture)
-  if (!affordance || !Number.isFinite(magnitude) || magnitude < 0.65) return false
+  if (!affordance || !Number.isFinite(magnitude) || magnitude < 0.65 || magnitude > 1) return false
+  if (elapsedMs !== undefined && gesture !== 'stir') return false
   const simulation = useSaltSimulationStore.getState()
-  if (simulation.effect || useLabSceneStore.getState().draggingId) return false
+  const scene = useLabSceneStore.getState()
+  const heldStir =
+    affordance.relation === 'insertion' && elapsedMs !== undefined && scene.draggingId === actorId
+  if (
+    simulation.effect ||
+    simulation.livePour ||
+    (scene.draggingId && !heldStir) ||
+    scene.placement ||
+    !scene.placedIds.includes(actorId) ||
+    !scene.placedIds.includes(affordance.target)
+  )
+    return false
 
   if (affordance.relation === 'scoop') {
     return simulation.execute({
@@ -103,7 +127,8 @@ export function handlePhysicalInteraction({
   }
   if (affordance.relation === 'balance-contact') {
     if (simulation.workflow.stepIndex !== 4 || simulation.experiment.saltOnBoatG !== 5) return false
-    useLabSceneStore.getState().setRelationship({
+    const previousRelationships = scene.relationships
+    scene.setRelationship({
       actorId,
       targetId: affordance.target,
       kind: affordance.relation,
@@ -115,10 +140,16 @@ export function handlePhysicalInteraction({
       substance: 'NaCl',
       quantity: { value: simulation.experiment.saltOnBoatG, unit: 'g' },
     })
+    if (!recorded) useLabSceneStore.setState({ relationships: previousRelationships })
     return recorded
   }
   if (affordance.relation === 'insertion') {
-    const stirred = simulation.execute({ kind: 'stir', tool: 'stirring-rod', target: 'beaker' })
+    const stirred = simulation.execute({
+      kind: 'stir',
+      tool: 'stirring-rod',
+      target: 'beaker',
+      ...(elapsedMs === undefined ? {} : { elapsedMs }),
+    })
     if (stirred)
       useLabSceneStore.getState().setRelationship({
         actorId,

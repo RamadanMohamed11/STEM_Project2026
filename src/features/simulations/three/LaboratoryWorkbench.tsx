@@ -1,31 +1,52 @@
-import { BoxGeometry, MeshBasicMaterial, MeshStandardMaterial } from 'three'
+import { RoundedBox } from '@react-three/drei'
+import {
+  BoxGeometry,
+  DataTexture,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  RepeatWrapping,
+  RGBAFormat,
+} from 'three'
 import { BENCH_DEPTH, BENCH_TOP, BENCH_WIDTH } from './sceneConfig'
 
 /** Shared unit geometry/materials: no allocations per workbench element or frame. */
 const BOX = new BoxGeometry(1, 1, 1)
+// Fixed, local microtexture: slight epoxy stipple, not visible dirt or random frame noise.
+const grain = new Uint8Array(64 * 64 * 4)
+for (let index = 0; index < 64 * 64; index += 1) {
+  const value = 112 + ((Math.imul(index + 1, 1664525) ^ Math.imul(index + 7, 1013904223)) >>> 27)
+  grain.set([value, value, value, 255], index * 4)
+}
+const stipple = new DataTexture(grain, 64, 64, RGBAFormat)
+stipple.wrapS = stipple.wrapT = RepeatWrapping
+stipple.repeat.set(16, 8)
+stipple.needsUpdate = true
+
 const MATERIALS = {
   worktop: new MeshStandardMaterial({
-    color: '#e3ebea',
-    roughness: 0.83,
-    metalness: 0.035,
+    color: '#52665f',
+    roughness: 0.67,
+    metalness: 0,
+    bumpMap: stipple,
+    bumpScale: 0.0003,
   }),
   edge: new MeshStandardMaterial({
-    color: '#8299a0',
-    roughness: 0.52,
-    metalness: 0.28,
+    color: '#acb7ad',
+    roughness: 0.38,
+    metalness: 0.65,
   }),
   frame: new MeshStandardMaterial({
-    color: '#415967',
+    color: '#58665f',
     roughness: 0.56,
     metalness: 0.34,
   }),
   underframe: new MeshStandardMaterial({
-    color: '#627b83',
+    color: '#7c8a7e',
     roughness: 0.57,
     metalness: 0.22,
   }),
   feet: new MeshStandardMaterial({
-    color: '#314551',
+    color: '#343e38',
     roughness: 0.92,
     metalness: 0.02,
   }),
@@ -33,7 +54,7 @@ const MATERIALS = {
     new MeshBasicMaterial({
       color: '#879da5',
       transparent: true,
-      opacity: 0.27,
+      opacity: 0.2,
       depthWrite: false,
     }),
     new MeshBasicMaterial({
@@ -68,11 +89,12 @@ export function LaboratoryWorkbench() {
   return (
     <group dispose={null}>
       {/* BENCH_TOP remains the exact physical contact plane: upper face Y = 0.78. */}
-      <mesh
-        geometry={BOX}
+      <RoundedBox
+        args={[BENCH_WIDTH, BENCH_THICKNESS, BENCH_DEPTH]}
+        radius={0.025}
+        smoothness={4}
         material={MATERIALS.worktop}
         position={[0, BENCH_TOP - BENCH_THICKNESS / 2, 0]}
-        scale={[BENCH_WIDTH, BENCH_THICKNESS, BENCH_DEPTH]}
         castShadow
         receiveShadow
         raycast={ignoreRaycast}

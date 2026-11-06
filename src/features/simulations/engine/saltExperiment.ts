@@ -17,8 +17,11 @@ export const INITIAL_WATER_ML = 400
 export const INITIAL_SALT_STOCK_G = 100
 /** Illustrative approximate NaCl solubility near 20°C, not calibrated to a measured experiment. */
 export const SOLUBILITY_G_PER_100ML = 35.9
-/** Deliberately simplified: each confirmed stirring action disperses at most 4 g. */
+/** Deliberately simplified teaching rate, not measured NaCl kinetics. */
 export const STIR_DISSOLUTION_G_PER_ACTION = 4
+export const STIR_ACTION_DURATION_MS = 1500
+export const STIR_DISSOLUTION_G_PER_SECOND =
+  (STIR_DISSOLUTION_G_PER_ACTION * 1000) / STIR_ACTION_DURATION_MS
 
 export const DEMO_ACTION_RULES: Readonly<
   Record<
@@ -110,7 +113,7 @@ export function initialSaltExperimentState(): SaltExperimentState {
 }
 
 export function undissolvedSaltG(state: SaltExperimentState) {
-  return Math.max(0, Number((state.saltInBeakerG - state.dissolvedSaltG).toFixed(4)))
+  return Math.max(0, state.saltInBeakerG - state.dissolvedSaltG)
 }
 
 export function maximumDissolvedSaltG(state: SaltExperimentState) {
@@ -119,6 +122,7 @@ export function maximumDissolvedSaltG(state: SaltExperimentState) {
 
 export function isDemonstrationComplete(state: SaltExperimentState) {
   return (
+    isValidSaltExperimentState(state) &&
     state.waterMl.beaker > 0 &&
     state.saltInBeakerG > 0 &&
     state.stirCount > 0 &&
@@ -126,18 +130,80 @@ export function isDemonstrationComplete(state: SaltExperimentState) {
   )
 }
 
+/** Runtime guards also protect JS callers; TypeScript unions do not validate input. */
+export function isValidSaltExperimentState(state: SaltExperimentState): boolean {
+  const volumes = Object.entries(CAPACITIES_ML) as [LiquidContainerId, number][]
+  return (
+    !!state &&
+    typeof state === 'object' &&
+    !!state.waterMl &&
+    typeof state.waterMl === 'object' &&
+    volumes.every(
+      ([id, capacity]) =>
+        Number.isFinite(state.waterMl[id]) &&
+        Number(state.waterMl[id].toFixed(1)) === state.waterMl[id] &&
+        state.waterMl[id] >= 0 &&
+        state.waterMl[id] <= capacity,
+    ) &&
+    [
+      state.saltStockG,
+      state.saltOnSpatulaG,
+      state.saltOnBoatG,
+      state.saltInBeakerG,
+      state.dissolvedSaltG,
+    ].every((mass) => Number.isFinite(mass) && mass >= 0) &&
+    state.saltOnSpatulaG <= SPATULA_CAPACITY_G &&
+    state.saltOnBoatG <= WEIGHING_BOAT_CAPACITY_G &&
+    state.dissolvedSaltG <= state.saltInBeakerG &&
+    state.dissolvedSaltG <= maximumDissolvedSaltG(state) &&
+    Number.isSafeInteger(state.operations) &&
+    state.operations >= 0 &&
+    Number.isSafeInteger(state.stirCount) &&
+    state.stirCount >= 0 &&
+    state.stirCount <= state.operations
+  )
+}
+
+function validCommandApparatus(command: SimulationCommand): boolean {
+  if (!command || typeof command !== 'object') return false
+  switch (command.kind) {
+    case 'pour':
+      return (
+        ['water', 'graduated-cylinder'].includes(command.source) &&
+        ['graduated-cylinder', 'beaker'].includes(command.target)
+      )
+    case 'scoop-salt':
+      return command.tool === 'spatula' && command.source === 'sodium-chloride'
+    case 'deposit-salt':
+      return command.tool === 'spatula' && command.target === 'weighing-boat'
+    case 'add-substance':
+      return (
+        ['sodium-chloride', 'weighing-boat'].includes(command.source) && command.target === 'beaker'
+      )
+    case 'stir':
+      return command.tool === 'stirring-rod' && command.target === 'beaker'
+    default:
+      return false
+  }
+}
+
 export function executeSaltCommand(
   state: SaltExperimentState,
   command: SimulationCommand,
   placedIds: readonly string[],
 ): TransitionResult {
+  if (!validCommandApparatus(command))
+    return reject(state, 'Unsupported scientific command, source, tool or target.')
+  if (!isValidSaltExperimentState(state) || state.operations === Number.MAX_SAFE_INTEGER)
+    return reject(state, 'Scientific quantities or operation counters are invalid.')
   if (command.kind === 'pour')
     return pourWater(state, command.source, command.target, command.amountMl, placedIds)
   if (command.kind === 'scoop-salt') return scoopSalt(state, command.massG, placedIds)
   if (command.kind === 'deposit-salt') return depositSalt(state, command.massG, placedIds)
   if (command.kind === 'add-substance')
     return addSalt(state, command.source, command.massG, placedIds)
-  return stir(state, placedIds)
+  if (command.kind === 'stir') return stir(state, placedIds, command.elapsedMs)
+  return reject(state, 'Unsupported scientific command.')
 }
 
 /** 5 g is the idealized capacity of this demonstration spatula. */
@@ -272,20 +338,38 @@ function addSalt(
   }
 }
 
-function stir(state: SaltExperimentState, placedIds: readonly string[]): TransitionResult {
+function stir(
+  state: SaltExperimentState,
+  placedIds: readonly string[],
+  elapsedMs = STIR_ACTION_DURATION_MS,
+): TransitionResult {
+  if (!Number.isFinite(elapsedMs) || elapsedMs <= 0 || elapsedMs > STIR_ACTION_DURATION_MS)
+    return reject(state, 'Active stirring time must be positive and no more than 1500 ms.')
   if (!onBench(placedIds, 'stirring-rod') || !onBench(placedIds, 'beaker'))
     return reject(state, 'Place the stirring rod and beaker on the bench first.')
   if (state.waterMl.beaker <= 0) return reject(state, 'The beaker must contain water to stir salt.')
   const undissolved = undissolvedSaltG(state)
   if (undissolved <= 0) return reject(state, 'No undissolved salt remains to disperse.')
   const room = Math.max(0, maximumDissolvedSaltG(state) - state.dissolvedSaltG)
-  const dissolvedNow = Math.min(room, undissolved, STIR_DISSOLUTION_G_PER_ACTION)
+  const dissolvedNow = Math.min(
+    room,
+    undissolved,
+    (STIR_DISSOLUTION_G_PER_SECOND * elapsedMs) / 1000,
+  )
   if (dissolvedNow <= 0)
     return reject(
       state,
       'The demonstration solubility limit has been reached. Add more water before stirring again.',
     )
-  const newDissolved = Number((state.dissolvedSaltG + dissolvedNow).toFixed(4))
+  // Clamp the sum itself: decimal rounding must never create dissolved mass
+  // beyond the available solid or the water-dependent saturation ceiling.
+  const newDissolved = Math.min(
+    state.saltInBeakerG,
+    maximumDissolvedSaltG(state),
+    state.dissolvedSaltG + dissolvedNow,
+  )
+  if (newDissolved <= state.dissolvedSaltG)
+    return reject(state, 'The stirring interval is too small to change dissolved mass.')
   return {
     ok: true,
     state: {
@@ -300,7 +384,7 @@ function stir(state: SaltExperimentState, placedIds: readonly string[]): Transit
       sourceId: 'stirring-rod',
       targetId: 'beaker',
       amount: dissolvedNow,
-      durationMs: 1500,
+      durationMs: elapsedMs,
     },
   }
 }

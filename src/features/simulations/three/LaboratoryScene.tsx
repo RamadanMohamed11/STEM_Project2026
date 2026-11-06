@@ -10,6 +10,7 @@ import { SimulationSceneEffects } from './SimulationSceneEffects'
 import { LaboratoryPhysics } from './LaboratoryPhysics'
 import { EquipmentAffordanceHints } from './EquipmentAffordanceHints'
 import { useLabSceneStore } from '@/features/simulations/state/useLabSceneStore'
+import { useSaltSimulationStore } from '../state/useSaltSimulationStore'
 
 const RENDERER_OPTIONS = {
   antialias: true,
@@ -82,6 +83,18 @@ export default function LaboratoryScene() {
             below.
           </div>
         }
+        onPointerMissed={(event) => {
+          const scene = useLabSceneStore.getState()
+          if (
+            event.type === 'click' &&
+            event.button === 0 &&
+            !scene.pressedId &&
+            !scene.draggingId &&
+            !scene.placement &&
+            !useSaltSimulationStore.getState().transfer
+          )
+            scene.clearSelection()
+        }}
         onCreated={onCreated}
       >
         <Suspense fallback={null}>

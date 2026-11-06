@@ -4,142 +4,247 @@ import type { SimulationEffect } from '@/features/simulations/engine/types'
 import { useLabSceneStore } from '@/features/simulations/state/useLabSceneStore'
 import { useSaltSimulationStore } from '@/features/simulations/state/useSaltSimulationStore'
 import { LaboratoryVisualEffect, LivePourStream, type WorldPoint } from './effects'
-import { BENCH_TOP, equipmentRegistry } from './sceneConfig'
+import type { PourFrame } from './effects/LaboratoryEffects'
+import {
+  getBoatSaltSurfaceHeight,
+  getLiquidSurfaceHeight,
+  getPourPose,
+  PIVOT_HEIGHT,
+  POUR_ASSIST_ANGLE,
+  RECEIVER_RIM_HEIGHTS,
+  SALT_JAR_RIM_HEIGHT,
+} from './equipmentPose'
+import {
+  readEquipmentPointWorld,
+  readOutletWorld,
+  readSpatulaSpoonWorld,
+  visualAnchors,
+} from './equipmentVisualAnchors'
+import { getTransferFlowProgress, TRANSFER_POUR_ANGLE } from './transferMotion'
+import { DirectStirResponse } from './effects/DirectStirResponse'
+import { BENCH_TOP, equipmentRegistry, type Point2D } from './sceneConfig'
 
 const PROGRESS_STEP = 1 / 24
+const ORIGIN: WorldPoint = [0, 0, 0]
 const DEFAULT_POSITIONS = Object.fromEntries(
   equipmentRegistry.map((item) => [item.id, item.defaultPosition]),
-) as Record<string, { x: number; z: number }>
+) as Record<string, Point2D>
 
-interface ActiveSceneEffectProps {
-  effect: SimulationEffect
-  positions: Record<string, { x: number; z: number }>
-  beakerWaterMl: number
+function effectProgress(effect: SimulationEffect): number {
+  return effect.durationMs > 0
+    ? Math.min(1, Math.max(0, (performance.now() - effect.startedAt) / effect.durationMs))
+    : 1
 }
 
-/** Mounted only during a running effect, so idle scenes have no progress callback. */
-function ActiveSceneEffect({ effect, positions, beakerWaterMl }: ActiveSceneEffectProps) {
+interface AnchoredPourProps {
+  sourceId: string
+  targetId: string
+  /** Omitted for a held, continuous gesture. */
+  effect?: SimulationEffect
+}
+
+/** Samples rendering refs and authoritative volume, without a React frame loop. */
+function AnchoredPour({ sourceId, targetId, effect }: AnchoredPourProps) {
+  const updateFrame = (frame: PourFrame): boolean => {
+    const simulation = useSaltSimulationStore.getState()
+    const scene = useLabSceneStore.getState()
+    if (!scene.placedIds.includes(sourceId) || !scene.placedIds.includes(targetId)) return false
+    if (effect) {
+      if (simulation.effect?.id !== effect.id) return false
+      frame.progress = effectProgress(effect)
+      frame.angle = 0.5 * Math.sin(Math.PI * frame.progress)
+      if (frame.progress <= 0 || frame.progress >= 1) return false
+    } else {
+      const live = simulation.livePour
+      if (
+        !live ||
+        live.sourceId !== sourceId ||
+        live.targetId !== targetId ||
+        live.angle < POUR_ASSIST_ANGLE
+      )
+        return false
+      frame.angle = live.angle
+    }
+
+    const source = scene.positions[sourceId] ?? DEFAULT_POSITIONS[sourceId]
+    const target = scene.positions[targetId] ?? DEFAULT_POSITIONS[targetId]
+    const rim = RECEIVER_RIM_HEIGHTS[targetId]
+    if (!source || !target || rim === undefined) return false
+
+    if (!readOutletWorld(sourceId, target, frame.start)) {
+      // A deterministic fallback for a not-yet-mounted renderer. Once registered,
+      // the interpolated visual pose, not the requested angle, owns the outlet.
+      const yaw = scene.rotations[sourceId] ?? 0
+      const pose = getPourPose(sourceId, source, targetId, target, frame.angle, yaw)
+      const cos = Math.cos(yaw)
+      const sin = Math.sin(yaw)
+      frame.start.set(
+        source.x + cos * pose.outlet[0] + sin * pose.outlet[2],
+        BENCH_TOP + pose.outlet[1],
+        source.z - sin * pose.outlet[0] + cos * pose.outlet[2],
+      )
+    }
+
+    const volume =
+      targetId === 'graduated-cylinder'
+        ? simulation.experiment.waterMl['graduated-cylinder']
+        : simulation.experiment.waterMl.beaker
+    const surface = getLiquidSurfaceHeight(targetId, volume)
+    const receiver = visualAnchors.get(targetId)
+    if (receiver) {
+      receiver.updateWorldMatrix(true, false)
+      frame.end.set(0, surface - PIVOT_HEIGHT, 0).applyMatrix4(receiver.matrixWorld)
+    } else {
+      frame.end.set(target.x, BENCH_TOP + surface, target.z)
+    }
+    const rimY = frame.end.y + (rim - surface) * (receiver?.matrixWorld.elements[5] ?? 1)
+    // Never draw an uphill jet while the renderer is still easing into its lift.
+    return frame.start.y > rimY + 0.005
+  }
+
+  if (!effect) {
+    return <LivePourStream start={ORIGIN} end={ORIGIN} angle={0} updateFrame={updateFrame} />
+  }
+  return (
+    <LaboratoryVisualEffect
+      effect={effect.kind === 'salt-addition' ? 'pour-salt' : 'pour-water'}
+      start={ORIGIN}
+      end={ORIGIN}
+      progress={0}
+      updateFrame={updateFrame}
+    />
+  )
+}
+
+/** Numeric transfers use only registered model anchors and their own domain timeline. */
+function MaterialTransferEffect({
+  operationId,
+  kind,
+}: {
+  operationId: string
+  kind: 'liquid' | 'solid'
+}) {
+  const updateFrame = (frame: PourFrame): boolean => {
+    const state = useSaltSimulationStore.getState()
+    const op = state.transfer
+    const progress = getTransferFlowProgress(op)
+    if (!op || op.operationId !== operationId || progress === null) return false
+    frame.progress = Math.max(1e-6, progress)
+    frame.angle = TRANSFER_POUR_ANGLE
+
+    if (op.method === 'scoop') {
+      // A short settling cascade into the actual spoon inside the open jar;
+      // the jar stays upright. The receiving anchor follows the moving tool.
+      return (
+        !!readSpatulaSpoonWorld(frame.end) &&
+        !!readEquipmentPointWorld(op.sourceId, 0, SALT_JAR_RIM_HEIGHT - 0.005, 0, frame.start) &&
+        frame.start.y > frame.end.y
+      )
+    }
+
+    let height: number
+    if (op.kind === 'liquid') {
+      if (op.targetId !== 'beaker' && op.targetId !== 'graduated-cylinder') return false
+      height = getLiquidSurfaceHeight(op.targetId, state.experiment.waterMl[op.targetId])
+    } else if (op.targetId === 'weighing-boat') {
+      height = getBoatSaltSurfaceHeight(state.experiment.saltOnBoatG)
+    } else if (op.targetId === 'beaker') {
+      height = getLiquidSurfaceHeight('beaker', state.experiment.waterMl.beaker)
+    } else return false
+
+    return (
+      !!readEquipmentPointWorld(op.targetId, 0, height, 0, frame.end) &&
+      !!readOutletWorld(op.sourceId, frame.end, frame.start) &&
+      frame.start.y > frame.end.y
+    )
+  }
+
+  return kind === 'liquid' ? (
+    <LivePourStream
+      start={ORIGIN}
+      end={ORIGIN}
+      angle={TRANSFER_POUR_ANGLE}
+      updateFrame={updateFrame}
+    />
+  ) : (
+    <LaboratoryVisualEffect
+      effect="pour-salt"
+      start={ORIGIN}
+      end={ORIGIN}
+      progress={0}
+      updateFrame={updateFrame}
+    />
+  )
+}
+
+/** Only the legacy stirring illustrations need throttled React progress. */
+function StirringSceneEffect({ effect }: { effect: SimulationEffect }) {
   const [progress, setProgress] = useState(0)
   const lastProgress = useRef(0)
+  const beakerWaterMl = useSaltSimulationStore((state) => state.experiment.waterMl.beaker)
+  const beaker = useLabSceneStore((state) => state.positions.beaker ?? DEFAULT_POSITIONS.beaker)
 
   useFrame(() => {
     if (lastProgress.current === 1) return
-    const next =
-      effect.durationMs > 0
-        ? Math.min(1, Math.max(0, (performance.now() - effect.startedAt) / effect.durationMs))
-        : 1
+    const next = effectProgress(effect)
     if (next - lastProgress.current < PROGRESS_STEP && next !== 1) return
     lastProgress.current = next
     setProgress(next)
   })
 
-  const world = (id: string, height: number): [number, number, number] => {
-    const position = positions[id] ?? DEFAULT_POSITIONS[id]
-    return [position?.x ?? 0, BENCH_TOP + height, position?.z ?? 0]
-  }
-
-  const waterSurface = BENCH_TOP + 0.09 + (beakerWaterMl / 250) * 0.65
-  const destinationRim = effect.targetId === 'graduated-cylinder' ? 0.95 : 0.55
-  const sourceRim = effect.sourceId === 'water' ? 0.79 : 0.99
-  const sourceLift =
-    effect.kind === 'liquid-transfer' ? Math.max(0, destinationRim + 0.2 - sourceRim) : 0
-
+  const surface = getLiquidSurfaceHeight('beaker', beakerWaterMl)
   return (
     <group>
-      {effect.kind === 'liquid-transfer' && (
-        <LaboratoryVisualEffect
-          key={effect.id}
-          effect="pour-water"
-          start={world(effect.sourceId, sourceRim + sourceLift)}
-          end={world(effect.targetId, destinationRim)}
-          progress={progress}
-        />
-      )}
-      {effect.kind === 'salt-addition' && (
-        <LaboratoryVisualEffect
-          key={effect.id}
-          effect="pour-salt"
-          start={world(effect.sourceId, effect.sourceId === 'weighing-boat' ? 0.13 : 0.71)}
-          end={world('beaker', Math.max(0.16, waterSurface - BENCH_TOP))}
-          progress={progress}
-        />
-      )}
-      {effect.kind === 'stirring' && (
-        <>
-          <LaboratoryVisualEffect
-            key={`${effect.id}-ripples`}
-            effect="stir"
-            center={world('beaker', waterSurface - BENCH_TOP)}
-            progress={progress}
-          />
-          <LaboratoryVisualEffect
-            key={`${effect.id}-dissolve`}
-            effect="dissolve"
-            center={world('beaker', Math.max(0.14, (waterSurface - BENCH_TOP) / 2))}
-            progress={progress}
-          />
-        </>
-      )}
+      <LaboratoryVisualEffect
+        effect="stir"
+        center={[beaker.x, BENCH_TOP + surface, beaker.z]}
+        progress={progress}
+      />
+      <LaboratoryVisualEffect
+        effect="dissolve"
+        center={[beaker.x, BENCH_TOP + Math.max(0.14, surface / 2), beaker.z]}
+        progress={progress}
+      />
     </group>
   )
 }
 
 export function SimulationSceneEffects() {
   const effect = useSaltSimulationStore((state) => state.effect)
-  const livePour = useSaltSimulationStore((state) => state.livePour)
-  const beakerWaterMl = useSaltSimulationStore((state) => state.experiment.waterMl.beaker)
+  const transferId = useSaltSimulationStore((state) => state.transfer?.operationId ?? null)
+  const transferKind = useSaltSimulationStore((state) => state.transfer?.kind ?? null)
+  // Subscribe to pair/lifetime only. Angle and volume are read into reusable
+  // Three vectors in useFrame, not pushed through React on every stream tick.
+  const liveSourceId = useSaltSimulationStore((state) => state.livePour?.sourceId ?? null)
+  const liveTargetId = useSaltSimulationStore((state) => state.livePour?.targetId ?? null)
   const completed = useSaltSimulationStore((state) => state.workflow.completed)
-  const positions = useLabSceneStore((state) => state.positions)
-  const rotations = useLabSceneStore((state) => state.rotations)
-  const placedIds = useLabSceneStore((state) => state.placedIds)
-  const beaker = positions.beaker ?? DEFAULT_POSITIONS.beaker
-
-  // The renderer lifts the tilted source by this same amount so its outlet clears
-  // the destination rim. Coordinates track placement, yaw and the actual tilt.
-  let liveStream: { start: WorldPoint; end: WorldPoint; angle: number } | null = null
-  if (
-    livePour &&
-    livePour.angle >= 0.45 &&
-    placedIds.includes(livePour.sourceId) &&
-    placedIds.includes(livePour.targetId) &&
-    (livePour.sourceId === 'water' || livePour.sourceId === 'graduated-cylinder') &&
-    (livePour.targetId === 'graduated-cylinder' || livePour.targetId === 'beaker')
-  ) {
-    const source = positions[livePour.sourceId] ?? DEFAULT_POSITIONS[livePour.sourceId]
-    const target = positions[livePour.targetId] ?? DEFAULT_POSITIONS[livePour.targetId]
-    const sourceRim = livePour.sourceId === 'water' ? 0.79 : 0.99
-    const destinationRim = livePour.targetId === 'graduated-cylinder' ? 0.95 : 0.55
-    const lift = Math.max(0, destinationRim + 0.2 - sourceRim)
-    const opening = livePour.sourceId === 'water' ? 0.9 : 1.115
-    const openingRadius = opening - 0.42
-    const mouthOffset = -Math.sin(livePour.angle) * openingRadius
-    const yaw = rotations[livePour.sourceId] ?? 0
-    const targetHeight = livePour.targetId === 'graduated-cylinder' ? 1.1 : 0.755
-    if (source && target) {
-      liveStream = {
-        start: [
-          source.x + mouthOffset * Math.cos(yaw),
-          BENCH_TOP + 0.42 + openingRadius * Math.cos(livePour.angle) + lift,
-          source.z - mouthOffset * Math.sin(yaw),
-        ],
-        end: [target.x, BENCH_TOP + targetHeight, target.z],
-        angle: livePour.angle,
-      }
-    }
-  }
+  const beaker = useLabSceneStore((state) => state.positions.beaker ?? DEFAULT_POSITIONS.beaker)
 
   return (
     <group>
-      {effect && !(effect.kind === 'liquid-transfer' && liveStream) && (
-        <ActiveSceneEffect
-          key={effect.id}
-          effect={effect}
-          positions={positions}
-          beakerWaterMl={beakerWaterMl}
-        />
+      <DirectStirResponse />
+      {transferId && transferKind && (
+        <MaterialTransferEffect key={transferId} operationId={transferId} kind={transferKind} />
       )}
-      {liveStream && (
-        <LivePourStream start={liveStream.start} end={liveStream.end} angle={liveStream.angle} />
+      {!transferId &&
+        effect &&
+        !(effect.kind === 'liquid-transfer' && liveSourceId) &&
+        (effect.kind === 'stirring' ? (
+          <StirringSceneEffect key={effect.id} effect={effect} />
+        ) : (
+          <AnchoredPour
+            key={effect.id}
+            sourceId={effect.sourceId}
+            targetId={effect.targetId}
+            effect={effect}
+          />
+        ))}
+      {!transferId && liveSourceId && liveTargetId && (
+        <AnchoredPour
+          key={`${liveSourceId}:${liveTargetId}`}
+          sourceId={liveSourceId}
+          targetId={liveTargetId}
+        />
       )}
       {completed && (
         <group position={[beaker.x, BENCH_TOP + 0.82, beaker.z]}>

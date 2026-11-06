@@ -25,6 +25,7 @@ export interface SaltExperimentState {
   saltInBeakerG: number
   dissolvedSaltG: number
   operations: number
+  /** Accepted stirring commands/slices, not measured rod revolutions. */
   stirCount: number
 }
 
@@ -38,7 +39,13 @@ export type SimulationCommand =
       target: 'beaker'
       massG: number
     }
-  | { kind: 'stir'; tool: 'stirring-rod'; target: 'beaker' }
+  | {
+      kind: 'stir'
+      tool: 'stirring-rod'
+      target: 'beaker'
+      /** Validated active stirring time, 0 < elapsedMs <= 1500. Omit for a legacy 4 g action. */
+      elapsedMs?: number
+    }
 
 export type SimulationEffectKind = 'liquid-transfer' | 'salt-addition' | 'stirring'
 

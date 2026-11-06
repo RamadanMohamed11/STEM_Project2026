@@ -152,7 +152,9 @@ export function PlacementController() {
         !equipmentRegistry.some((item) => item.id === id) ||
         scene.placedIds.includes(id) ||
         scene.draggingId ||
-        useSaltSimulationStore.getState().effect
+        scene.pressedId ||
+        useSaltSimulationStore.getState().effect ||
+        useSaltSimulationStore.getState().transfer
       )
         return
       nativeDragId = id
@@ -186,7 +188,9 @@ export function PlacementController() {
         !equipmentRegistry.some((item) => item.id === id) ||
         scene.placedIds.includes(id) ||
         scene.draggingId ||
-        useSaltSimulationStore.getState().effect
+        scene.pressedId ||
+        useSaltSimulationStore.getState().effect ||
+        useSaltSimulationStore.getState().transfer
       )
         return
 

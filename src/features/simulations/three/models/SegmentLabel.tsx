@@ -36,13 +36,19 @@ export function SegmentLabel({
 }: SegmentLabelProps) {
   const width = height * 0.53
   const spacing = height * 0.19
-  const total = value.length * (width + spacing) - spacing
+  const total = [...value].reduce(
+    (sum, character) => sum + (character === '.' ? height * 0.16 : width) + spacing,
+    -spacing,
+  )
   const thickness = height * 0.095
   const instance = useRef<InstancedMesh>(null)
   const strokes = useMemo(() => {
     const shapes: { x: number; y: number; width: number; height: number }[] = []
-    for (const [index, character] of [...value].entries()) {
-      const characterX = index * (width + spacing) - total / 2 + width / 2
+    let cursor = -total / 2
+    for (const character of value) {
+      const advance = character === '.' ? height * 0.16 : width
+      const characterX = cursor + advance / 2
+      cursor += advance + spacing
       if (character === '.') {
         shapes.push({
           x: characterX,
@@ -103,9 +109,7 @@ export function SegmentLabel({
         emissive={emissive}
         emissiveIntensity={glow}
         roughness={0.41}
-        transparent
-        opacity={0.98}
-        depthWrite={false}
+        toneMapped={glow === 0}
       />
     </instancedMesh>
   )

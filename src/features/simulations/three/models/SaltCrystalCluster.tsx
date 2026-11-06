@@ -22,8 +22,8 @@ export function SaltCrystalCluster({ crystals, count }: SaltCrystalClusterProps)
   useLayoutEffect(() => {
     if (!mesh.current) return
     const transform = new Object3D()
-    const light = new Color('#ffffff')
-    const shadow = new Color('#dce8e8')
+    const light = new Color('#faf9f1')
+    const shadow = new Color('#dce1d6')
     for (let index = 0; index < clampedCount; index += 1) {
       const grain = crystals[index]
       transform.position.set(grain.x, grain.y, grain.z)
@@ -48,7 +48,7 @@ export function SaltCrystalCluster({ crystals, count }: SaltCrystalClusterProps)
       raycast={() => undefined}
     >
       <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color="#f7fbfa" roughness={0.77} metalness={0.02} />
+      <meshStandardMaterial color="#faf9f2" roughness={0.7} metalness={0} />
     </instancedMesh>
   )
 }
