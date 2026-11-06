@@ -17,7 +17,8 @@ export const routePaths = {
 } as const
 
 export function getExperimentPaths(experimentId: string) {
-  const params = { experimentId: encodeURIComponent(experimentId) }
+  // React Router encodes path parameters; pass the raw ID to avoid double encoding.
+  const params = { experimentId }
   return {
     details: generatePath(routePaths.experimentDetails, params),
     laboratory: generatePath(routePaths.laboratory, params),

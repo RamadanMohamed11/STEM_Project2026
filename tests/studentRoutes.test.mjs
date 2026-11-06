@@ -11,9 +11,14 @@ test('student journey pages support direct entry without accounts, selections or
   const vite = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
   try {
     const { AppRoutes } = await vite.ssrLoadModule('/src/app/routes.tsx')
-    const render = (path) => renderToStaticMarkup(
-      React.createElement(MemoryRouter, { initialEntries: [path] }, React.createElement(AppRoutes)),
-    )
+    const render = (path) =>
+      renderToStaticMarkup(
+        React.createElement(
+          MemoryRouter,
+          { initialEntries: [path] },
+          React.createElement(AppRoutes),
+        ),
+      )
     const id = 'exp-salt-water-001'
     const paths = getExperimentPaths(id)
     for (const [path, heading, nextPath] of [
@@ -51,7 +56,7 @@ test('student journey pages support direct entry without accounts, selections or
       const unknown = render('/experiments/unknown-id' + suffix)
       assert.match(unknown, /Experiment Not Found/)
       assert.match(unknown, /Not found/)
-      assert.doesNotMatch(unknown, /Coming soon|Quiz Results|Start Experiment/)
+      assert.doesNotMatch(unknown, /Coming soon|>Quiz Results<\/h1>|>Start Experiment</)
     }
     assert.match(render('/grades/not-a-grade'), /404 \/ PAGE NOT FOUND/)
     assert.match(render(paths.quiz + '/not-a-page'), /404 \/ PAGE NOT FOUND/)

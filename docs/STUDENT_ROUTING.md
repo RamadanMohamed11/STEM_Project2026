@@ -7,21 +7,21 @@ dependencies, or simulation behavior are added by T02.
 
 ## Route map
 
-| Page | URL | Current content |
-| --- | --- | --- |
-| Home | `/` | Existing home with an added Sign Up link |
-| Sign Up | `/signup` | Account feature placeholder; continue without an account |
-| Login | `/login` | Login placeholder; continue without an account |
-| Safety | `/safety` | Existing safety content, with a link to grades |
-| Choose Your Grade | `/grades` | Placeholder; no choices or saved selection |
-| Choose Your Term | `/terms` | Placeholder; no choices or saved selection |
-| Experiments Library | `/experiments` | Existing searchable catalog, with added View Details links |
-| Experiment Details | `/experiments/:experimentId` | Catalog title/summary, placeholder, Start Experiment for the playable demo |
-| 3D Laboratory | `/experiments/:experimentId/lab` | Existing unchanged route and simulation |
-| Laboratory preview | `/experiments/preview/lab` | Existing salt-lab alias preserved |
-| Experiment Quiz | `/experiments/:experimentId/quiz` | Placeholder; no answer submission |
-| Quiz Results | `/experiments/:experimentId/quiz/results` | Empty state; no fabricated scores |
-| Page Not Found | Unmatched paths | Existing 404 page |
+| Page                | URL                                       | Current content                                                            |
+| ------------------- | ----------------------------------------- | -------------------------------------------------------------------------- |
+| Home                | `/`                                       | Existing home with an added Sign Up link                                   |
+| Sign Up             | `/signup`                                 | Account feature placeholder; continue without an account                   |
+| Login               | `/login`                                  | Login placeholder; continue without an account                             |
+| Safety              | `/safety`                                 | Existing safety content, with a link to grades                             |
+| Choose Your Grade   | `/grades`                                 | Placeholder; no choices or saved selection                                 |
+| Choose Your Term    | `/terms`                                  | Placeholder; no choices or saved selection                                 |
+| Experiments Library | `/experiments`                            | Existing searchable catalog, with added View Details links                 |
+| Experiment Details  | `/experiments/:experimentId`              | Catalog title/summary, placeholder, Start Experiment for the playable demo |
+| 3D Laboratory       | `/experiments/:experimentId/lab`          | Existing unchanged route and simulation                                    |
+| Laboratory preview  | `/experiments/preview/lab`                | Existing salt-lab alias preserved                                          |
+| Experiment Quiz     | `/experiments/:experimentId/quiz`         | Placeholder; no answer submission                                          |
+| Quiz Results        | `/experiments/:experimentId/quiz/results` | Empty state; no fabricated scores                                          |
+| Page Not Found      | Unmatched paths                           | Existing 404 page                                                          |
 
 The current playable experiment ID is `exp-salt-water-001`. The two planned IDs
 remain `exp-volume-002` and `exp-ph-003`. New experiment pages resolve IDs against
