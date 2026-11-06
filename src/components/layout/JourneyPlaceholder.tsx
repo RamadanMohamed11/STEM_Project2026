@@ -34,13 +34,13 @@ export function JourneyPlaceholder({
   usePageTitle(pageTitle)
 
   return (
-    <section>
+    <section className="max-w-3xl">
       <PageHeader eyebrow={eyebrow} title={title} description={description} />
-      <div className="max-w-3xl rounded-xl border border-line bg-white p-6 shadow-card sm:p-8">
-        <StatusPill>{status}</StatusPill>
-        <h2 className="mt-5 text-xl font-semibold text-navy">{heading}</h2>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink/75">{message}</p>
-        <nav aria-label="Next steps" className="mt-7 flex flex-wrap gap-3">
+      <div className="rounded-xl border border-line bg-white p-5 shadow-card sm:p-7 md:p-8">
+        <StatusPill tone="info" dot>{status}</StatusPill>
+        <h2 className="mt-4 text-xl font-semibold text-navy sm:text-2xl">{heading}</h2>
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink/80 sm:text-base">{message}</p>
+        <nav aria-label="Next steps" className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           {actions.map(({ label, to, variant = 'primary' }) => (
             <ButtonLink key={to} to={to} variant={variant}>
               {label}

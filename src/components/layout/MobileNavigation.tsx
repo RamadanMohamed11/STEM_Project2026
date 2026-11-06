@@ -62,19 +62,19 @@ export function MobileNavigation({ open, onClose }: MobileNavigationProps) {
             type="button"
             onClick={onClose}
             aria-label="Close navigation"
-            className="inline-flex size-11 items-center justify-center rounded-lg text-white/85 hover:bg-white/12"
+            className="inline-flex size-11 items-center justify-center rounded-lg text-white/85 transition-colors hover:bg-white/12 focus-visible:outline-2 focus-visible:outline-teal-light focus-visible:outline-offset-2"
           >
             <X size={23} aria-hidden="true" />
           </button>
         </div>
 
-        <p className="mt-13 mb-4 px-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/55">
+        <p className="mt-10 mb-3 px-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/55">
           Explore
         </p>
         <NavigationLinks variant="drawer" onNavigate={onClose} />
 
-        <div className="mt-auto border-t border-white/15 pt-6 text-xs leading-relaxed text-white/65">
-          STEM Virtual Lab is an independent educational prototype.
+        <div className="mt-auto border-t border-white/15 pt-6 text-xs leading-relaxed text-white/70">
+          STEM Virtual Lab — Interactive virtual experiments for science students.
         </div>
       </div>
     </dialog>

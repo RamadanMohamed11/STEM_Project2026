@@ -58,6 +58,24 @@ it does not create a second catalog experiment for details or quizzes.
 Keep all future UI in simple English and LTR, as required by the T01 baseline.
 These placeholders prepare routes only; they do not start T03 or later features.
 
+## File inventory
+
+Added:
+
+- `src/app/paths.ts` and `src/app/StudentRouteBoundary.tsx`
+- `src/components/layout/JourneyPlaceholder.tsx` and `ExperimentRouteLayout.tsx`
+- `src/pages/SignUpPage.tsx`, `LoginPage.tsx`, `ChooseGradePage.tsx`,
+  `ChooseTermPage.tsx`, `ExperimentDetailsPage.tsx`, `ExperimentQuizPage.tsx`,
+  and `QuizResultsPage.tsx`
+- `tests/studentRoutes.test.mjs` and `docs/STUDENT_ROUTING.md`
+
+Modified:
+
+- `src/app/routes.tsx` and `src/app/navigation.ts`
+- `src/components/layout/NavigationLinks.tsx`
+- `src/pages/HomePage.tsx` and `src/pages/SafetyPage.tsx`
+- `src/features/experiments/components/ExperimentCard.tsx`
+
 ## Verification
 
 The new `tests/studentRoutes.test.mjs` checks direct route rendering, forward
@@ -66,4 +84,38 @@ navigation context, encoded experiment URLs, and fallback behavior. Existing
 route and simulation tests continue to cover both laboratory entry points and
 scientific behavior.
 
-Final command and browser results are reported with the T02 delivery.
+Verified on 6 November 2026 using the existing Node v24.19.0 / npm 11.17.0
+installation:
+
+| Check                             | Result                                                  |
+| --------------------------------- | ------------------------------------------------------- |
+| `npm.cmd run typecheck`           | Passed, exit 0                                          |
+| `npm.cmd run lint`                | Passed, exit 0                                          |
+| `npm.cmd test`                    | 179 passed, 0 failed, 0 skipped; exit 0                 |
+| `npm.cmd run build`               | Passed, exit 0; existing large 3D chunk warning remains |
+| Targeted Prettier check           | All T02 files passed                                    |
+| Protected-file SHA-256 comparison | 92 existing files checked; zero changes                 |
+
+The protected comparison includes the entire simulation feature, VirtualLabPage,
+AppShell, package manifests, and Vercel configuration.
+
+The production build was served with Vite preview on port 5177 for browser checks:
+
+- Home → Sign Up → Login links worked. Browser Back returned to Sign Up and
+  Forward returned to Login, with correct headings and page titles.
+- Direct entry worked for grade, term, details, quiz, results, planned details,
+  unknown experiment results, and the global 404 page.
+- All seven new pages had no horizontal overflow at 320 px and 768 px. Desktop
+  account and tablet results layouts, plus the 390 px grade layout, were visually
+  checked. The mobile menu showed the new learning and account links and closed
+  after choosing a route. Document language remained `en`, with direction `ltr`.
+- Start Experiment opened the real 3D laboratory with the existing full-viewport
+  layout and rendered apparatus. The direct preview alias also retained the
+  immersive layout without standard website navigation.
+- No error-level browser messages were captured. Full scientific interactions
+  were not repeated in this T02 browser run; the preserved source and existing
+  regression suite cover the scientific boundary.
+
+The preview server was stopped after verification. No deployment or real-device
+test was performed. The repository-wide formatting debt recorded in T01 remains
+outside this task.

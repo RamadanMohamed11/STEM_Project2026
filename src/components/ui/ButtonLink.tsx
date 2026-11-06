@@ -1,23 +1,40 @@
 import type { ReactNode } from 'react'
 import { Link, type To } from 'react-router'
+import {
+  buttonSizeStyles,
+  buttonVariantStyles,
+  type ButtonSize,
+  type ButtonVariant,
+} from './buttonStyles'
 
 interface ButtonLinkProps {
   to: To
   children: ReactNode
   icon?: ReactNode
-  variant?: 'primary' | 'secondary'
+  variant?: ButtonVariant
+  size?: ButtonSize
+  fullWidth?: boolean
+  className?: string
+  ariaLabel?: string
 }
 
-const variantStyles = {
-  primary: 'bg-teal text-white hover:bg-teal-dark',
-  secondary: 'border border-line-strong bg-white text-ink hover:bg-surface-muted',
-} as const
-
-export function ButtonLink({ to, children, icon, variant = 'primary' }: ButtonLinkProps) {
+export function ButtonLink({
+  to,
+  children,
+  icon,
+  variant = 'primary',
+  size = 'md',
+  fullWidth = false,
+  className = '',
+  ariaLabel,
+}: ButtonLinkProps) {
   return (
     <Link
       to={to}
-      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold transition-colors ${variantStyles[variant]}`}
+      aria-label={ariaLabel}
+      className={`inline-flex items-center justify-center font-semibold transition-all duration-150 select-none focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2 ${
+        buttonVariantStyles[variant]
+      } ${buttonSizeStyles[size]} ${fullWidth ? 'w-full' : ''} ${className}`}
     >
       {children}
       {icon}

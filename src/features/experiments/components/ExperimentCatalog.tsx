@@ -86,12 +86,10 @@ export function ExperimentCatalog() {
         )}
       </section>
 
-      <aside className="flex gap-3 rounded-lg border border-line bg-surface-muted/70 px-5 py-4 text-sm text-ink/75">
+      <aside className="flex gap-3 rounded-xl border border-line bg-surface-muted/80 px-5 py-4 text-sm text-ink/80 shadow-sm">
         <Info size={19} className="mt-0.5 shrink-0 text-teal" aria-hidden="true" />
         <p className="leading-relaxed">
-          <strong className="font-semibold text-navy">Prototype examples:</strong> these are not
-          official course experiments. The available demo supports 3D inspection and equipment
-          positioning; chemical processes and experimental results are not simulated yet.
+          <strong className="font-semibold text-navy">Sample experiments:</strong> The 3D laboratory allows you to explore real equipment handles, chemical transfers, and live measurements. Additional planned activities will be added soon.
         </p>
       </aside>
     </div>

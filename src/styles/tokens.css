@@ -8,7 +8,7 @@
   --color-teal-light: #76d5cb;
   --color-teal-soft: #e4f4f1;
   --color-canvas: #f4f6f7;
-  --color-slate: #71818c;
+  --color-slate: #546572;
   --color-line: #e4e9ed;
   --color-line-strong: #cdd7dd;
   --color-surface-muted: #edf1f3;
@@ -17,14 +17,15 @@
   --color-warning-dark: #995312;
   --color-success: #1e8062;
   --color-danger: #b44848;
-  --color-info: #347a9b;
+  --color-info: #2a6886;
 
   --spacing: 0.25rem;
+  --radius-sm: 0.375rem;
   --radius-md: 0.625rem;
   --radius-lg: 0.875rem;
   --radius-xl: 1.25rem;
-  --shadow-card: 0 6px 24px -18px rgba(22, 38, 53, 0.24);
-  --shadow-elevated: 0 18px 55px -32px rgba(22, 38, 53, 0.3);
+  --shadow-card: 0 4px 20px -8px rgba(22, 38, 53, 0.12);
+  --shadow-elevated: 0 16px 40px -20px rgba(22, 38, 53, 0.25);
 
   --breakpoint-sm: 40rem;
   --breakpoint-md: 48rem;

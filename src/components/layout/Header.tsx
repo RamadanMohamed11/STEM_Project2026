@@ -15,7 +15,7 @@ export function Header({ onMenuOpen, menuOpen }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur-sm">
-      <div className="mx-auto flex min-h-[72px] max-w-[1320px] items-center justify-between gap-3 px-5 sm:px-8 lg:px-10 xl:px-12">
+      <div className="mx-auto flex min-h-[72px] max-w-[1320px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
@@ -23,7 +23,7 @@ export function Header({ onMenuOpen, menuOpen }: HeaderProps) {
             aria-label="Open navigation"
             aria-controls="mobile-navigation"
             aria-expanded={menuOpen}
-            className="-ms-2 inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-navy hover:bg-surface-muted md:hidden"
+            className="-ms-2 inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-navy transition-colors hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2 md:hidden"
           >
             <Menu size={23} aria-hidden="true" />
           </button>
@@ -42,8 +42,8 @@ export function Header({ onMenuOpen, menuOpen }: HeaderProps) {
         </div>
 
         <div className="flex shrink-0 items-center gap-3">
-          <span className="hidden text-xs text-ink/65 sm:inline">Learning environment</span>
-          <StatusPill>Prototype</StatusPill>
+          <span className="hidden text-xs text-ink/65 sm:inline">Interactive Science Lab</span>
+          <StatusPill tone="ready" dot>Student Preview</StatusPill>
         </div>
       </div>
     </header>

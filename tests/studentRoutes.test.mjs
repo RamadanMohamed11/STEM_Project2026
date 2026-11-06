@@ -33,9 +33,18 @@ test('student journey pages support direct entry without accounts, selections or
       const markup = render(path)
       assert.ok(markup.includes(heading), path)
       assert.ok(markup.includes(`href="${nextPath}"`), `${path} next link`)
-      assert.match(markup, /Coming soon/)
+      assert.match(markup, /[Cc]oming soon/)
       assert.match(markup, /Main navigation/)
-      assert.doesNotMatch(markup, /Immersive laboratory workspace|<form|type="password"/)
+      assert.doesNotMatch(markup, /Immersive laboratory workspace/)
+      if (path === '/signup') {
+        assert.match(markup, /aria-label="Student registration"/)
+        assert.match(markup, /autocomplete="new-password"/i)
+      } else if (path === '/login') {
+        assert.match(markup, /aria-label="Student login"/)
+        assert.match(markup, /autocomplete="current-password"/i)
+      } else {
+        assert.doesNotMatch(markup, /<form|type="password"/)
+      }
       assert.doesNotMatch(markup, /Page not found|404 \/ PAGE NOT FOUND/)
     }
     assert.match(render('/signup'), /cannot create an account yet/)

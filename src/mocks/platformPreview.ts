@@ -14,19 +14,19 @@ interface Capability {
 // Product roadmap descriptions only; no curriculum or experiment data is asserted.
 export const platformCapabilities: readonly Capability[] = [
   {
-    title: 'Interactive Laboratory',
+    title: 'Interactive 3D Laboratory',
     description:
-      'Inspect and reposition six 3D laboratory items in a real-time chemistry workbench. Chemical experiments are planned.',
+      'Work with real 3D tools, perform measured liquid and solid transfers, and observe chemical changes on a virtual lab bench.',
     icon: FlaskConical,
-    status: '3D demo available',
+    status: 'Ready to try',
     tone: 'ready',
     to: '/experiments/preview/lab',
-    linkLabel: 'Explore 3D laboratory',
+    linkLabel: 'Open 3D lab',
   },
   {
     title: 'Guided Experiments',
     description:
-      'Follow approved procedures with clear materials, steps, and supporting explanations once content is reviewed.',
+      'Follow step-by-step experiment instructions with clear guidance, safety rules, and real-time feedback.',
     icon: BookOpenCheck,
     status: 'Planned',
     tone: 'warning',
@@ -34,17 +34,17 @@ export const platformCapabilities: readonly Capability[] = [
   {
     title: 'Laboratory Safety',
     description:
-      'Review introductory safety habits and the essential responsibilities of working in a laboratory.',
+      'Learn essential safety rules, protective equipment (PPE), and safe chemical handling before entering the lab.',
     icon: ShieldCheck,
-    status: 'Overview available',
+    status: 'Available',
     tone: 'ready',
     to: '/safety',
-    linkLabel: 'Read safety overview',
+    linkLabel: 'Read safety rules',
   },
   {
-    title: 'AI-Assisted Learning',
+    title: 'AI-Assisted Explanations',
     description:
-      'Receive contextual explanations and help interpreting observations in a future release.',
+      'Get clear explanations and helpful hints that connect what you see in the lab with science concepts.',
     icon: BrainCircuit,
     status: 'Planned',
     tone: 'warning',

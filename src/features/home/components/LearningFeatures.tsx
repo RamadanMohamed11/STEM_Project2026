@@ -23,25 +23,25 @@ export function LearningFeatures() {
         </p>
       </div>
 
-      <div className="grid overflow-hidden rounded-xl border border-line bg-white sm:grid-cols-2">
+      <div className="grid overflow-hidden rounded-xl border border-line bg-white shadow-card sm:grid-cols-2">
         {platformCapabilities.map(
           ({ title, description, status, tone, icon: Icon, to, linkLabel }) => (
             <article
               key={title}
-              className="flex min-w-0 flex-col border-b border-line p-6 last:border-b-0 sm:min-h-[229px] sm:p-7 sm:odd:border-e sm:[&:nth-last-child(2)]:border-b-0"
+              className="flex min-w-0 flex-col border-b border-line p-6 transition-colors hover:bg-surface-muted/20 last:border-b-0 sm:min-h-[229px] sm:p-7 sm:odd:border-e sm:[&:nth-last-child(2)]:border-b-0"
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
-                <span className="flex size-11 items-center justify-center rounded-lg bg-teal-soft text-teal">
-                  <Icon size={22} strokeWidth={1.75} aria-hidden="true" />
+                <span className="flex size-11 items-center justify-center rounded-xl bg-teal-soft text-teal">
+                  <Icon size={22} strokeWidth={1.8} aria-hidden="true" />
                 </span>
-                <StatusPill tone={tone}>{status}</StatusPill>
+                <StatusPill tone={tone} dot>{status}</StatusPill>
               </div>
               <h3 className="mt-4 text-lg font-semibold text-navy">{title}</h3>
               <p className="mt-2 max-w-md text-sm leading-relaxed text-ink/75">{description}</p>
               {to && linkLabel && (
                 <Link
                   to={to}
-                  className="mt-3 inline-flex min-h-10 w-fit items-center gap-1.5 text-sm font-semibold text-teal-dark hover:underline sm:mt-auto sm:pt-2"
+                  className="mt-4 inline-flex min-h-10 w-fit items-center gap-1.5 text-sm font-semibold text-teal-dark transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2 sm:mt-auto sm:pt-2"
                 >
                   {linkLabel}
                   <ArrowUpRight size={16} aria-hidden="true" />

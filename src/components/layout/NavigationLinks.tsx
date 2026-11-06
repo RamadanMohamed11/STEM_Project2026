@@ -1,3 +1,4 @@
+import { AuthAccountControl } from '@/features/auth/AuthAccountControl'
 import { Link, useLocation } from 'react-router'
 import { getActiveNavigationId, navigationSections } from '@/app/navigation'
 
@@ -34,26 +35,27 @@ export function NavigationLinks({ variant, onNavigate }: NavigationLinksProps) {
                   <Link
                     to={to}
                     onClick={onNavigate}
+                    title={desktop ? label : undefined}
                     aria-label={desktop ? label : undefined}
                     aria-current={active ? 'page' : undefined}
-                    className={`group relative flex min-h-12 items-center gap-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`group relative flex min-h-12 items-center gap-3 rounded-lg text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-teal-light focus-visible:outline-offset-2 ${
                       desktop ? 'justify-center px-3 xl:justify-start xl:px-4' : 'px-4'
                     } ${
                       active
-                        ? 'bg-white/13 font-semibold text-white'
-                        : 'text-white/75 hover:bg-white/9 hover:text-white'
+                        ? 'bg-white/14 font-semibold text-white'
+                        : 'text-white/75 hover:bg-white/10 hover:text-white'
                     }`}
                   >
                     {active && (
                       <span
-                        className="absolute inset-y-3 start-0 w-[3px] rounded-e-full bg-teal-light"
+                        className="absolute inset-y-2.5 start-0 w-[3px] rounded-e-full bg-teal-light"
                         aria-hidden="true"
                       />
                     )}
                     <Icon
                       size={20}
                       strokeWidth={active ? 2.1 : 1.8}
-                      className="shrink-0"
+                      className="shrink-0 transition-transform group-hover:scale-105"
                       aria-hidden="true"
                     />
                     <span className={desktop ? 'hidden xl:inline' : undefined}>{label}</span>
@@ -64,6 +66,7 @@ export function NavigationLinks({ variant, onNavigate }: NavigationLinksProps) {
           </ul>
         </div>
       ))}
+      <AuthAccountControl />
     </nav>
   )
 }

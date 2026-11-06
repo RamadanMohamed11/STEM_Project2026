@@ -1,3 +1,36 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "headers": [
+        {
+          "value": "no-referrer",
+          "key": "Referrer-Policy"
+        },
+        {
+          "value": "no-store",
+          "key": "Cache-Control"
+        }
+      ],
+      "source": "/auth/callback"
+    },
+    {
+      "headers": [
+        {
+          "value": "no-referrer",
+          "key": "Referrer-Policy"
+        },
+        {
+          "value": "no-store",
+          "key": "Cache-Control"
+        }
+      ],
+      "source": "/reset-password"
+    }
+  ]
 }

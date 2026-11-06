@@ -9,13 +9,19 @@ interface PageHeaderProps {
 
 export function PageHeader({ eyebrow, title, description, action }: PageHeaderProps) {
   return (
-    <div className="mb-8 flex flex-wrap items-end justify-between gap-5 sm:mb-10">
-      <div className="max-w-2xl">
-        <p className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-teal">{eyebrow}</p>
-        <h1 className="text-3xl font-semibold tracking-tight text-navy sm:text-4xl">{title}</h1>
-        <p className="mt-4 max-w-xl text-base leading-relaxed text-ink/75">{description}</p>
+    <div className="mb-6 flex flex-col justify-between gap-4 sm:mb-8 sm:flex-row sm:items-end lg:mb-10">
+      <div className="max-w-2xl min-w-0">
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.15em] text-teal sm:mb-2.5">
+          {eyebrow}
+        </p>
+        <h1 className="text-2xl font-semibold tracking-tight text-navy sm:text-3xl lg:text-4xl">
+          {title}
+        </h1>
+        <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-ink/80 sm:mt-3 sm:text-base">
+          {description}
+        </p>
       </div>
-      {action}
+      {action && <div className="shrink-0">{action}</div>}
     </div>
   )
 }

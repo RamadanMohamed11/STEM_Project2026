@@ -32,6 +32,11 @@ export const navigationSections = [
 
 export function getActiveNavigationId(pathname: string) {
   const path = pathname === '/' ? pathname : pathname.replace(/\/+$/, '')
+  if (matchPath(routePaths.forgotPassword, path) || matchPath(routePaths.resetPassword, path))
+    return 'login'
+  if (matchPath(routePaths.profile, path)) return 'profile'
+  if (matchPath(routePaths.account, path)) return 'profile'
+  if (matchPath(routePaths.authCallback, path)) return 'login'
   if (matchPath(routePaths.laboratory, path)) return 'lab'
   if (
     [routePaths.experimentDetails, routePaths.experimentQuiz, routePaths.quizResults].some(
@@ -47,6 +52,11 @@ export function getActiveNavigationId(pathname: string) {
 }
 
 export function getPageContext(pathname: string) {
+  if (matchPath(routePaths.account, pathname) || matchPath(routePaths.profile, pathname))
+    return 'Your Profile'
+  if (matchPath(routePaths.authCallback, pathname)) return 'Confirm Your Email'
+  if (matchPath(routePaths.forgotPassword, pathname)) return 'Forgot Password'
+  if (matchPath(routePaths.resetPassword, pathname)) return 'Reset Password'
   if (matchPath(routePaths.quizResults, pathname)) return 'Quiz Results'
   if (matchPath(routePaths.experimentQuiz, pathname)) return 'Experiment Quiz'
   if (matchPath(routePaths.experimentDetails, pathname)) return 'Experiment Details'

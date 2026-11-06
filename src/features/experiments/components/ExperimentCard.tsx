@@ -72,14 +72,14 @@ export function ExperimentCard({ experiment, category, index }: ExperimentCardPr
         <div className="mt-5 border-t border-line pt-4">
           <Link
             to={getExperimentPaths(experiment.id).details}
-            className="mb-2 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-teal-dark hover:underline"
+            className="mb-2 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-teal-dark transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2"
           >
             View Details <ArrowUpRight size={16} aria-hidden="true" />
           </Link>
           {available ? (
             <Link
               to={getLabPath(experiment)}
-              className="inline-flex min-h-11 w-full items-center justify-between gap-3 rounded-lg bg-teal px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-teal-dark"
+              className="inline-flex min-h-11 w-full items-center justify-between gap-3 rounded-lg bg-teal px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-teal-dark hover:shadow focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2 active:scale-[0.99]"
             >
               Open 3D laboratory
               <ArrowUpRight size={18} aria-hidden="true" />

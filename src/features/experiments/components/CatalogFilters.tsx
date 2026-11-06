@@ -13,7 +13,7 @@ interface CatalogFiltersProps {
 }
 
 const selectClass =
-  'mt-2 min-h-11 w-full rounded-lg border border-line-strong bg-white px-3.5 text-sm text-navy focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-teal disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-ink/65'
+  'mt-2 min-h-11 w-full rounded-lg border border-line-strong bg-white px-3.5 text-sm text-navy transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-teal disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-ink/65'
 
 export function CatalogFilters({
   data,
@@ -25,20 +25,20 @@ export function CatalogFilters({
   return (
     <section
       aria-label="Find experiments"
-      className="rounded-xl border border-line bg-white px-5 py-5 shadow-card sm:px-6 sm:py-6"
+      className="rounded-xl border border-line bg-white px-4 py-5 shadow-card sm:px-6 sm:py-6"
     >
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold text-navy">Find an experiment</h2>
-          <p className="mt-1 text-xs text-ink/70">
-            Search and refine the demonstration collection.
+          <p className="mt-1 text-xs text-ink/75">
+            Search by keyword or filter by category and availability.
           </p>
         </div>
         {hasFilters && (
           <button
             type="button"
             onClick={onClear}
-            className="inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-teal-dark hover:bg-teal-soft"
+            className="inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-teal-dark transition-colors hover:bg-teal-soft focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2"
           >
             <RotateCcw size={15} aria-hidden="true" /> Reset filters
           </button>
@@ -63,7 +63,7 @@ export function CatalogFilters({
               onChange={(event) => onChange({ ...filters, search: event.target.value })}
               placeholder="Try salt, volume, pH…"
               autoComplete="off"
-              className="min-h-11 w-full rounded-lg border border-line-strong bg-white ps-10 pe-3.5 text-sm text-navy placeholder:text-ink/55"
+              className="min-h-11 w-full rounded-lg border border-line-strong bg-white ps-10 pe-3.5 text-sm text-navy placeholder:text-ink/55 transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-teal"
             />
           </div>
         </div>

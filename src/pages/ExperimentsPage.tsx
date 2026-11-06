@@ -9,10 +9,10 @@ export function ExperimentsPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Explore / Experiments"
+        eyebrow="Explore / Science Experiments"
         title="Experiment catalog"
-        description="Browse illustrative science experiments, search by topic, and open the available laboratory preview. Curriculum associations will follow academic review."
-        action={<StatusPill>DEMONSTRATION DATA</StatusPill>}
+        description="Browse science experiments, search by topic, and try our interactive 3D virtual laboratory."
+        action={<StatusPill tone="info" dot>Sample Collection</StatusPill>}
       />
       <ExperimentCatalog />
     </div>
