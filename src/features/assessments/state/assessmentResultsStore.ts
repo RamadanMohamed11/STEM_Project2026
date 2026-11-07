@@ -1,10 +1,12 @@
 import type { AssessmentResultRecord } from '../../../types/assessment.ts'
+import { recordQuizResultProgress } from '../../progress/state/studentProgressStore.ts'
 
 // In-memory session store mapping experimentId -> latest AssessmentResultRecord
 const memoryResults = new Map<string, AssessmentResultRecord>()
 
 /**
- * Stores the latest submitted assessment result for an experiment in memory.
+ * Stores the latest submitted assessment result for an experiment in memory
+ * and records the quiz summary in the local student learning progress store.
  */
 export function setLatestAssessmentResult(
   experimentId: string,
@@ -12,6 +14,7 @@ export function setLatestAssessmentResult(
 ): void {
   if (!experimentId || typeof experimentId !== 'string') return
   memoryResults.set(experimentId, result)
+  recordQuizResultProgress(result)
 }
 
 /**

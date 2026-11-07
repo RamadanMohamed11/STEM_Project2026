@@ -21,6 +21,7 @@ import { SafetyPage } from '@/pages/SafetyPage'
 import { SignUpPage } from '@/pages/SignUpPage'
 import { QuizResultsPage } from '@/pages/QuizResultsPage'
 import { ExperimentResultsPage } from '@/pages/ExperimentResultsPage'
+import { StudentProgressPage } from '@/pages/StudentProgressPage'
 import { VirtualLabPage } from '@/pages/VirtualLabPage'
 
 export function AppRoutes() {
@@ -44,6 +45,7 @@ export function AppRoutes() {
           <Route path={routePaths.curriculum} element={<CurriculumPage />} />
           <Route path={routePaths.curriculumLesson} element={<CurriculumLessonPage />} />
           <Route path={routePaths.experiments} element={<ExperimentsPage />} />
+          <Route path={routePaths.progress} element={<StudentProgressPage />} />
           <Route path={routePaths.laboratory} element={<VirtualLabPage />} />
           <Route path={routePaths.experimentDetails} element={<ExperimentRouteLayout />}>
             <Route index element={<ExperimentDetailsPage />} />

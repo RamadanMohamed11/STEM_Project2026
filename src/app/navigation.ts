@@ -4,6 +4,7 @@ import {
   FlaskConical,
   GraduationCap,
   House,
+  LineChart,
   LogIn,
   ShieldCheck,
   UserPlus,
@@ -18,6 +19,7 @@ export const primaryNavigation = [
   { id: 'terms', label: 'Choose Your Term', to: routePaths.terms, icon: CalendarDays },
   { id: 'curriculum', label: 'Your Lessons', to: routePaths.curriculum, icon: BookOpenText },
   { id: 'experiments', label: 'Experiments', to: routePaths.experiments, icon: BookOpenText },
+  { id: 'progress', label: 'My Progress', to: routePaths.progress, icon: LineChart },
   { id: 'lab', label: 'Virtual Lab', to: routePaths.laboratoryPreview, icon: FlaskConical },
 ] as const
 

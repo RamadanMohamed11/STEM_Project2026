@@ -16,6 +16,7 @@ export const routePaths = {
   curriculum: '/curriculum',
   curriculumLesson: '/curriculum/lessons/:lessonId',
   experiments: '/experiments',
+  progress: '/progress',
   experimentDetails: '/experiments/:experimentId',
   laboratory: '/experiments/:experimentId/lab',
   experimentQuiz: '/experiments/:experimentId/quiz',
