@@ -1,6 +1,8 @@
 import { RequireAuth } from '@/features/auth/RequireAuth'
 import { RequireAdmin } from '@/features/auth/RequireRole'
+import { AdminLayout } from '@/features/admin/components/AdminLayout'
 import { AdminFoundationPage } from '@/pages/AdminFoundationPage'
+import { AdminSectionPlaceholderPage } from '@/pages/AdminSectionPlaceholderPage'
 import { StudentProfilePage } from '@/pages/StudentProfilePage'
 import { AuthCallbackPage } from '@/pages/AuthCallbackPage'
 import { PasswordRecoveryPage } from '@/pages/PasswordRecoveryPage'
@@ -29,15 +31,37 @@ import { VirtualLabPage } from '@/pages/VirtualLabPage'
 export function AppRoutes() {
   return (
     <Routes>
+      <Route path={routePaths.admin} element={<RequireAdmin />}>
+        <Route element={<AdminLayout />}>
+          <Route index element={<AdminFoundationPage />} />
+          <Route
+            path="curriculum"
+            element={<AdminSectionPlaceholderPage sectionId="curriculum" />}
+          />
+          <Route
+            path="experiments"
+            element={<AdminSectionPlaceholderPage sectionId="experiments" />}
+          />
+          <Route
+            path="questions"
+            element={<AdminSectionPlaceholderPage sectionId="questions" />}
+          />
+          <Route
+            path="students"
+            element={<AdminSectionPlaceholderPage sectionId="students" />}
+          />
+          <Route
+            path="reports"
+            element={<AdminSectionPlaceholderPage sectionId="reports" />}
+          />
+        </Route>
+      </Route>
       <Route element={<AppShell />}>
         <Route index element={<HomePage />} />
         <Route path={routePaths.authCallback} element={<AuthCallbackPage />} />
         <Route element={<RequireAuth />}>
           <Route path={routePaths.account} element={<StudentProfilePage />} />
           <Route path={routePaths.profile} element={<StudentProfilePage />} />
-        </Route>
-        <Route element={<RequireAdmin />}>
-          <Route path={routePaths.admin} element={<AdminFoundationPage />} />
         </Route>
         <Route path={routePaths.signUp} element={<SignUpPage />} />
         <Route path={routePaths.login} element={<LoginPage />} />

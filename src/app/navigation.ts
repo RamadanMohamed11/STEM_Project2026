@@ -39,7 +39,17 @@ export function getActiveNavigationId(pathname: string) {
     return 'login'
   if (matchPath(routePaths.profile, path)) return 'profile'
   if (matchPath(routePaths.account, path)) return 'profile'
-  if (matchPath(routePaths.admin, path)) return 'admin'
+  if (
+    [
+      routePaths.admin,
+      routePaths.adminCurriculum,
+      routePaths.adminExperiments,
+      routePaths.adminQuestions,
+      routePaths.adminStudents,
+      routePaths.adminReports,
+    ].some((pattern) => matchPath(pattern, path))
+  )
+    return 'admin'
   if (matchPath(routePaths.authCallback, path)) return 'login'
   if (matchPath(routePaths.curriculumLesson, path)) return 'curriculum'
   if (matchPath(routePaths.laboratory, path)) return 'lab'
@@ -64,6 +74,11 @@ export function getPageContext(pathname: string) {
   if (matchPath(routePaths.curriculumLesson, pathname)) return 'Lesson Experiments'
   if (matchPath(routePaths.account, pathname) || matchPath(routePaths.profile, pathname))
     return 'Your Profile'
+  if (matchPath(routePaths.adminCurriculum, pathname)) return 'Curriculum'
+  if (matchPath(routePaths.adminExperiments, pathname)) return 'Experiments'
+  if (matchPath(routePaths.adminQuestions, pathname)) return 'Questions'
+  if (matchPath(routePaths.adminStudents, pathname)) return 'Students'
+  if (matchPath(routePaths.adminReports, pathname)) return 'Reports'
   if (matchPath(routePaths.admin, pathname)) return 'Admin'
   if (matchPath(routePaths.authCallback, pathname)) return 'Confirm Your Email'
   if (matchPath(routePaths.forgotPassword, pathname)) return 'Forgot Password'
