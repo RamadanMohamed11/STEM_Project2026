@@ -87,7 +87,7 @@ export const adminNavigationItems: readonly AdminNavigationItem[] = [
     eyebrow: 'Assessment Bank',
     to: routePaths.adminQuestions,
     icon: FileQuestion,
-    status: 'planned',
+    status: 'active',
     plannedTask: 'T34',
     description:
       'Author, validate, and version post-experiment multiple-choice assessment questions and explanations.',

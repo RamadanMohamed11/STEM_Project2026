@@ -8,6 +8,8 @@ import { QuizReviewScreen } from '@/features/assessments/components/QuizReviewSc
 import { QuizUnavailable } from '@/features/assessments/components/QuizUnavailable'
 import { getAssessmentForExperiment } from '@/features/assessments/lib/assessmentSelectors'
 import { useQuizState } from '@/features/assessments/state/useQuizState'
+import { useStudentAssessmentCatalog } from '@/features/assessments/state/useStudentAssessmentCatalog'
+import { useStudentExperimentCatalog } from '@/features/experiments/state/useStudentExperimentCatalog'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import type { Experiment } from '@/types/experiment'
 
@@ -17,7 +19,15 @@ export function ExperimentQuizPage() {
   const paths = getExperimentPaths(experiment.id)
   usePageTitle(`${experiment.title} — Quiz`)
 
-  const assessment = getAssessmentForExperiment(experiment.id)
+  const { assessments } = useStudentAssessmentCatalog()
+  const { catalog } = useStudentExperimentCatalog()
+  const knownExperimentIds = catalog.experiments.map((exp) => exp.id)
+
+  const assessment = getAssessmentForExperiment(
+    experiment.id,
+    assessments,
+    knownExperimentIds,
+  )
   const quizState = useQuizState(assessment, {
     onSubmitted: (result) => {
       navigate(paths.results, { state: { result } })

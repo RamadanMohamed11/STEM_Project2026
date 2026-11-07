@@ -4,6 +4,7 @@ import { AdminLayout } from '@/features/admin/components/AdminLayout'
 import { AdminCurriculumPage } from '@/pages/AdminCurriculumPage'
 import { AdminExperimentsPage } from '@/pages/AdminExperimentsPage'
 import { AdminFoundationPage } from '@/pages/AdminFoundationPage'
+import { AdminQuestionsPage } from '@/pages/AdminQuestionsPage'
 import { AdminSectionPlaceholderPage } from '@/pages/AdminSectionPlaceholderPage'
 import { StudentProfilePage } from '@/pages/StudentProfilePage'
 import { AuthCallbackPage } from '@/pages/AuthCallbackPage'
@@ -38,10 +39,7 @@ export function AppRoutes() {
           <Route index element={<AdminFoundationPage />} />
           <Route path="curriculum" element={<AdminCurriculumPage />} />
           <Route path="experiments" element={<AdminExperimentsPage />} />
-          <Route
-            path="questions"
-            element={<AdminSectionPlaceholderPage sectionId="questions" />}
-          />
+          <Route path="questions" element={<AdminQuestionsPage />} />
           <Route
             path="students"
             element={<AdminSectionPlaceholderPage sectionId="students" />}

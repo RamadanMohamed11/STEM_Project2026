@@ -230,7 +230,7 @@ test('AdminLayout, Dashboard Overview, and all 6 admin routes enforce authorizat
     for (const [subPath, sectionHeading, isPlaceholder] of [
       [routePaths.adminCurriculum, 'Curriculum Management Workspace', false],
       [routePaths.adminExperiments, 'Experiments Management Workspace', false],
-      [routePaths.adminQuestions, 'Questions Management Workspace', true],
+      [routePaths.adminQuestions, 'Questions Management Workspace', false],
       [routePaths.adminStudents, 'Students Management Workspace', true],
       [routePaths.adminReports, 'Reports Management Workspace', true],
     ]) {

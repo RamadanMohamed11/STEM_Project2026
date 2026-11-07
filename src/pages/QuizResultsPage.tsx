@@ -13,6 +13,8 @@ import {
   clearLatestAssessmentResult,
   getLatestAssessmentResult,
 } from '@/features/assessments/state/assessmentResultsStore'
+import { useStudentAssessmentCatalog } from '@/features/assessments/state/useStudentAssessmentCatalog'
+import { useStudentExperimentCatalog } from '@/features/experiments/state/useStudentExperimentCatalog'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import type { AssessmentResultRecord } from '@/types/assessment'
 import type { Experiment } from '@/types/experiment'
@@ -24,6 +26,10 @@ export function QuizResultsPage() {
   const paths = getExperimentPaths(experiment.id)
   usePageTitle(`${experiment.title} — Quiz Results`)
 
+  const { assessments } = useStudentAssessmentCatalog()
+  const { catalog } = useStudentExperimentCatalog()
+  const knownExperimentIds = catalog.experiments.map((exp) => exp.id)
+
   // Check router location state first, then fallback to in-memory session store
   const stateResult = (location.state as { result?: AssessmentResultRecord } | null)?.result
   const result: AssessmentResultRecord | null =
@@ -31,7 +37,11 @@ export function QuizResultsPage() {
       ? stateResult
       : getLatestAssessmentResult(experiment.id)
 
-  const assessment = getAssessmentForExperiment(experiment.id)
+  const assessment = getAssessmentForExperiment(
+    experiment.id,
+    assessments,
+    knownExperimentIds,
+  )
   const quizTitle = assessment?.title ?? 'Multiple-Choice Review'
 
   const handleRetake = () => {
