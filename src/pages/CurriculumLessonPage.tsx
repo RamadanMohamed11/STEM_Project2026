@@ -1,10 +1,16 @@
 import { useParams } from 'react-router'
 import { LessonExperiments } from '@/features/curriculum/components/LessonExperiments'
-import { sampleCurriculum } from '@/features/curriculum/data/sampleCurriculum'
+import { useStudentCurriculumData } from '@/features/curriculum/state/useStudentCurriculumData'
 import { usePageTitle } from '@/hooks/usePageTitle'
+import type { CurriculumData } from '@/types/curriculum'
 
-export function CurriculumLessonPage() {
+export interface CurriculumLessonPageProps {
+  curriculumData?: CurriculumData
+}
+
+export function CurriculumLessonPage({ curriculumData }: CurriculumLessonPageProps = {}) {
   usePageTitle('Lesson Experiments')
   const { lessonId } = useParams()
-  return <LessonExperiments data={sampleCurriculum} lessonId={lessonId} />
+  const { data: activeCurriculum } = useStudentCurriculumData(curriculumData)
+  return <LessonExperiments data={activeCurriculum} lessonId={lessonId} />
 }

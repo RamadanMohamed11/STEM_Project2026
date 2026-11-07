@@ -2,7 +2,6 @@ import { useSearchParams } from 'react-router'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { ButtonLink } from '@/components/ui/ButtonLink'
 import { routePaths } from '@/app/paths'
-import { sampleCurriculum } from '@/features/curriculum/data/sampleCurriculum'
 import { getAvailableGrades, getTermsForGrade } from '@/features/curriculum/lib/curriculumSelectors'
 import {
   getCurriculumUnits,
@@ -11,9 +10,11 @@ import {
 import { UnitBrowser } from '@/features/curriculum/components/UnitBrowser'
 import { getStoredGradeId } from '@/features/curriculum/state/gradeSelection'
 import { getStoredTermId } from '@/features/curriculum/state/termSelection'
+import { useStudentCurriculumData } from '@/features/curriculum/state/useStudentCurriculumData'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { curriculumBreadcrumbs } from '@/features/curriculum/lib/curriculumBreadcrumbs'
+import type { CurriculumData } from '@/types/curriculum'
 
 function storedContext() {
   try {
@@ -23,17 +24,22 @@ function storedContext() {
   }
 }
 
-export function CurriculumPage() {
+export interface CurriculumPageProps {
+  curriculumData?: CurriculumData
+}
+
+export function CurriculumPage({ curriculumData }: CurriculumPageProps = {}) {
   usePageTitle('Your Lessons')
+  const { data: activeCurriculum, source } = useStudentCurriculumData(curriculumData)
   const [params, setParams] = useSearchParams()
   const stored = !['grade', 'term', 'unit'].some((key) => params.has(key)) ? storedContext() : null
   const { grade, term, invalid } = resolveCurriculumContext(
-    sampleCurriculum,
+    activeCurriculum,
     params.get('grade') ?? stored?.grade ?? null,
     params.get('term') ?? stored?.term ?? null,
   )
-  const terms = getTermsForGrade(sampleCurriculum, grade?.id)
-  const units = getCurriculumUnits(sampleCurriculum, term?.id ?? null)
+  const terms = getTermsForGrade(activeCurriculum, grade?.id)
+  const units = getCurriculumUnits(activeCurriculum, term?.id ?? null)
   const unitId = params.get('unit')
   const selectedUnit = units.find((item) => item.unit.id === unitId)?.unit
   const invalidUnit = params.has('unit') && !selectedUnit
@@ -57,10 +63,17 @@ export function CurriculumPage() {
         title="Your Lessons"
         description="Explore units and lessons for your grade and term."
       />
-      <p className="rounded-xl border border-line bg-teal-soft p-4 text-sm leading-relaxed text-ink">
-        <strong>Demonstration data.</strong> These examples are not the official Egyptian chemistry
-        curriculum. The official units, lessons and experiment links are still under review.
-      </p>
+      {source === 'sample' ? (
+        <p className="rounded-xl border border-line bg-teal-soft p-4 text-sm leading-relaxed text-ink">
+          <strong>Demonstration data.</strong> These examples are not the official Egyptian chemistry
+          curriculum. The official units, lessons and experiment links are still under review.
+        </p>
+      ) : (
+        <p className="rounded-xl border border-line bg-emerald-50/80 p-4 text-sm leading-relaxed text-ink">
+          <strong>Published curriculum.</strong> Showing published units and lessons for the selected
+          academic grade and term.
+        </p>
+      )}
       <section aria-label="Grade and term" className="grid gap-5 sm:grid-cols-2">
         <div>
           <label htmlFor="curriculum-grade" className="text-sm font-semibold text-navy">
@@ -75,7 +88,7 @@ export function CurriculumPage() {
             }
           >
             <option value="">Choose Your Grade</option>
-            {getAvailableGrades(sampleCurriculum).map((item) => (
+            {getAvailableGrades(activeCurriculum).map((item) => (
               <option key={item.id} value={item.id}>
                 {item.title}
               </option>

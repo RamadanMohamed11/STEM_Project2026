@@ -258,9 +258,15 @@ export function AdminFoundationPage({
                         <p className="text-xs font-medium text-ink-muted">{section.eyebrow}</p>
                       </div>
                     </div>
-                    <StatusPill tone="neutral">
-                      Planned {section.plannedTask ? `(${section.plannedTask})` : ''}
-                    </StatusPill>
+                    {section.status === 'active' ? (
+                      <StatusPill tone="ready" dot>
+                        Active {section.plannedTask ? `(${section.plannedTask})` : ''}
+                      </StatusPill>
+                    ) : (
+                      <StatusPill tone="neutral">
+                        Planned {section.plannedTask ? `(${section.plannedTask})` : ''}
+                      </StatusPill>
+                    )}
                   </div>
 
                   <p className="text-sm leading-relaxed text-ink-secondary">

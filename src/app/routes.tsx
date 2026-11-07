@@ -1,6 +1,7 @@
 import { RequireAuth } from '@/features/auth/RequireAuth'
 import { RequireAdmin } from '@/features/auth/RequireRole'
 import { AdminLayout } from '@/features/admin/components/AdminLayout'
+import { AdminCurriculumPage } from '@/pages/AdminCurriculumPage'
 import { AdminFoundationPage } from '@/pages/AdminFoundationPage'
 import { AdminSectionPlaceholderPage } from '@/pages/AdminSectionPlaceholderPage'
 import { StudentProfilePage } from '@/pages/StudentProfilePage'
@@ -34,10 +35,7 @@ export function AppRoutes() {
       <Route path={routePaths.admin} element={<RequireAdmin />}>
         <Route element={<AdminLayout />}>
           <Route index element={<AdminFoundationPage />} />
-          <Route
-            path="curriculum"
-            element={<AdminSectionPlaceholderPage sectionId="curriculum" />}
-          />
+          <Route path="curriculum" element={<AdminCurriculumPage />} />
           <Route
             path="experiments"
             element={<AdminSectionPlaceholderPage sectionId="experiments" />}

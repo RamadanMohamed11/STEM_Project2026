@@ -226,17 +226,19 @@ test('AdminLayout, Dashboard Overview, and all 6 admin routes enforce authorizat
     assert.match(populatedOverviewHtml, />24</)
     assert.match(populatedOverviewHtml, /Verified student role assignments in Supabase/)
 
-    // 3. Verify all 5 placeholder subroutes render for authorized admin and block unauthorized users
-    for (const [subPath, sectionHeading] of [
-      [routePaths.adminCurriculum, 'Curriculum Management Workspace'],
-      [routePaths.adminExperiments, 'Experiments Management Workspace'],
-      [routePaths.adminQuestions, 'Questions Management Workspace'],
-      [routePaths.adminStudents, 'Students Management Workspace'],
-      [routePaths.adminReports, 'Reports Management Workspace'],
+    // 3. Verify all 5 admin subroutes render for authorized admin and block unauthorized users
+    for (const [subPath, sectionHeading, isPlaceholder] of [
+      [routePaths.adminCurriculum, 'Curriculum Management Workspace', false],
+      [routePaths.adminExperiments, 'Experiments Management Workspace', true],
+      [routePaths.adminQuestions, 'Questions Management Workspace', true],
+      [routePaths.adminStudents, 'Students Management Workspace', true],
+      [routePaths.adminReports, 'Reports Management Workspace', true],
     ]) {
       const adminSubMarkup = renderRoute(subPath, adminState)
       assert.ok(adminSubMarkup.includes(sectionHeading), `Admin should see ${sectionHeading}`)
-      assert.match(adminSubMarkup, /Scheduled Module/)
+      if (isPlaceholder) {
+        assert.match(adminSubMarkup, /Scheduled Module/)
+      }
       assert.match(adminSubMarkup, /aria-label="Admin sidebar"/)
 
       // Student cannot access any admin subroute

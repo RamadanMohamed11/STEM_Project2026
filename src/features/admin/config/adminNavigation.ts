@@ -53,7 +53,7 @@ export const adminNavigationItems: readonly AdminNavigationItem[] = [
     eyebrow: 'Academic Structure',
     to: routePaths.adminCurriculum,
     icon: BookOpen,
-    status: 'planned',
+    status: 'active',
     plannedTask: 'T32',
     description:
       'Organize secondary school grades, academic terms, chemistry units, and lesson associations.',
