@@ -9,7 +9,7 @@ export function AchievementIllustration({ tier }: AchievementIllustrationProps) 
     return (
       <div
         aria-hidden="true"
-        className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-teal-soft text-teal-dark sm:size-16"
+        className="animate-subtle-float flex size-14 shrink-0 items-center justify-center rounded-2xl bg-teal-soft text-teal-dark sm:size-16"
       >
         <svg
           viewBox="0 0 48 48"
@@ -49,7 +49,7 @@ export function AchievementIllustration({ tier }: AchievementIllustrationProps) 
     return (
       <div
         aria-hidden="true"
-        className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-teal-soft/70 text-teal-dark sm:size-16"
+        className="animate-subtle-float flex size-14 shrink-0 items-center justify-center rounded-2xl bg-teal-soft/70 text-teal-dark sm:size-16"
       >
         <svg
           viewBox="0 0 48 48"
@@ -91,7 +91,7 @@ export function AchievementIllustration({ tier }: AchievementIllustrationProps) 
   return (
     <div
       aria-hidden="true"
-      className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-900 sm:size-16"
+      className="animate-subtle-float flex size-14 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-900 sm:size-16"
     >
       <svg
         viewBox="0 0 48 48"

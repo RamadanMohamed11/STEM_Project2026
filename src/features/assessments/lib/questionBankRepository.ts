@@ -8,7 +8,10 @@ import type {
   QuestionOption,
 } from '../../../types/assessment.ts'
 import type { ExperimentDifficulty } from '../../../types/experiment.ts'
-import type { SupabaseLikeClient } from '../../curriculum/lib/curriculumManagementRepository.ts'
+import type {
+  SupabaseLikeClient,
+  SupabaseLikeQueryResult,
+} from '../../curriculum/lib/curriculumManagementRepository.ts'
 import { assessmentCatalog } from '../data/assessmentCatalog.ts'
 import {
   addQuestionToAssessmentInBank,
@@ -78,9 +81,7 @@ export function getActiveManagedQuestionBankState(): AdminQuestionBankState | nu
   return activeManagedQuestionBankState
 }
 
-export function setActiveManagedQuestionBankState(
-  state: AdminQuestionBankState | null,
-): void {
+export function setActiveManagedQuestionBankState(state: AdminQuestionBankState | null): void {
   activeManagedQuestionBankState = state
   for (const listener of listeners) {
     listener()
@@ -117,9 +118,7 @@ export function mapQuestionRow(row: AssessmentQuestionRow): MultipleChoiceQuesti
         id: opt.id,
         text: opt.text,
         order:
-          typeof opt.order === 'number' && Number.isSafeInteger(opt.order)
-            ? opt.order
-            : idx + 1,
+          typeof opt.order === 'number' && Number.isSafeInteger(opt.order) ? opt.order : idx + 1,
       }))
     : []
 
@@ -134,9 +133,7 @@ export function mapQuestionRow(row: AssessmentQuestionRow): MultipleChoiceQuesti
     explanation: row.explanation,
     difficulty: row.difficulty ?? 'beginner',
     reviewStatus: 'draft',
-    ...(row.learning_objective_id
-      ? { learningObjectiveId: row.learning_objective_id }
-      : {}),
+    ...(row.learning_objective_id ? { learningObjectiveId: row.learning_objective_id } : {}),
   }
 }
 
@@ -253,9 +250,7 @@ export interface QuestionBankRepository {
   loadAdminState: (
     authState?: QuestionBankAuthCheck | null,
   ) => Promise<QuestionBankMutationResult<AdminQuestionBankState>>
-  loadPublishedStudentCatalog: () => Promise<
-    readonly ExperimentAssessmentDefinition[] | null
-  >
+  loadPublishedStudentCatalog: () => Promise<readonly ExperimentAssessmentDefinition[] | null>
   createAssessment: (
     state: AdminQuestionBankState,
     input: CreateAssessmentInput,
@@ -307,21 +302,36 @@ export interface QuestionBankRepository {
 export function createQuestionBankRepository(
   client: SupabaseLikeClient | null,
 ): QuestionBankRepository {
-  async function persistVersionSnapshotsIfNeeded(
-    record: ManagedAssessmentRecord,
+  const saveFailure = () => ({
+    ok: false as const,
+    code: 'validation_error' as const,
+    message: 'Changes could not be fully saved. Reload before trying again.',
+  })
+
+  // Returning one row also detects writes silently filtered out by RLS or a stale ID.
+  async function persistWrite(
+    query: PromiseLike<SupabaseLikeQueryResult<unknown>> & {
+      select?: (columns?: string) => {
+        single: () => PromiseLike<SupabaseLikeQueryResult<unknown>>
+      }
+    },
   ): Promise<void> {
+    if (!query.select) throw new Error('Write confirmation is unavailable.')
+    const { data, error } = await query.select('id').single()
+    if (error || !data) throw new Error('Write was not confirmed.')
+  }
+
+  async function persistVersionSnapshotsIfNeeded(record: ManagedAssessmentRecord): Promise<void> {
     if (!client || record.versionHistory.length === 0) return
     const latest = record.versionHistory[record.versionHistory.length - 1]
     if (!latest) return
-    try {
-      await client.from('assessment_version_snapshots').insert({
-        assessment_id: record.id,
-        version: latest.version,
-        snapshot: latest.assessment,
-      })
-    } catch {
-      // Ignore duplicate snapshot insert if already recorded
-    }
+    const { error } = await client.from('assessment_version_snapshots').insert({
+      assessment_id: record.id,
+      version: latest.version,
+      snapshot: latest.assessment,
+    })
+    // This immutable version may already have been recorded; other errors matter.
+    if (error && error.code !== '23505') throw new Error('Snapshot was not saved.')
   }
 
   return {
@@ -347,11 +357,7 @@ export function createQuestionBankRepository(
             'experiment_assessments',
             'sort_order',
           ),
-          selectOrderedRows<AssessmentQuestionRow>(
-            client,
-            'assessment_questions',
-            'sort_order',
-          ),
+          selectOrderedRows<AssessmentQuestionRow>(client, 'assessment_questions', 'sort_order'),
           selectOrderedRows<AssessmentVersionSnapshotRow>(
             client,
             'assessment_version_snapshots',
@@ -362,16 +368,15 @@ export function createQuestionBankRepository(
         if (
           assessRes.error ||
           questRes.error ||
+          snapRes.error ||
           !assessRes.data ||
-          assessRes.data.length === 0
+          !questRes.data ||
+          !snapRes.data
         ) {
-          const fallback =
-            getActiveManagedQuestionBankState() ?? createInitialAdminQuestionBankState()
-          setActiveManagedQuestionBankState(fallback)
           return {
-            ok: true,
-            data: fallback,
-            state: fallback,
+            ok: false,
+            code: 'validation_error',
+            message: 'Questions could not be loaded. Please try again.',
           }
         }
 
@@ -389,13 +394,10 @@ export function createQuestionBankRepository(
           state: loadedState,
         }
       } catch {
-        const fallback =
-          getActiveManagedQuestionBankState() ?? createInitialAdminQuestionBankState()
-        setActiveManagedQuestionBankState(fallback)
         return {
-          ok: true,
-          data: fallback,
-          state: fallback,
+          ok: false,
+          code: 'validation_error',
+          message: 'Questions could not be loaded. Please try again.',
         }
       }
     },
@@ -412,19 +414,10 @@ export function createQuestionBankRepository(
             'experiment_assessments',
             'sort_order',
           ),
-          selectOrderedRows<AssessmentQuestionRow>(
-            client,
-            'assessment_questions',
-            'sort_order',
-          ),
+          selectOrderedRows<AssessmentQuestionRow>(client, 'assessment_questions', 'sort_order'),
         ])
 
-        if (
-          assessRes.error ||
-          questRes.error ||
-          !assessRes.data ||
-          assessRes.data.length === 0
-        ) {
+        if (assessRes.error || questRes.error || !assessRes.data || assessRes.data.length === 0) {
           return null
         }
 
@@ -443,145 +436,172 @@ export function createQuestionBankRepository(
     },
 
     async createAssessment(state, input, authState) {
-      const result = createAssessmentInBank(state, input, authState)
-      if (!result.ok) return result
+      try {
+        const result = createAssessmentInBank(state, input, authState)
+        if (!result.ok) return result
 
-      if (client) {
-        const { error } = await client
-          .from('experiment_assessments')
-          .insert(toAssessmentDatabaseRow(result.data))
-        if (error) {
-          return {
-            ok: false,
-            code: 'validation_error',
-            message: error.message || 'Failed to save new assessment in database.',
+        if (client) {
+          await persistWrite(
+            client.from('experiment_assessments').insert(toAssessmentDatabaseRow(result.data)),
+          )
+
+          for (const question of result.data.assessment.questions) {
+            await persistWrite(
+              client
+                .from('assessment_questions')
+                .insert(toQuestionDatabaseRow(result.data.id, question)),
+            )
           }
         }
 
-        for (const question of result.data.assessment.questions) {
-          await client
-            .from('assessment_questions')
-            .insert(toQuestionDatabaseRow(result.data.id, question))
-        }
+        setActiveManagedQuestionBankState(result.state)
+        return result
+      } catch {
+        return saveFailure()
       }
-
-      setActiveManagedQuestionBankState(result.state)
-      return result
     },
 
     async updateAssessmentMetadata(state, input, authState) {
-      const result = updateAssessmentMetadataInBank(state, input, authState)
-      if (!result.ok) return result
+      try {
+        const result = updateAssessmentMetadataInBank(state, input, authState)
+        if (!result.ok) return result
 
-      if (client) {
-        await client
-          .from('experiment_assessments')
-          .update(toAssessmentDatabaseRow(result.data))
-          .eq('id', result.data.id)
-        await persistVersionSnapshotsIfNeeded(result.data)
+        if (client) {
+          await persistWrite(
+            client
+              .from('experiment_assessments')
+              .update(toAssessmentDatabaseRow(result.data))
+              .eq('id', result.data.id),
+          )
+          await persistVersionSnapshotsIfNeeded(result.data)
+        }
+
+        setActiveManagedQuestionBankState(result.state)
+        return result
+      } catch {
+        return saveFailure()
       }
-
-      setActiveManagedQuestionBankState(result.state)
-      return result
     },
 
     async addQuestion(state, assessmentId, questionInput, authState) {
-      const result = addQuestionToAssessmentInBank(
-        state,
-        assessmentId,
-        questionInput,
-        authState,
-      )
-      if (!result.ok) return result
+      try {
+        const result = addQuestionToAssessmentInBank(state, assessmentId, questionInput, authState)
+        if (!result.ok) return result
 
-      if (client) {
-        await client
-          .from('assessment_questions')
-          .insert(toQuestionDatabaseRow(assessmentId, result.data.question))
-        await client
-          .from('experiment_assessments')
-          .update(toAssessmentDatabaseRow(result.data.record))
-          .eq('id', assessmentId)
-        await persistVersionSnapshotsIfNeeded(result.data.record)
+        if (client) {
+          await persistWrite(
+            client
+              .from('assessment_questions')
+              .insert(toQuestionDatabaseRow(assessmentId, result.data.question)),
+          )
+          await persistWrite(
+            client
+              .from('experiment_assessments')
+              .update(toAssessmentDatabaseRow(result.data.record))
+              .eq('id', assessmentId),
+          )
+          await persistVersionSnapshotsIfNeeded(result.data.record)
+        }
+
+        setActiveManagedQuestionBankState(result.state)
+        return result
+      } catch {
+        return saveFailure()
       }
-
-      setActiveManagedQuestionBankState(result.state)
-      return result
     },
 
     async updateQuestion(state, assessmentId, questionId, questionInput, authState) {
-      const result = updateQuestionInAssessmentInBank(
-        state,
-        assessmentId,
-        questionId,
-        questionInput,
-        authState,
-      )
-      if (!result.ok) return result
+      try {
+        const result = updateQuestionInAssessmentInBank(
+          state,
+          assessmentId,
+          questionId,
+          questionInput,
+          authState,
+        )
+        if (!result.ok) return result
 
-      if (client) {
-        await client
-          .from('assessment_questions')
-          .update(toQuestionDatabaseRow(assessmentId, result.data.question))
-          .eq('id', questionId)
-        await client
-          .from('experiment_assessments')
-          .update(toAssessmentDatabaseRow(result.data.record))
-          .eq('id', assessmentId)
-        await persistVersionSnapshotsIfNeeded(result.data.record)
+        if (client) {
+          await persistWrite(
+            client
+              .from('assessment_questions')
+              .update(toQuestionDatabaseRow(assessmentId, result.data.question))
+              .eq('id', questionId),
+          )
+          await persistWrite(
+            client
+              .from('experiment_assessments')
+              .update(toAssessmentDatabaseRow(result.data.record))
+              .eq('id', assessmentId),
+          )
+          await persistVersionSnapshotsIfNeeded(result.data.record)
+        }
+
+        setActiveManagedQuestionBankState(result.state)
+        return result
+      } catch {
+        return saveFailure()
       }
-
-      setActiveManagedQuestionBankState(result.state)
-      return result
     },
 
     async reorderQuestion(state, assessmentId, questionId, direction, authState) {
-      const result = reorderQuestionInAssessmentInBank(
-        state,
-        assessmentId,
-        questionId,
-        direction,
-        authState,
-      )
-      if (!result.ok) return result
+      try {
+        const result = reorderQuestionInAssessmentInBank(
+          state,
+          assessmentId,
+          questionId,
+          direction,
+          authState,
+        )
+        if (!result.ok) return result
 
-      if (client) {
-        for (const q of result.data.assessment.questions) {
-          await client
-            .from('assessment_questions')
-            .update({ sort_order: q.order })
-            .eq('id', q.id)
+        if (client) {
+          for (const q of result.data.assessment.questions) {
+            await persistWrite(
+              client.from('assessment_questions').update({ sort_order: q.order }).eq('id', q.id),
+            )
+          }
+          await persistWrite(
+            client
+              .from('experiment_assessments')
+              .update(toAssessmentDatabaseRow(result.data))
+              .eq('id', assessmentId),
+          )
+          await persistVersionSnapshotsIfNeeded(result.data)
         }
-        await client
-          .from('experiment_assessments')
-          .update(toAssessmentDatabaseRow(result.data))
-          .eq('id', assessmentId)
-        await persistVersionSnapshotsIfNeeded(result.data)
-      }
 
-      setActiveManagedQuestionBankState(result.state)
-      return result
+        setActiveManagedQuestionBankState(result.state)
+        return result
+      } catch {
+        return saveFailure()
+      }
     },
 
     async setPublicationStatus(state, assessmentId, nextStatus, authState) {
-      const result = setAssessmentPublicationStatusInBank(
-        state,
-        assessmentId,
-        nextStatus,
-        authState,
-      )
-      if (!result.ok) return result
+      try {
+        const result = setAssessmentPublicationStatusInBank(
+          state,
+          assessmentId,
+          nextStatus,
+          authState,
+        )
+        if (!result.ok) return result
 
-      if (client) {
-        await client
-          .from('experiment_assessments')
-          .update(toAssessmentDatabaseRow(result.data))
-          .eq('id', assessmentId)
-        await persistVersionSnapshotsIfNeeded(result.data)
+        if (client) {
+          await persistWrite(
+            client
+              .from('experiment_assessments')
+              .update(toAssessmentDatabaseRow(result.data))
+              .eq('id', assessmentId),
+          )
+          await persistVersionSnapshotsIfNeeded(result.data)
+        }
+
+        setActiveManagedQuestionBankState(result.state)
+        return result
+      } catch {
+        return saveFailure()
       }
-
-      setActiveManagedQuestionBankState(result.state)
-      return result
     },
   }
 }

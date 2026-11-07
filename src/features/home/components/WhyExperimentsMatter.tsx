@@ -28,7 +28,7 @@ const benefits: BenefitItem[] = [
     iconTone: 'bg-teal-soft text-teal-dark',
     focusBadge: 'Observable Evidence',
     description:
-      'Watch salt crystals dissolve into transparent liquid, feel temperature changes as reactions take in or release heat, and notice color changes and gas bubbles. Real physical evidence proves that chemical changes have occurred.',
+      'Observe how materials change and compare your observations with measurements. Dissolving salt is a physical change: the salt is still present in the water. A visible change alone does not prove that a new substance has formed.',
     studentTakeaway: 'Learn to make accurate scientific observations with your own senses.',
   },
   {
@@ -84,12 +84,12 @@ export function WhyExperimentsMatter() {
           return (
             <div
               key={item.id}
-              className="flex flex-col justify-between rounded-xl border border-line bg-canvas/60 p-5 transition-colors hover:border-line-strong hover:bg-canvas sm:p-6"
+              className="group flex flex-col justify-between rounded-xl border border-line bg-canvas/60 p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-teal/30 hover:bg-white hover:shadow-md sm:p-6"
             >
               <div>
                 <div className="flex items-center justify-between gap-2">
                   <span
-                    className={`flex size-11 items-center justify-center rounded-xl ${item.iconTone}`}
+                    className={`flex size-11 items-center justify-center rounded-xl transition-transform duration-300 ease-out group-hover:scale-110 ${item.iconTone}`}
                   >
                     <Icon size={22} strokeWidth={1.9} aria-hidden="true" />
                   </span>

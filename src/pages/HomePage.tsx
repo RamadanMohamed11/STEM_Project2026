@@ -20,7 +20,7 @@ export function HomePage() {
         className="overflow-hidden rounded-2xl border border-line bg-white shadow-card lg:grid lg:grid-cols-[minmax(0,1.16fr)_minmax(0,0.94fr)]"
       >
         <div className="flex flex-col justify-center px-5 py-8 sm:px-10 sm:py-12 xl:px-12 xl:py-14">
-          <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-teal/20 bg-teal-soft/80 px-3.5 py-1 text-xs font-semibold text-teal-dark sm:mb-5">
+          <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-teal/20 bg-teal-soft/80 px-3.5 py-1 text-xs font-semibold text-teal-dark sm:mb-5 animate-subtle-float">
             <Sparkles size={13} className="text-teal" aria-hidden="true" />
             <span>Welcome to STEM Virtual Lab</span>
           </div>
@@ -39,15 +39,15 @@ export function HomePage() {
 
           {/* Quick feature highlights for students */}
           <ul className="mt-6 flex flex-wrap gap-2 text-xs font-medium text-navy sm:gap-3">
-            <li className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-canvas px-2.5 py-1.5">
+            <li className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-canvas px-2.5 py-1.5 transition-all duration-200 hover:border-teal/30 hover:bg-white hover:shadow-xs">
               <CheckCircle2 size={14} className="text-teal" aria-hidden="true" />
               <span>Full 3D Virtual Lab</span>
             </li>
-            <li className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-canvas px-2.5 py-1.5">
+            <li className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-canvas px-2.5 py-1.5 transition-all duration-200 hover:border-teal/30 hover:bg-white hover:shadow-xs">
               <CheckCircle2 size={14} className="text-teal" aria-hidden="true" />
               <span>Step-by-Step Guidance</span>
             </li>
-            <li className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-canvas px-2.5 py-1.5">
+            <li className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-canvas px-2.5 py-1.5 transition-all duration-200 hover:border-teal/30 hover:bg-white hover:shadow-xs">
               <CheckCircle2 size={14} className="text-teal" aria-hidden="true" />
               <span>Safe Chemical Practice</span>
             </li>
@@ -73,7 +73,7 @@ export function HomePage() {
           </div>
 
           <div className="mt-8 flex items-center gap-3 border-t border-line pt-4 text-xs leading-relaxed text-ink/70">
-            <span className="size-2 shrink-0 rounded-full bg-teal" aria-hidden="true" />
+            <span className="size-2 shrink-0 rounded-full bg-teal animate-pulse-glow" aria-hidden="true" />
             <span>Interactive science education for secondary school students</span>
           </div>
         </div>

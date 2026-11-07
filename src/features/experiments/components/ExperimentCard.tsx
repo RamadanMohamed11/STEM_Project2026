@@ -25,7 +25,7 @@ export function ExperimentCard({ experiment, category, index, returnTo }: Experi
   return (
     <article
       aria-label={experiment.title}
-      className="flex min-w-0 flex-col overflow-hidden rounded-xl border border-line bg-white shadow-card transition-colors hover:border-line-strong"
+      className="group flex min-w-0 flex-col overflow-hidden rounded-xl border border-line bg-white shadow-card transition-all duration-300 ease-out hover:-translate-y-1 hover:border-teal/40 hover:shadow-lg"
     >
       <div className="relative h-43 overflow-hidden border-b border-line bg-[#eaf2f1] sm:h-46">
         <ExperimentIllustration illustration={experiment.illustration} />
@@ -95,7 +95,7 @@ export function ExperimentCard({ experiment, category, index, returnTo }: Experi
           {available ? (
             <Link
               to={getLabPath(experiment)}
-              className="inline-flex min-h-11 w-full items-center justify-between gap-3 rounded-lg bg-teal px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-teal-dark hover:shadow focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2 active:scale-[0.99]"
+              className="inline-flex min-h-11 w-full items-center justify-between gap-3 rounded-lg bg-teal px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:bg-teal-dark hover:shadow hover:-translate-y-0.5 focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2 active:translate-y-0 active:scale-[0.99]"
             >
               Start Experiment
               <ArrowUpRight size={18} aria-hidden="true" />

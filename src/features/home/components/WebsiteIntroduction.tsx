@@ -31,8 +31,8 @@ export function WebsiteIntroduction() {
           </p>
 
           <div className="mt-6 space-y-4">
-            <div className="flex items-start gap-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-teal-soft text-teal">
+            <div className="group flex items-start gap-3">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-teal-soft text-teal transition-transform duration-300 ease-out group-hover:scale-110">
                 <GraduationCap size={18} aria-hidden="true" />
               </span>
               <div>
@@ -44,8 +44,8 @@ export function WebsiteIntroduction() {
               </div>
             </div>
 
-            <div className="flex items-start gap-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-teal-soft text-teal">
+            <div className="group flex items-start gap-3">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-teal-soft text-teal transition-transform duration-300 ease-out group-hover:scale-110">
                 <FlaskConical size={18} aria-hidden="true" />
               </span>
               <div>
@@ -57,8 +57,8 @@ export function WebsiteIntroduction() {
               </div>
             </div>
 
-            <div className="flex items-start gap-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-teal-soft text-teal">
+            <div className="group flex items-start gap-3">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-teal-soft text-teal transition-transform duration-300 ease-out group-hover:scale-110">
                 <ShieldCheck size={18} aria-hidden="true" />
               </span>
               <div>
@@ -117,7 +117,7 @@ export function WebsiteIntroduction() {
               </li>
               <li className="flex items-center gap-2.5 text-navy">
                 <CheckCircle2 size={16} className="shrink-0 text-teal" aria-hidden="true" />
-                <span>Aligned with secondary school curriculum topics</span>
+                <span>Sample chemistry content awaiting academic review</span>
               </li>
               <li className="flex items-center gap-2.5 text-navy">
                 <CheckCircle2 size={16} className="shrink-0 text-teal" aria-hidden="true" />

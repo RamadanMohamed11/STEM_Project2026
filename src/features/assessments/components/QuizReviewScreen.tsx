@@ -152,7 +152,10 @@ export function QuizReviewScreen({
 
             <button
               type="button"
-              onClick={onCancelConfirmation ?? onBackToQuestions}
+              onClick={() => {
+                onCancelConfirmation?.()
+                onBackToQuestions()
+              }}
               className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-amber-300 bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:bg-canvas focus-visible:outline-teal"
             >
               <ArrowLeft size={16} aria-hidden="true" />

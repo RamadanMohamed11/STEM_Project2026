@@ -10,11 +10,7 @@ test('home page renders all four complete educational sections with accessible l
   try {
     const { AppRoutes } = await vite.ssrLoadModule('/src/app/routes.tsx')
     const markup = renderToStaticMarkup(
-      React.createElement(
-        MemoryRouter,
-        { initialEntries: ['/'] },
-        React.createElement(AppRoutes),
-      ),
+      React.createElement(MemoryRouter, { initialEntries: ['/'] }, React.createElement(AppRoutes)),
     )
 
     // 1. T05 Hero remains intact
@@ -89,10 +85,12 @@ test('home page renders all four complete educational sections with accessible l
     assert.ok(markup.includes('06'), 'Step 6 indicator')
     assert.ok(markup.includes('Test Your Knowledge'), 'Step 6 title')
 
-    // Status distinction: Available vs. Coming Soon
+    // The working journey distinguishes sample curriculum and draft practice.
     assert.ok(markup.includes('Available'), 'Available status pill')
     assert.ok(markup.includes('3D Lab Ready'), '3D Lab Ready status pill')
-    assert.ok(markup.includes('Coming Soon'), 'Coming Soon status pill')
+    assert.ok(markup.includes('Demonstration Data'), 'Sample curriculum status')
+    assert.ok(markup.includes('Draft Practice'), 'Draft quiz status')
+    assert.ok(!markup.includes('save your progress across lessons'), 'No account progress promise')
 
     // Navigation connections from 6 steps
     assert.ok(markup.includes('href="/signup"'), 'Step 1 link')

@@ -90,12 +90,12 @@ export function EverydayChemistry() {
           return (
             <article
               key={item.id}
-              className="flex flex-col justify-between rounded-xl border border-line bg-white p-5 shadow-card transition-all hover:border-line-strong hover:shadow-md sm:p-6"
+              className="group flex flex-col justify-between rounded-xl border border-line bg-white p-5 shadow-card transition-all duration-300 ease-out hover:-translate-y-1 hover:border-teal/30 hover:shadow-md sm:p-6"
             >
               <div>
                 <div className="flex items-center justify-between gap-2">
                   <span
-                    className={`flex size-11 items-center justify-center rounded-xl ${item.iconBg} ${item.iconColor}`}
+                    className={`flex size-11 items-center justify-center rounded-xl transition-transform duration-300 ease-out group-hover:scale-110 ${item.iconBg} ${item.iconColor}`}
                   >
                     <Icon size={22} strokeWidth={1.9} aria-hidden="true" />
                   </span>

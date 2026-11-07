@@ -24,10 +24,10 @@ export function GradeOptionCard({ grade, detail, isSelected, onSelect }: GradeOp
           onSelect(grade.id)
         }
       }}
-      className={`group relative flex cursor-pointer flex-col justify-between rounded-2xl border p-5 transition-all duration-150 select-none sm:p-6 ${
+      className={`group relative flex cursor-pointer flex-col justify-between rounded-2xl border p-5 transition-all duration-200 ease-out select-none sm:p-6 hover:-translate-y-1 hover:shadow-lg ${
         isSelected
           ? 'border-teal bg-teal-soft/15 shadow-md ring-2 ring-teal/25'
-          : 'border-line bg-white shadow-card hover:border-line-strong hover:shadow-md'
+          : 'border-line bg-white shadow-card hover:border-teal/40'
       } focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2`}
     >
       <div>
@@ -55,14 +55,14 @@ export function GradeOptionCard({ grade, detail, isSelected, onSelect }: GradeOp
 
           {/* Radio / Selection Check Circle */}
           <div
-            className={`flex size-6 shrink-0 items-center justify-center rounded-full border transition-all ${
+            className={`flex size-6 shrink-0 items-center justify-center rounded-full border transition-all duration-200 ${
               isSelected
-                ? 'border-teal bg-teal text-white shadow-sm'
-                : 'border-line-strong bg-canvas text-transparent group-hover:border-slate'
+                ? 'border-teal bg-teal text-white shadow-sm scale-105'
+                : 'border-line-strong bg-canvas text-transparent group-hover:border-slate group-hover:scale-105'
             }`}
             aria-hidden="true"
           >
-            {isSelected ? <Check size={14} strokeWidth={3} /> : <Circle size={10} className="opacity-0" />}
+            {isSelected ? <Check size={14} strokeWidth={3} className="animate-scale-in" /> : <Circle size={10} className="opacity-0" />}
           </div>
         </div>
 

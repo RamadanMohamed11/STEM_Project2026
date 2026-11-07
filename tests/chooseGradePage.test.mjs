@@ -59,7 +59,7 @@ test('choose grade page renders all three secondary grades with accessible selec
       'Introductory description',
     )
 
-    // Status / coming soon notice
+    // The shared grade selection works; academic content remains draft.
     assert.ok(markup.includes('Curriculum preview · Term details coming soon'), 'Preview status pill')
 
     // Radiogroup landmark

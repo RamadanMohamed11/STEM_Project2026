@@ -63,7 +63,7 @@ export function QuizResultsAnswerReview({ feedbackItems }: QuizResultsAnswerRevi
             type="button"
             onClick={() => setFilter('all')}
             aria-pressed={filter === 'all'}
-            className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 py-1.5 transition-colors ${
+            className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all duration-150 active:scale-95 ${
               filter === 'all'
                 ? 'bg-white text-navy shadow-sm'
                 : 'text-slate hover:text-navy'
@@ -77,7 +77,7 @@ export function QuizResultsAnswerReview({ feedbackItems }: QuizResultsAnswerRevi
             type="button"
             onClick={() => setFilter('missed')}
             aria-pressed={filter === 'missed'}
-            className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 py-1.5 transition-colors ${
+            className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all duration-150 active:scale-95 ${
               filter === 'missed'
                 ? 'bg-white text-navy shadow-sm'
                 : 'text-slate hover:text-navy'
@@ -91,7 +91,7 @@ export function QuizResultsAnswerReview({ feedbackItems }: QuizResultsAnswerRevi
             type="button"
             onClick={() => setFilter('correct')}
             aria-pressed={filter === 'correct'}
-            className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 py-1.5 transition-colors ${
+            className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all duration-150 active:scale-95 ${
               filter === 'correct'
                 ? 'bg-white text-navy shadow-sm'
                 : 'text-slate hover:text-navy'
@@ -117,7 +117,7 @@ export function QuizResultsAnswerReview({ feedbackItems }: QuizResultsAnswerRevi
               <article
                 key={item.questionId}
                 aria-label={`Question ${item.order} feedback`}
-                className={`space-y-4 rounded-xl border p-4 sm:p-5 transition-colors ${
+                className={`space-y-4 rounded-xl border p-4 sm:p-5 transition-all duration-200 hover:shadow-xs ${
                   isCorrect
                     ? 'border-teal/30 bg-teal-soft/20'
                     : isUnanswered

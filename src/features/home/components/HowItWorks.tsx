@@ -19,12 +19,12 @@ const journeySteps: JourneyStep[] = [
     step: '01',
     title: 'Create an Account',
     description:
-      'Set up your student profile to track completed experiments, review test scores, and save your progress across lessons.',
+      'Create your student profile and choose your grade. Practice progress stays in this browser.',
     route: routePaths.signUp,
-    actionLabel: 'Preview Account Page',
-    status: 'Coming Soon',
-    statusTone: 'neutral',
-    isAvailable: false,
+    actionLabel: 'Create Account',
+    status: 'Available',
+    statusTone: 'ready',
+    isAvailable: true,
   },
   {
     step: '02',
@@ -41,12 +41,12 @@ const journeySteps: JourneyStep[] = [
     step: '03',
     title: 'Choose Grade and Term',
     description:
-      'Select your secondary grade level (Grades 10–12) and current semester to find experiments matching your school curriculum.',
+      'Choose your grade and term to explore sample units and lessons. Official curriculum links are still under review.',
     route: routePaths.grades,
     actionLabel: 'Browse Curriculum',
-    status: 'Coming Soon',
+    status: 'Demonstration Data',
     statusTone: 'neutral',
-    isAvailable: false,
+    isAvailable: true,
   },
   {
     step: '04',
@@ -74,12 +74,12 @@ const journeySteps: JourneyStep[] = [
     step: '06',
     title: 'Test Your Knowledge',
     description:
-      'Complete post-experiment check-for-understanding quizzes to test what you learned and prepare for school science tests.',
+      'Try the draft salt-dissolution quiz and review explanations. Practice scores are not official school grades.',
     route: '/experiments/exp-salt-water-001/quiz',
-    actionLabel: 'Preview Quiz',
-    status: 'Coming Soon',
+    actionLabel: 'Try Practice Quiz',
+    status: 'Draft Practice',
     statusTone: 'neutral',
-    isAvailable: false,
+    isAvailable: true,
   },
 ]
 
@@ -108,21 +108,17 @@ export function HowItWorks() {
         {journeySteps.map((step) => (
           <li
             key={step.step}
-            className="flex flex-col justify-between rounded-xl border border-line bg-white p-5 shadow-card transition-all hover:border-line-strong hover:shadow-md sm:p-6"
+            className="group flex flex-col justify-between rounded-xl border border-line bg-white p-5 shadow-card transition-all duration-300 ease-out hover:-translate-y-1 hover:border-teal/30 hover:shadow-md sm:p-6"
           >
             <div>
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xl font-black tracking-tight text-teal">
-                  {step.step}
-                </span>
+                <span className="text-xl font-black tracking-tight text-teal transition-transform duration-300 ease-out group-hover:scale-110">{step.step}</span>
                 <StatusPill tone={step.statusTone} dot>
                   {step.status}
                 </StatusPill>
               </div>
 
-              <h3 className="mt-4 text-base font-bold text-navy sm:text-lg">
-                {step.title}
-              </h3>
+              <h3 className="mt-4 text-base font-bold text-navy sm:text-lg">{step.title}</h3>
 
               <p className="mt-2 text-xs leading-relaxed text-ink/75 sm:text-sm">
                 {step.description}

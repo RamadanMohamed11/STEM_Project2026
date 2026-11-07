@@ -46,7 +46,7 @@ export function QuizProgressBar({
         aria-label={`${answeredCount} of ${total} questions answered`}
       >
         <div
-          className="h-full rounded-full bg-teal transition-all duration-200"
+          className="h-full rounded-full bg-teal transition-all duration-500 ease-out"
           style={{ width: `${percent}%` }}
         />
       </div>
@@ -63,7 +63,7 @@ export function QuizProgressBar({
               onClick={() => onSelectIndex(index)}
               aria-current={isCurrent ? 'step' : undefined}
               aria-label={`Question ${index + 1}: ${isAnswered ? 'Answered' : 'Unanswered'}${isCurrent ? ' (Current)' : ''}`}
-              className={`flex size-8 shrink-0 items-center justify-center rounded-lg text-xs font-semibold transition-all select-none focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2 ${
+              className={`flex size-8 shrink-0 items-center justify-center rounded-lg text-xs font-semibold transition-all duration-150 select-none focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2 hover:scale-105 active:scale-95 ${
                 isCurrent
                   ? 'border-2 border-teal bg-teal text-white shadow-sm'
                   : isAnswered

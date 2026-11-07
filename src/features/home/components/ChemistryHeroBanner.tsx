@@ -59,7 +59,7 @@ export function ChemistryHeroBanner() {
 
         {/* Background grid & subtle glow */}
         <rect width="540" height="380" fill="url(#chemGrid)" />
-        <circle cx="270" cy="220" r="180" fill="url(#glow)" />
+        <circle cx="270" cy="220" r="180" fill="url(#glow)" className="animate-pulse-glow" style={{ transformOrigin: '270px 220px' }} />
 
         {/* Workbench Bench Line */}
         <line x1="30" y1="315" x2="510" y2="315" stroke="#ffffff" strokeOpacity="0.18" strokeWidth="1.5" />
@@ -221,11 +221,61 @@ export function ChemistryHeroBanner() {
           </text>
 
           {/* Bubbles rising in reaction */}
-          <circle cx="50" cy="180" r="3.5" stroke="#d0f5ef" strokeWidth="1" fill="#76d5cb" fillOpacity="0.3" />
-          <circle cx="68" cy="165" r="4" stroke="#d0f5ef" strokeWidth="1.2" fill="#76d5cb" fillOpacity="0.3" />
-          <circle cx="58" cy="150" r="2.5" stroke="#d0f5ef" strokeWidth="1" fill="#76d5cb" fillOpacity="0.4" />
-          <circle cx="78" cy="178" r="2" stroke="#d0f5ef" strokeWidth="0.8" fill="#76d5cb" fillOpacity="0.3" />
-          <circle cx="64" cy="130" r="2" stroke="#d0f5ef" strokeWidth="0.8" fill="#76d5cb" fillOpacity="0.3" />
+          <circle
+            cx="50"
+            cy="180"
+            r="3.5"
+            stroke="#d0f5ef"
+            strokeWidth="1"
+            fill="#76d5cb"
+            fillOpacity="0.4"
+            className="animate-bubble-rise"
+            style={{ animationDelay: '0s', animationDuration: '3.2s' }}
+          />
+          <circle
+            cx="68"
+            cy="165"
+            r="4"
+            stroke="#d0f5ef"
+            strokeWidth="1.2"
+            fill="#76d5cb"
+            fillOpacity="0.4"
+            className="animate-bubble-rise"
+            style={{ animationDelay: '0.8s', animationDuration: '2.8s' }}
+          />
+          <circle
+            cx="58"
+            cy="150"
+            r="2.5"
+            stroke="#d0f5ef"
+            strokeWidth="1"
+            fill="#76d5cb"
+            fillOpacity="0.5"
+            className="animate-bubble-rise"
+            style={{ animationDelay: '1.6s', animationDuration: '3.5s' }}
+          />
+          <circle
+            cx="78"
+            cy="178"
+            r="2"
+            stroke="#d0f5ef"
+            strokeWidth="0.8"
+            fill="#76d5cb"
+            fillOpacity="0.4"
+            className="animate-bubble-rise"
+            style={{ animationDelay: '2.3s', animationDuration: '2.7s' }}
+          />
+          <circle
+            cx="64"
+            cy="130"
+            r="2"
+            stroke="#d0f5ef"
+            strokeWidth="0.8"
+            fill="#76d5cb"
+            fillOpacity="0.4"
+            className="animate-bubble-rise"
+            style={{ animationDelay: '0.4s', animationDuration: '3.1s' }}
+          />
         </g>
 
         {/* 3. RIGHT APPARATUS: Precision Graduated Cylinder */}
@@ -285,7 +335,7 @@ export function ChemistryHeroBanner() {
         </g>
 
         {/* Floating Science Measurement Badge (Center-Left) */}
-        <g transform="translate(140, 60)" opacity="0.9">
+        <g transform="translate(140, 60)" opacity="0.95" className="animate-subtle-float">
           <rect
             x="0"
             y="0"

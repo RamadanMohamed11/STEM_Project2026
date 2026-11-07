@@ -25,6 +25,7 @@ import {
 } from '@/features/progress/state/studentProgressStore'
 import { restartExperimentSession } from '@/features/simulations/state/sessionActions'
 import type { ExperimentProgressOverviewItem } from '@/types/progress'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 function formatTimestamp(iso: string | null): string {
   if (!iso) return 'No activity recorded yet'
@@ -215,6 +216,7 @@ function ExperimentProgressCard({ item }: { item: ExperimentProgressOverviewItem
 }
 
 export function StudentProgressPage() {
+  usePageTitle('My Progress')
   const overview = useStudentProgressOverview()
   const hasAnyRecordedProgress =
     overview.startedCount > 0 ||
@@ -271,7 +273,7 @@ export function StudentProgressPage() {
 
       {/* Summary Metrics */}
       <section aria-label="Progress summary metrics" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card padding="md" className="space-y-1.5">
+        <Card padding="md" className="space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
           <div className="flex items-center justify-between text-xs font-semibold tracking-wider text-ink-muted uppercase">
             <span>Available Experiments</span>
             <FlaskConical className="h-4 w-4 text-teal" aria-hidden="true" />
@@ -283,7 +285,7 @@ export function StudentProgressPage() {
           </p>
         </Card>
 
-        <Card padding="md" className="space-y-1.5">
+        <Card padding="md" className="space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
           <div className="flex items-center justify-between text-xs font-semibold tracking-wider text-ink-muted uppercase">
             <span>Started Experiments</span>
             <Clock className="h-4 w-4 text-cyan" aria-hidden="true" />
@@ -294,7 +296,7 @@ export function StudentProgressPage() {
           </p>
         </Card>
 
-        <Card padding="md" className="space-y-1.5">
+        <Card padding="md" className="space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
           <div className="flex items-center justify-between text-xs font-semibold tracking-wider text-ink-muted uppercase">
             <span>Completed Experiments</span>
             <CheckCircle2 className="h-4 w-4 text-emerald-600" aria-hidden="true" />
@@ -305,7 +307,7 @@ export function StudentProgressPage() {
           </p>
         </Card>
 
-        <Card padding="md" className="space-y-1.5">
+        <Card padding="md" className="space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
           <div className="flex items-center justify-between text-xs font-semibold tracking-wider text-ink-muted uppercase">
             <span>Quiz Results</span>
             <Award className="h-4 w-4 text-teal" aria-hidden="true" />

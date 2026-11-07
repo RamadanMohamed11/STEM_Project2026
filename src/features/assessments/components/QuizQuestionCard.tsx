@@ -35,7 +35,7 @@ export function QuizQuestionCard({
   return (
     <article
       aria-labelledby={`question-title-${question.id}`}
-      className="space-y-6 rounded-2xl border border-line bg-white p-5 shadow-card sm:p-7"
+      className="animate-fade-in-up space-y-6 rounded-2xl border border-line bg-white p-5 shadow-card sm:p-7"
     >
       {/* Question Header & Badges */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
@@ -110,10 +110,10 @@ export function QuizQuestionCard({
               <label
                 key={option.id}
                 htmlFor={inputId}
-                className={`group flex cursor-pointer items-start gap-3.5 rounded-xl border p-4 transition-all duration-150 select-none focus-within:ring-2 focus-within:ring-teal focus-within:ring-offset-1 ${
+                className={`group flex cursor-pointer items-start gap-3.5 rounded-xl border p-4 transition-all duration-150 select-none focus-within:ring-2 focus-within:ring-teal focus-within:ring-offset-1 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.995] ${
                   isSelected
-                    ? 'border-teal bg-teal-soft/45 font-medium text-navy shadow-sm'
-                    : 'border-line bg-white text-ink/90 hover:border-slate/60 hover:bg-canvas/50'
+                    ? 'border-teal bg-teal-soft/45 font-medium text-navy shadow-sm ring-2 ring-teal/20'
+                    : 'border-line bg-white text-ink/90 hover:border-slate/60 hover:bg-canvas/50 hover:shadow-sm'
                 }`}
               >
                 <input
@@ -128,10 +128,10 @@ export function QuizQuestionCard({
 
                 <span className="flex min-w-0 flex-1 items-start gap-2.5 text-sm leading-relaxed sm:text-base">
                   <span
-                    className={`inline-flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-bold transition-colors ${
+                    className={`inline-flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-bold transition-all duration-150 ${
                       isSelected
-                        ? 'bg-teal text-white'
-                        : 'bg-canvas text-slate group-hover:bg-teal-soft group-hover:text-teal-dark'
+                        ? 'bg-teal text-white shadow-sm scale-105'
+                        : 'bg-canvas text-slate group-hover:bg-teal-soft group-hover:text-teal-dark group-hover:scale-105'
                     }`}
                     aria-hidden="true"
                   >
