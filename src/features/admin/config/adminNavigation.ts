@@ -70,7 +70,7 @@ export const adminNavigationItems: readonly AdminNavigationItem[] = [
     eyebrow: 'Laboratory Catalog',
     to: routePaths.adminExperiments,
     icon: FlaskConical,
-    status: 'planned',
+    status: 'active',
     plannedTask: 'T33',
     description:
       'Inspect and manage 3D laboratory experiment metadata, learning objectives, safety rules, and publication status.',

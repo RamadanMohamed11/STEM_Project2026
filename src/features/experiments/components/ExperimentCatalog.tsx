@@ -4,7 +4,6 @@ import { Link } from 'react-router'
 import { CatalogEmptyState } from '@/features/experiments/components/CatalogEmptyState'
 import { CatalogFilters } from '@/features/experiments/components/CatalogFilters'
 import { ExperimentCard } from '@/features/experiments/components/ExperimentCard'
-import { demoCatalog } from '@/features/experiments/data/mockExperiments'
 import { sampleCurriculum } from '@/features/curriculum/data/sampleCurriculum'
 import { useCatalogSearch } from '@/features/experiments/lib/useCatalogSearch'
 import { resolveAcademicFilters } from '@/features/curriculum/lib/curriculumDiscovery'
@@ -14,15 +13,21 @@ import { getCurriculumPath } from '@/app/paths'
 import {
   filterExperiments,
   initialCatalogFilters,
+  type CatalogData,
 } from '@/features/experiments/lib/catalogSelectors'
 import { getUnitsForTerm, getLessonsForUnit } from '@/features/curriculum/lib/curriculumSelectors'
+import { useStudentExperimentCatalog } from '@/features/experiments/state/useStudentExperimentCatalog'
 
-const catalog = { ...demoCatalog, curriculum: sampleCurriculum }
+export interface ExperimentCatalogProps {
+  catalogData?: CatalogData
+}
 
-export function ExperimentCatalog() {
+export function ExperimentCatalog({ catalogData }: ExperimentCatalogProps = {}) {
+  const { catalog } = useStudentExperimentCatalog(catalogData)
+  const activeCurriculum = catalog.curriculum ?? sampleCurriculum
   const { filters, invalid, results, hasFilters, onChange, onClear, resultsPath } =
     useCatalogSearch(catalog)
-  const context = resolveAcademicFilters(sampleCurriculum, filters)
+  const context = resolveAcademicFilters(activeCurriculum, filters)
   const assigned = filterExperiments(catalog, {
     ...initialCatalogFilters,
     gradeId: filters.gradeId,
@@ -32,18 +37,18 @@ export function ExperimentCatalog() {
   })
   const emptyContext =
     !invalid && context.grade && assigned.length === 0
-      ? context.term && !getUnitsForTerm(sampleCurriculum, context.term.id).length
+      ? context.term && !getUnitsForTerm(activeCurriculum, context.term.id).length
         ? 'No Units Available'
-        : context.unit && !getLessonsForUnit(sampleCurriculum, context.unit.id).length
+        : context.unit && !getLessonsForUnit(activeCurriculum, context.unit.id).length
           ? 'No Lessons Available'
           : 'No Experiments Assigned'
       : null
   const categories = useMemo(
-    () => new Map(demoCatalog.categories.map((category) => [category.id, category])),
-    [],
+    () => new Map(catalog.categories.map((category) => [category.id, category])),
+    [catalog.categories],
   )
-  const availableCount = demoCatalog.experiments.filter((item) => item.status === 'demo').length
-  const plannedCount = demoCatalog.experiments.length - availableCount
+  const availableCount = catalog.experiments.filter((item) => item.status === 'demo').length
+  const plannedCount = catalog.experiments.length - availableCount
 
   return (
     <div className="space-y-7">
@@ -52,7 +57,7 @@ export function ExperimentCatalog() {
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ink/80">
           <span>
             <strong className="text-lg font-semibold text-navy">
-              {demoCatalog.experiments.length}
+              {catalog.experiments.length}
             </strong>{' '}
             sample experiments
           </span>
@@ -126,7 +131,7 @@ export function ExperimentCatalog() {
                 <ExperimentCard
                   experiment={experiment}
                   category={categories.get(experiment.categoryId)}
-                  index={demoCatalog.experiments.findIndex((item) => item.id === experiment.id)}
+                  index={catalog.experiments.findIndex((item) => item.id === experiment.id)}
                   returnTo={hasFilters ? resultsPath : undefined}
                 />
               </li>

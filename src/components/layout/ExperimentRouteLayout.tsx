@@ -1,17 +1,18 @@
 import { Link, Outlet, useParams, useSearchParams } from 'react-router'
 import { routePaths } from '@/app/paths'
-import { demoCatalog } from '@/features/experiments/data/mockExperiments'
 import { findExperimentById } from '@/features/experiments/lib/catalogSelectors'
 import { JourneyPlaceholder } from './JourneyPlaceholder'
 import { sampleCurriculum } from '@/features/curriculum/data/sampleCurriculum'
 import { resolveResultsReturn } from '@/features/experiments/lib/catalogUrlState'
+import { useStudentExperimentCatalog } from '@/features/experiments/state/useStudentExperimentCatalog'
 
 /** Resolve real catalog IDs for details, quizzes and results, including direct links. */
 export function ExperimentRouteLayout() {
   const { experimentId } = useParams<'experimentId'>()
   const [params] = useSearchParams()
+  const { catalog } = useStudentExperimentCatalog()
   const experiment = experimentId
-    ? findExperimentById(demoCatalog.experiments, experimentId)
+    ? findExperimentById(catalog.experiments, experimentId)
     : undefined
 
   if (!experiment) {
@@ -28,8 +29,8 @@ export function ExperimentRouteLayout() {
   }
 
   const returnPath = resolveResultsReturn(params.get('returnTo'), experiment.id, {
-    ...demoCatalog,
-    curriculum: sampleCurriculum,
+    ...catalog,
+    curriculum: catalog.curriculum ?? sampleCurriculum,
   })
   return (
     <>

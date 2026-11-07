@@ -7,17 +7,18 @@ import { ExperimentLearningSections } from '@/features/experiments/components/Ex
 import { ExperimentToolsSection } from '@/features/experiments/components/ExperimentToolsSection'
 import { ExperimentMaterialsSection } from '@/features/experiments/components/ExperimentMaterialsSection'
 import { ExperimentLearningStageViewer } from '@/features/experiments/components/ExperimentLearningStageViewer'
-import { demoCatalog } from '@/features/experiments/data/mockExperiments'
 import { getExperimentToolsAndMaterials } from '@/features/experiments/data/experimentToolsAndMaterials'
 import { getExperimentLearningStages } from '@/features/experiments/data/experimentLearningStages'
 import { getReviewedExperimentLessons } from '@/features/experiments/lib/experimentDetailsSelectors'
+import { useStudentExperimentCatalog } from '@/features/experiments/state/useStudentExperimentCatalog'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import type { Experiment } from '@/types/experiment'
 
 export function ExperimentDetailsPage() {
   const experiment = useOutletContext<Experiment>()
   usePageTitle(`${experiment.title} — Details`)
-  const lessons = getReviewedExperimentLessons(sampleCurriculum, experiment.id)
+  const { catalog } = useStudentExperimentCatalog()
+  const lessons = getReviewedExperimentLessons(catalog.curriculum ?? sampleCurriculum, experiment.id)
   const toolsAndMaterials = getExperimentToolsAndMaterials(experiment.id)
   const learningStages = getExperimentLearningStages(experiment.id)
 
@@ -32,7 +33,7 @@ export function ExperimentDetailsPage() {
       />
       <ExperimentOverview
         experiment={experiment}
-        category={demoCatalog.categories.find((item) => item.id === experiment.categoryId)}
+        category={catalog.categories.find((item) => item.id === experiment.categoryId)}
       />
       <ExperimentLearningSections content={experiment.learning} />
       <ExperimentToolsSection tools={toolsAndMaterials?.tools} />

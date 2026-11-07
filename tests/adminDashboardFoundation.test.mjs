@@ -229,7 +229,7 @@ test('AdminLayout, Dashboard Overview, and all 6 admin routes enforce authorizat
     // 3. Verify all 5 admin subroutes render for authorized admin and block unauthorized users
     for (const [subPath, sectionHeading, isPlaceholder] of [
       [routePaths.adminCurriculum, 'Curriculum Management Workspace', false],
-      [routePaths.adminExperiments, 'Experiments Management Workspace', true],
+      [routePaths.adminExperiments, 'Experiments Management Workspace', false],
       [routePaths.adminQuestions, 'Questions Management Workspace', true],
       [routePaths.adminStudents, 'Students Management Workspace', true],
       [routePaths.adminReports, 'Reports Management Workspace', true],
