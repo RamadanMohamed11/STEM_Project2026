@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import {
   AlertCircle,
   ArrowLeft,
@@ -7,14 +6,15 @@ import {
   GraduationCap,
   Sparkles,
 } from 'lucide-react'
-import { Link, useNavigate } from 'react-router'
-import { routePaths } from '@/app/paths'
+import { Link, useNavigate, useSearchParams } from 'react-router'
+import { getCurriculumPath, routePaths } from '@/app/paths'
 import { Button } from '@/components/ui/Button'
 import { StatusPill } from '@/components/ui/StatusPill'
 import { TermSelectionGrid } from '@/features/curriculum/components/TermSelectionGrid'
 import {
   getGradeById,
   getStoredGradeId,
+  setStoredGradeId,
 } from '@/features/curriculum/state/gradeSelection'
 import {
   getStoredTermId,
@@ -27,34 +27,60 @@ import { usePageTitle } from '@/hooks/usePageTitle'
 export function ChooseTermPage() {
   usePageTitle('Choose Your Term')
   const navigate = useNavigate()
+  const [params, setParams] = useSearchParams()
 
   // Read currently active grade
-  const storedGradeId = getStoredGradeId()
+  let storedGradeId: string | null = params.get('grade')
+  if (!params.has('grade')) {
+    try {
+      storedGradeId = getStoredGradeId()
+    } catch {
+      storedGradeId = null
+    }
+  }
   const activeGrade = getGradeById(storedGradeId)
 
   // Get terms matching the selected grade
   const availableTerms = getTermsForGrade(storedGradeId)
 
   // Initialize selected term from storage if it belongs to current grade
-  const [selectedTermId, setSelectedTermId] = useState<string | null>(() => {
-    const storedTerm = getStoredTermId()
-    if (storedTerm && availableTerms.some((t) => t.id === storedTerm)) {
-      return storedTerm
+  let candidateTerm: string | null = params.get('term')
+  if (!params.has('term')) {
+    try {
+      candidateTerm = getStoredTermId()
+    } catch {
+      candidateTerm = null
     }
-    return null
-  })
+  }
+  const selectedTermId = availableTerms.some((term) => term.id === candidateTerm)
+    ? candidateTerm
+    : null
 
   const selectedTerm = getTermById(selectedTermId)
 
   function handleSelectTerm(termId: string) {
-    setSelectedTermId(termId)
-    setStoredTermId(termId)
+    if (!activeGrade || !availableTerms.some((term) => term.id === termId)) return
+    setParams({ grade: activeGrade.id, term: termId })
+    try {
+      setStoredTermId(termId)
+    } catch {
+      /* URL selection still works if storage is blocked. */
+    }
   }
 
   function handleContinue() {
-    if (!selectedTermId) return
-    setStoredTermId(selectedTermId)
-    navigate(routePaths.experiments)
+    if (!selectedTermId || !activeGrade) return
+    try {
+      setStoredGradeId(activeGrade.id)
+    } catch {
+      /* Browsing does not require storage. */
+    }
+    try {
+      setStoredTermId(selectedTermId)
+    } catch {
+      /* The next route carries the term. */
+    }
+    navigate(getCurriculumPath(activeGrade.id, selectedTermId))
   }
 
   return (
@@ -66,7 +92,7 @@ export function ChooseTermPage() {
             STEM Virtual Lab · Curriculum
           </p>
           <StatusPill tone="info" dot>
-            Curriculum preview · Lesson browser coming soon
+            Demonstration curriculum
           </StatusPill>
         </div>
 
@@ -75,8 +101,8 @@ export function ChooseTermPage() {
         </h1>
 
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/75 sm:text-base">
-          Select the term you want to explore. Each term includes specialized laboratory activities
-          aligned with secondary school chemistry.
+          Choose a term to explore sample units and lessons. Official curriculum content is still
+          under review.
         </p>
       </div>
 
@@ -110,7 +136,11 @@ export function ChooseTermPage() {
           className="flex flex-col items-start justify-between gap-4 rounded-xl border border-warning/40 bg-warning-soft/70 p-5 sm:flex-row sm:items-center sm:p-6"
         >
           <div className="flex items-start gap-3">
-            <AlertCircle size={22} className="mt-0.5 shrink-0 text-warning-dark" aria-hidden="true" />
+            <AlertCircle
+              size={22}
+              className="mt-0.5 shrink-0 text-warning-dark"
+              aria-hidden="true"
+            />
             <div>
               <h2 className="text-base font-bold text-navy">No Grade Selected</h2>
               <p className="mt-1 text-xs leading-relaxed text-ink/80 sm:text-sm">
@@ -139,7 +169,7 @@ export function ChooseTermPage() {
           <CheckCircle2 size={18} className="shrink-0 text-teal" aria-hidden="true" />
           <span>
             You have selected <strong className="text-navy">{selectedTerm.title}</strong>. Click
-            Continue to explore chemistry experiments.
+            Continue to explore your lessons.
           </span>
         </div>
       )}
@@ -182,7 +212,7 @@ export function ChooseTermPage() {
           </p>
           <p className="mt-0.5 text-xs text-slate">
             {selectedTerm
-              ? 'Proceed to view laboratory activities for this academic term.'
+              ? 'Proceed to view units and lessons for this term.'
               : 'Select either First Term or Second Term above to continue.'}
           </p>
         </div>
@@ -237,9 +267,8 @@ export function ChooseTermPage() {
         <div className="flex items-start gap-2.5">
           <Sparkles size={16} className="mt-0.5 shrink-0 text-teal" aria-hidden="true" />
           <p>
-            <strong className="text-navy">Curriculum Note:</strong> Experiments in First Term and
-            Second Term build upon each other. You can revisit previous term materials anytime to
-            reinforce your understanding.
+            <strong className="text-navy">Curriculum Note:</strong> This is demonstration data, not
+            the official Egyptian chemistry curriculum. You can change your term at any time.
           </p>
         </div>
       </div>

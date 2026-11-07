@@ -16,6 +16,7 @@ export const primaryNavigation = [
   { id: 'safety', label: 'Safety Procedures', to: routePaths.safety, icon: ShieldCheck },
   { id: 'grades', label: 'Choose Your Grade', to: routePaths.grades, icon: GraduationCap },
   { id: 'terms', label: 'Choose Your Term', to: routePaths.terms, icon: CalendarDays },
+  { id: 'curriculum', label: 'Your Lessons', to: routePaths.curriculum, icon: BookOpenText },
   { id: 'experiments', label: 'Experiments', to: routePaths.experiments, icon: BookOpenText },
   { id: 'lab', label: 'Virtual Lab', to: routePaths.laboratoryPreview, icon: FlaskConical },
 ] as const
@@ -37,6 +38,7 @@ export function getActiveNavigationId(pathname: string) {
   if (matchPath(routePaths.profile, path)) return 'profile'
   if (matchPath(routePaths.account, path)) return 'profile'
   if (matchPath(routePaths.authCallback, path)) return 'login'
+  if (matchPath(routePaths.curriculumLesson, path)) return 'curriculum'
   if (matchPath(routePaths.laboratory, path)) return 'lab'
   if (
     [routePaths.experimentDetails, routePaths.experimentQuiz, routePaths.quizResults].some(
@@ -52,6 +54,7 @@ export function getActiveNavigationId(pathname: string) {
 }
 
 export function getPageContext(pathname: string) {
+  if (matchPath(routePaths.curriculumLesson, pathname)) return 'Lesson Experiments'
   if (matchPath(routePaths.account, pathname) || matchPath(routePaths.profile, pathname))
     return 'Your Profile'
   if (matchPath(routePaths.authCallback, pathname)) return 'Confirm Your Email'

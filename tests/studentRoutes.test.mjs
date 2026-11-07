@@ -33,7 +33,9 @@ test('student journey pages support direct entry without accounts, selections or
       const markup = render(path)
       assert.ok(markup.includes(heading), path)
       assert.ok(markup.includes(`href="${nextPath}"`), `${path} next link`)
-      assert.match(markup, /[Cc]oming soon/)
+      if (path === '/terms') assert.match(markup, /Demonstration curriculum/)
+      else if (path === paths.details) assert.match(markup, /What You Will Learn/)
+      else assert.match(markup, /[Cc]oming soon/)
       assert.match(markup, /Main navigation/)
       assert.doesNotMatch(markup, /Immersive laboratory workspace/)
       if (path === '/signup') {
@@ -60,7 +62,7 @@ test('student journey pages support direct entry without accounts, selections or
     assert.ok(catalog.includes(`href="${paths.laboratory}"`), 'existing direct lab link remains')
     const planned = render('/experiments/exp-volume-002')
     assert.match(planned, /This experiment is planned/)
-    assert.doesNotMatch(planned, />Start Experiment</)
+    assert.doesNotMatch(planned, />Start (?:3D )?Experiment</)
     for (const suffix of ['', '/quiz', '/quiz/results']) {
       const unknown = render('/experiments/unknown-id' + suffix)
       assert.match(unknown, /Experiment Not Found/)

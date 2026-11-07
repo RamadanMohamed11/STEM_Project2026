@@ -1,12 +1,15 @@
-import { Outlet, useParams } from 'react-router'
+import { Link, Outlet, useParams, useSearchParams } from 'react-router'
 import { routePaths } from '@/app/paths'
 import { demoCatalog } from '@/features/experiments/data/mockExperiments'
 import { findExperimentById } from '@/features/experiments/lib/catalogSelectors'
 import { JourneyPlaceholder } from './JourneyPlaceholder'
+import { sampleCurriculum } from '@/features/curriculum/data/sampleCurriculum'
+import { resolveResultsReturn } from '@/features/experiments/lib/catalogUrlState'
 
 /** Resolve real catalog IDs for details, quizzes and results, including direct links. */
 export function ExperimentRouteLayout() {
   const { experimentId } = useParams<'experimentId'>()
+  const [params] = useSearchParams()
   const experiment = experimentId
     ? findExperimentById(demoCatalog.experiments, experimentId)
     : undefined
@@ -24,5 +27,23 @@ export function ExperimentRouteLayout() {
     )
   }
 
-  return <Outlet context={experiment} />
+  const returnPath = resolveResultsReturn(params.get('returnTo'), experiment.id, {
+    ...demoCatalog,
+    curriculum: sampleCurriculum,
+  })
+  return (
+    <>
+      {returnPath && (
+        <nav aria-label="Search navigation" className="mb-5">
+          <Link
+            to={returnPath}
+            className="inline-flex min-h-11 items-center rounded px-1 text-sm font-semibold text-teal-dark hover:underline focus-visible:outline-teal"
+          >
+            Back to Search Results
+          </Link>
+        </nav>
+      )}
+      <Outlet context={experiment} />
+    </>
+  )
 }

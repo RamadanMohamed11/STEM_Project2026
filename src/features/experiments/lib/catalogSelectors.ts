@@ -7,10 +7,16 @@ import type {
   Semester,
   Unit,
 } from '@/types/experiment'
+import type { CurriculumData } from '@/types/curriculum'
+import {
+  emptyAcademicFilters,
+  getAcademicExperimentIds,
+} from '../../curriculum/lib/curriculumDiscovery.ts'
+import type { AcademicFilters } from '../../curriculum/lib/curriculumDiscovery.ts'
 
 export type CatalogStatusFilter = 'all' | ExperimentStatus
 
-export interface CatalogFilters {
+export interface CatalogFilters extends AcademicFilters {
   search: string
   categoryId: string
   semesterId: string
@@ -18,6 +24,7 @@ export interface CatalogFilters {
 }
 
 export const initialCatalogFilters: CatalogFilters = {
+  ...emptyAcademicFilters,
   search: '',
   categoryId: 'all',
   semesterId: 'all',
@@ -25,6 +32,7 @@ export const initialCatalogFilters: CatalogFilters = {
 }
 
 export interface CatalogData {
+  curriculum?: CurriculumData
   experiments: readonly Experiment[]
   categories: readonly ExperimentCategory[]
   semesters: readonly Semester[]
@@ -90,12 +98,14 @@ export function groupExperimentsBySemester(data: CatalogData) {
 }
 
 export function filterExperiments(data: CatalogData, filters: CatalogFilters): Experiment[] {
+  const assignedIds = getAcademicExperimentIds(data.curriculum, filters)
   const search = filters.search.trim().toLocaleLowerCase()
   const categoryLabels = new Map(
     data.categories.map((category) => [category.id, category.label.toLocaleLowerCase()]),
   )
 
   return data.experiments.filter((experiment) => {
+    if (assignedIds && !assignedIds.has(experiment.id)) return false
     if (filters.categoryId !== 'all' && experiment.categoryId !== filters.categoryId) return false
     if (filters.status !== 'all' && experiment.status !== filters.status) return false
     if (

@@ -1,4 +1,11 @@
 import { RotateCcw, Search } from 'lucide-react'
+import {
+  getAvailableGrades,
+  getTermsForGrade,
+  getUnitsForTerm,
+  getLessonsForUnit,
+} from '@/features/curriculum/lib/curriculumSelectors'
+import { resolveAcademicFilters } from '@/features/curriculum/lib/curriculumDiscovery'
 import type {
   CatalogFilters as CatalogFilterValues,
   CatalogData,
@@ -22,6 +29,37 @@ export function CatalogFilters({
   onClear,
   hasFilters,
 }: CatalogFiltersProps) {
+  const context = resolveAcademicFilters(data.curriculum, filters)
+  const academic = [
+    {
+      key: 'gradeId' as const,
+      label: 'Grade',
+      all: 'All Grades',
+      options: getAvailableGrades(data.curriculum),
+      visible: Boolean(data.curriculum),
+    },
+    {
+      key: 'termId' as const,
+      label: 'Term',
+      all: 'All Terms',
+      options: getTermsForGrade(data.curriculum, context.grade?.id),
+      visible: Boolean(context.grade),
+    },
+    {
+      key: 'unitId' as const,
+      label: 'Unit',
+      all: 'All Units',
+      options: getUnitsForTerm(data.curriculum, context.term?.id),
+      visible: Boolean(context.term),
+    },
+    {
+      key: 'lessonId' as const,
+      label: 'Lesson',
+      all: 'All Lessons',
+      options: getLessonsForUnit(data.curriculum, context.unit?.id),
+      visible: Boolean(context.unit),
+    },
+  ]
   return (
     <section
       aria-label="Find experiments"
@@ -40,12 +78,12 @@ export function CatalogFilters({
             onClick={onClear}
             className="inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-teal-dark transition-colors hover:bg-teal-soft focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2"
           >
-            <RotateCcw size={15} aria-hidden="true" /> Reset filters
+            <RotateCcw size={15} aria-hidden="true" /> Clear Filters
           </button>
         )}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[minmax(200px,1.7fr)_repeat(3,minmax(130px,1fr))]">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div>
           <label htmlFor="experiment-search" className="text-xs font-semibold text-ink/85">
             Search experiments
@@ -79,6 +117,10 @@ export function CatalogFilters({
             onChange={(event) => onChange({ ...filters, categoryId: event.target.value })}
           >
             <option value="all">All categories</option>
+            {filters.categoryId !== 'all' &&
+              !data.categories.some((item) => item.id === filters.categoryId) && (
+                <option value={filters.categoryId}>Invalid category</option>
+              )}
             {data.categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.label}
@@ -100,40 +142,73 @@ export function CatalogFilters({
             }
           >
             <option value="all">All statuses</option>
+            {!['all', 'demo', 'planned'].includes(filters.status) && (
+              <option value={filters.status}>Invalid availability</option>
+            )}
             <option value="demo">Available demo</option>
             <option value="planned">Planned examples</option>
           </select>
         </div>
 
-        <div>
-          <label htmlFor="experiment-semester" className="text-xs font-semibold text-ink/85">
-            Semester
-          </label>
-          <select
-            id="experiment-semester"
-            className={selectClass}
-            value={filters.semesterId}
-            disabled={data.semesters.length === 0}
-            aria-describedby={data.semesters.length === 0 ? 'semester-note' : undefined}
-            onChange={(event) => onChange({ ...filters, semesterId: event.target.value })}
-          >
-            <option value="all">
-              {data.semesters.length === 0 ? 'Not assigned yet' : 'All semesters'}
-            </option>
-            {[...data.semesters]
-              .sort((a, b) => a.order - b.order)
-              .map((semester) => (
-                <option key={semester.id} value={semester.id}>
-                  {semester.title}
-                </option>
-              ))}
-          </select>
-        </div>
+        {data.semesters.length > 0 && (
+          <div>
+            <label htmlFor="experiment-semester" className="text-xs font-semibold text-ink/85">
+              Semester
+            </label>
+            <select
+              id="experiment-semester"
+              className={selectClass}
+              value={filters.semesterId}
+              onChange={(event) => onChange({ ...filters, semesterId: event.target.value })}
+            >
+              <option value="all">All semesters</option>
+              {[...data.semesters]
+                .sort((a, b) => a.order - b.order)
+                .map((semester) => (
+                  <option key={semester.id} value={semester.id}>
+                    {semester.title}
+                  </option>
+                ))}
+            </select>
+          </div>
+        )}
       </div>
-      {data.semesters.length === 0 && (
-        <p id="semester-note" className="mt-3 text-xs leading-relaxed text-ink/65">
-          Semester filtering will become available when the academic curriculum is added.
-        </p>
+      {data.curriculum && (
+        <div className="mt-5 grid gap-4 border-t border-line pt-5 sm:grid-cols-2 lg:grid-cols-4">
+          {academic
+            .filter((field) => field.visible)
+            .map((field, index) => (
+              <div key={field.key}>
+                <label
+                  htmlFor={`experiment-${field.key}`}
+                  className="text-xs font-semibold text-ink/85"
+                >
+                  {field.label}
+                </label>
+                <select
+                  id={`experiment-${field.key}`}
+                  className={selectClass}
+                  value={filters[field.key]}
+                  onChange={(event) => {
+                    const next = { ...filters, [field.key]: event.target.value }
+                    for (const child of academic.slice(index + 1)) next[child.key] = 'all'
+                    onChange(next)
+                  }}
+                >
+                  <option value="all">{field.all}</option>
+                  {filters[field.key] !== 'all' &&
+                    !field.options.some((item) => item.id === filters[field.key]) && (
+                      <option value={filters[field.key]}>Invalid selection</option>
+                    )}
+                  {field.options.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ))}
+        </div>
       )}
     </section>
   )

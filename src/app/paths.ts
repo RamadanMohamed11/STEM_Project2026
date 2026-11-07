@@ -13,6 +13,8 @@ export const routePaths = {
   safety: '/safety',
   grades: '/grades',
   terms: '/terms',
+  curriculum: '/curriculum',
+  curriculumLesson: '/curriculum/lessons/:lessonId',
   experiments: '/experiments',
   experimentDetails: '/experiments/:experimentId',
   laboratory: '/experiments/:experimentId/lab',
@@ -20,6 +22,14 @@ export const routePaths = {
   quizResults: '/experiments/:experimentId/quiz/results',
   laboratoryPreview: '/experiments/preview/lab',
 } as const
+
+export function getCurriculumPath(gradeId: string, termId: string) {
+  return `${routePaths.curriculum}?${new URLSearchParams({ grade: gradeId, term: termId })}`
+}
+
+export function getCurriculumLessonPath(lessonId: string) {
+  return generatePath(routePaths.curriculumLesson, { lessonId })
+}
 
 export function getExperimentPaths(experimentId: string) {
   // React Router encodes path parameters; pass the raw ID to avoid double encoding.

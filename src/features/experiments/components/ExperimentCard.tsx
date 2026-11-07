@@ -9,19 +9,25 @@ import {
   safetyLevelLabels,
 } from '@/features/experiments/data/catalogDisplay'
 import { getLabPath } from '@/features/experiments/lib/catalogSelectors'
+import { getLaboratoryPresentation } from '@/features/simulations/lib/workspaceSelectors'
 import type { Experiment, ExperimentCategory } from '@/types/experiment'
 
 interface ExperimentCardProps {
+  returnTo?: string
   experiment: Experiment
   category?: ExperimentCategory
   index: number
 }
 
-export function ExperimentCard({ experiment, category, index }: ExperimentCardProps) {
-  const available = experiment.status === 'demo'
+export function ExperimentCard({ experiment, category, index, returnTo }: ExperimentCardProps) {
+  const available =
+    experiment.status === 'demo' && Boolean(getLaboratoryPresentation(experiment.id))
 
   return (
-    <article className="flex min-w-0 flex-col overflow-hidden rounded-xl border border-line bg-white shadow-card transition-colors hover:border-line-strong">
+    <article
+      aria-label={experiment.title}
+      className="flex min-w-0 flex-col overflow-hidden rounded-xl border border-line bg-white shadow-card transition-colors hover:border-line-strong"
+    >
       <div className="relative h-43 overflow-hidden border-b border-line bg-[#eaf2f1] sm:h-46">
         <ExperimentIllustration illustration={experiment.illustration} />
         <div className="absolute inset-x-4 top-4 flex items-start justify-between gap-3">
@@ -40,7 +46,11 @@ export function ExperimentCard({ experiment, category, index }: ExperimentCardPr
       <div className="flex flex-1 flex-col p-5 sm:p-6">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <StatusPill tone={available ? 'ready' : 'warning'}>
-            {experimentStatusLabels[experiment.status]}
+            {experiment.status === 'planned'
+              ? 'Coming Soon'
+              : available
+                ? experimentStatusLabels.demo
+                : 'Lab Unavailable'}
           </StatusPill>
           <span className="text-xs text-ink/65">Illustrative content</span>
         </div>
@@ -67,21 +77,28 @@ export function ExperimentCard({ experiment, category, index }: ExperimentCardPr
               <dd>{safetyLevelLabels[experiment.safety.level]}</dd>
             </div>
           )}
+          {!experiment.safety && (
+            <div className="flex items-center gap-1.5">
+              <ShieldAlert size={15} className="shrink-0 text-warning-dark" aria-hidden="true" />
+              <dt className="sr-only">Safety considerations</dt>
+              <dd>Safety notes pending</dd>
+            </div>
+          )}
         </dl>
 
         <div className="mt-5 border-t border-line pt-4">
           <Link
-            to={getExperimentPaths(experiment.id).details}
+            to={`${getExperimentPaths(experiment.id).details}${returnTo ? `?${new URLSearchParams({ returnTo })}` : ''}`}
             className="mb-2 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-teal-dark transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2"
           >
-            View Details <ArrowUpRight size={16} aria-hidden="true" />
+            View Experiment <ArrowUpRight size={16} aria-hidden="true" />
           </Link>
           {available ? (
             <Link
               to={getLabPath(experiment)}
               className="inline-flex min-h-11 w-full items-center justify-between gap-3 rounded-lg bg-teal px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-teal-dark hover:shadow focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2 active:scale-[0.99]"
             >
-              Open 3D laboratory
+              Start Experiment
               <ArrowUpRight size={18} aria-hidden="true" />
             </Link>
           ) : (

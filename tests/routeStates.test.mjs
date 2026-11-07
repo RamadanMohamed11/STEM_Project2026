@@ -26,7 +26,8 @@ test('catalog and lab routes render honest available, planned, and invalid state
     assert.match(catalog, /href="\/experiments\/exp-salt-water-001\/lab"/)
     assert.doesNotMatch(catalog, /href="\/experiments\/exp-volume-002\/lab"/)
     assert.doesNotMatch(catalog, /href="\/experiments\/exp-ph-003\/lab"/)
-    assert.match(catalog, /Not assigned yet/)
+    assert.match(catalog, /All Grades/)
+    assert.doesNotMatch(catalog, /id="experiment-semester"/)
 
     const demo = renderRoute('/experiments/exp-salt-water-001/lab')
     assert.match(demo, /Dissolving Salt in Water/)

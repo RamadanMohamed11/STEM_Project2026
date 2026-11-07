@@ -1,33 +1,53 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { ArrowUpRight, CheckCircle2, Info } from 'lucide-react'
 import { Link } from 'react-router'
 import { CatalogEmptyState } from '@/features/experiments/components/CatalogEmptyState'
 import { CatalogFilters } from '@/features/experiments/components/CatalogFilters'
 import { ExperimentCard } from '@/features/experiments/components/ExperimentCard'
 import { demoCatalog } from '@/features/experiments/data/mockExperiments'
+import { sampleCurriculum } from '@/features/curriculum/data/sampleCurriculum'
+import { useCatalogSearch } from '@/features/experiments/lib/useCatalogSearch'
+import { resolveAcademicFilters } from '@/features/curriculum/lib/curriculumDiscovery'
+import { curriculumBreadcrumbs } from '@/features/curriculum/lib/curriculumBreadcrumbs'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
+import { getCurriculumPath } from '@/app/paths'
 import {
   filterExperiments,
   initialCatalogFilters,
 } from '@/features/experiments/lib/catalogSelectors'
+import { getUnitsForTerm, getLessonsForUnit } from '@/features/curriculum/lib/curriculumSelectors'
+
+const catalog = { ...demoCatalog, curriculum: sampleCurriculum }
 
 export function ExperimentCatalog() {
-  const [filters, setFilters] = useState(initialCatalogFilters)
-  const results = useMemo(() => filterExperiments(demoCatalog, filters), [filters])
+  const { filters, invalid, results, hasFilters, onChange, onClear, resultsPath } =
+    useCatalogSearch(catalog)
+  const context = resolveAcademicFilters(sampleCurriculum, filters)
+  const assigned = filterExperiments(catalog, {
+    ...initialCatalogFilters,
+    gradeId: filters.gradeId,
+    termId: filters.termId,
+    unitId: filters.unitId,
+    lessonId: filters.lessonId,
+  })
+  const emptyContext =
+    !invalid && context.grade && assigned.length === 0
+      ? context.term && !getUnitsForTerm(sampleCurriculum, context.term.id).length
+        ? 'No Units Available'
+        : context.unit && !getLessonsForUnit(sampleCurriculum, context.unit.id).length
+          ? 'No Lessons Available'
+          : 'No Experiments Assigned'
+      : null
   const categories = useMemo(
     () => new Map(demoCatalog.categories.map((category) => [category.id, category])),
     [],
   )
   const availableCount = demoCatalog.experiments.filter((item) => item.status === 'demo').length
   const plannedCount = demoCatalog.experiments.length - availableCount
-  const hasFilters =
-    filters.search !== '' ||
-    filters.categoryId !== 'all' ||
-    filters.status !== 'all' ||
-    filters.semesterId !== 'all'
-  const resetFilters = () => setFilters({ ...initialCatalogFilters })
 
   return (
     <div className="space-y-7">
+      <Breadcrumbs items={curriculumBreadcrumbs(invalid ? {} : context, 'Experiments')} />
       <div className="flex flex-wrap items-center justify-between gap-5 rounded-xl border border-line bg-white px-5 py-4 sm:px-6">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ink/80">
           <span>
@@ -54,12 +74,31 @@ export function ExperimentCatalog() {
       </div>
 
       <CatalogFilters
-        data={demoCatalog}
+        data={catalog}
         filters={filters}
-        onChange={setFilters}
-        onClear={resetFilters}
+        onChange={onChange}
+        onClear={onClear}
         hasFilters={hasFilters}
       />
+      {invalid && (
+        <p role="alert" className="text-sm text-danger">
+          These filters do not match an available selection. Clear Filters or choose them again.
+        </p>
+      )}
+      {!invalid && context.grade && (
+        <p className="text-sm text-slate">
+          Demonstration curriculum links only. The salt-dissolution demo has not been assigned to a
+          lesson.
+        </p>
+      )}
+      {!invalid && context.grade && context.term && (
+        <Link
+          className="inline-flex min-h-11 items-center rounded px-1 text-sm font-semibold text-teal-dark hover:underline focus-visible:outline-teal"
+          to={`${getCurriculumPath(context.grade.id, context.term.id)}${context.unit ? `&${new URLSearchParams({ unit: context.unit.id })}` : ''}`}
+        >
+          Back to Lessons
+        </Link>
+      )}
 
       <section aria-label="Experiment results">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -68,6 +107,17 @@ export function ExperimentCatalog() {
             {results.length} {results.length === 1 ? 'experiment' : 'experiments'} found
           </p>
         </div>
+        {emptyContext && (
+          <p className="mb-5 text-sm text-slate">
+            <strong>{emptyContext}.</strong> This curriculum selection has no assigned experiments
+            yet. Choose another selection or return to your lessons.
+          </p>
+        )}
+        {results.length > 0 && results.every((item) => item.status === 'planned') && (
+          <p className="mb-5 text-sm text-slate">
+            Coming Soon. These experiments are planned. Their 3D labs are not available yet.
+          </p>
+        )}
 
         {results.length > 0 ? (
           <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
@@ -77,19 +127,22 @@ export function ExperimentCatalog() {
                   experiment={experiment}
                   category={categories.get(experiment.categoryId)}
                   index={demoCatalog.experiments.findIndex((item) => item.id === experiment.id)}
+                  returnTo={hasFilters ? resultsPath : undefined}
                 />
               </li>
             ))}
           </ul>
         ) : (
-          <CatalogEmptyState onReset={resetFilters} />
+          <CatalogEmptyState onReset={onClear} />
         )}
       </section>
 
       <aside className="flex gap-3 rounded-xl border border-line bg-surface-muted/80 px-5 py-4 text-sm text-ink/80 shadow-sm">
         <Info size={19} className="mt-0.5 shrink-0 text-teal" aria-hidden="true" />
         <p className="leading-relaxed">
-          <strong className="font-semibold text-navy">Sample experiments:</strong> The 3D laboratory allows you to explore real equipment handles, chemical transfers, and live measurements. Additional planned activities will be added soon.
+          <strong className="font-semibold text-navy">Sample experiments:</strong> The 3D laboratory
+          allows you to explore real equipment handles, chemical transfers, and live measurements.
+          Additional planned activities will be added soon.
         </p>
       </aside>
     </div>

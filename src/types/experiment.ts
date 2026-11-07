@@ -22,6 +22,7 @@ export interface Lesson {
   slug: string
   title: string
   order: number
+  description?: string
 }
 
 export interface ExperimentCategory {
@@ -50,6 +51,14 @@ export interface CurriculumAssociation {
 
 export type ExperimentIllustrationKey = 'salt-dissolution' | 'liquid-volume' | 'ph-indicators'
 
+/** Educational copy is independent of executable laboratory definitions. */
+export interface ExperimentLearningContent {
+  reviewStatus: 'draft' | 'reviewed'
+  about: readonly string[]
+  objectives: readonly { id: string; text: string }[]
+  modelNote?: string
+}
+
 export interface Experiment {
   id: EntityId
   slug: string
@@ -63,4 +72,5 @@ export interface Experiment {
   illustration: ExperimentIllustrationKey
   safety?: SafetyMetadata
   curriculum?: CurriculumAssociation
+  learning?: ExperimentLearningContent
 }

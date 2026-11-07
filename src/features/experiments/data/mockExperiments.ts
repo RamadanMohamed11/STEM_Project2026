@@ -1,5 +1,10 @@
 import type { Experiment, ExperimentCategory, Lesson, Semester, Unit } from '@/types/experiment'
 import type { CatalogData } from '@/features/experiments/lib/catalogSelectors'
+import {
+  saltDissolutionLearning,
+  liquidVolumeLearning,
+  phIndicatorsLearning,
+} from './experimentLearningContent.ts'
 
 /** Demonstration-only data. Nothing in this file is an official university course listing. */
 export const mockCategories: readonly ExperimentCategory[] = [
@@ -15,6 +20,7 @@ export const mockLessons: readonly Lesson[] = []
 export const mockExperiments: readonly Experiment[] = [
   {
     id: 'exp-salt-water-001',
+    learning: saltDissolutionLearning,
     slug: 'dissolving-salt-in-water',
     title: 'Dissolving Salt in Water',
     shortDescription:
@@ -33,6 +39,7 @@ export const mockExperiments: readonly Experiment[] = [
   },
   {
     id: 'exp-volume-002',
+    learning: liquidVolumeLearning,
     slug: 'measuring-liquid-volume',
     title: 'Measuring Liquid Volume',
     shortDescription:
@@ -50,6 +57,7 @@ export const mockExperiments: readonly Experiment[] = [
   },
   {
     id: 'exp-ph-003',
+    learning: phIndicatorsLearning,
     slug: 'exploring-ph-indicators',
     title: 'Exploring pH Indicators',
     shortDescription:

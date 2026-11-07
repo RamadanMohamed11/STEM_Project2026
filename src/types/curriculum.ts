@@ -8,6 +8,7 @@ interface OrderedCurriculumEntity {
   readonly slug: string
   readonly title: string
   readonly order: number
+  readonly description?: string
 }
 
 export type Grade = OrderedCurriculumEntity

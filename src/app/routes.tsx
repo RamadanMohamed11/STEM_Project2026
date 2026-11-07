@@ -9,6 +9,8 @@ import { StudentRouteBoundary } from '@/app/StudentRouteBoundary'
 import { routePaths } from '@/app/paths'
 import { ChooseGradePage } from '@/pages/ChooseGradePage'
 import { ChooseTermPage } from '@/pages/ChooseTermPage'
+import { CurriculumPage } from '@/pages/CurriculumPage'
+import { CurriculumLessonPage } from '@/pages/CurriculumLessonPage'
 import { ExperimentDetailsPage } from '@/pages/ExperimentDetailsPage'
 import { ExperimentQuizPage } from '@/pages/ExperimentQuizPage'
 import { ExperimentsPage } from '@/pages/ExperimentsPage'
@@ -38,6 +40,8 @@ export function AppRoutes() {
         <Route element={<StudentRouteBoundary />}>
           <Route path={routePaths.grades} element={<ChooseGradePage />} />
           <Route path={routePaths.terms} element={<ChooseTermPage />} />
+          <Route path={routePaths.curriculum} element={<CurriculumPage />} />
+          <Route path={routePaths.curriculumLesson} element={<CurriculumLessonPage />} />
           <Route path={routePaths.experiments} element={<ExperimentsPage />} />
           <Route path={routePaths.laboratory} element={<VirtualLabPage />} />
           <Route path={routePaths.experimentDetails} element={<ExperimentRouteLayout />}>
