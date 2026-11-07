@@ -6,6 +6,10 @@ import type {
 } from '../../../types/assessment.ts'
 import { gradeAssessment } from '../lib/assessmentGrading.ts'
 import { getOrderedAssessmentQuestions } from '../lib/assessmentSelectors.ts'
+import {
+  clearLatestAssessmentResult,
+  setLatestAssessmentResult,
+} from './assessmentResultsStore.ts'
 
 export interface QuizSessionInternalState {
   attemptId: string
@@ -123,6 +127,10 @@ export function confirmQuizSubmission(
     }
   }
 
+  if (assessment?.experimentId) {
+    setLatestAssessmentResult(assessment.experimentId, outcome.result)
+  }
+
   return {
     ...state,
     status: 'submitted',
@@ -192,6 +200,9 @@ export function retakeQuizSession(
   state: QuizSessionInternalState,
   assessment: ExperimentAssessmentDefinition | undefined,
 ): QuizSessionInternalState {
+  if (assessment?.experimentId) {
+    clearLatestAssessmentResult(assessment.experimentId)
+  }
   return createInitialQuizSessionState(assessment, state.attemptNumber + 1)
 }
 
@@ -230,6 +241,10 @@ export interface QuizState {
   resetAttempt: () => void
 }
 
+export interface UseQuizStateOptions {
+  onSubmitted?: (result: AssessmentResultRecord) => void
+}
+
 /**
  * Lightweight, pure React hook managing the student's quiz attempt and grading lifecycle.
  * Completely independent of 3D simulation stores and authentication services.
@@ -238,6 +253,7 @@ export interface QuizState {
  */
 export function useQuizState(
   assessment: ExperimentAssessmentDefinition | undefined,
+  options?: UseQuizStateOptions,
 ): QuizState {
   const questions = useMemo(
     () => (assessment ? getOrderedAssessmentQuestions(assessment) : []),
@@ -348,7 +364,13 @@ export function useQuizState(
   }
 
   const confirmSubmitQuiz = () => {
-    setSession((prev) => confirmQuizSubmission(prev, assessment))
+    setSession((prev) => {
+      const next = confirmQuizSubmission(prev, assessment)
+      if (next.status === 'submitted' && next.submittedResult && next.submittedResult !== prev.submittedResult) {
+        options?.onSubmitted?.(next.submittedResult)
+      }
+      return next
+    })
   }
 
   const cancelSubmitConfirmation = () => {

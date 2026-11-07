@@ -295,7 +295,7 @@ export function QuizReviewScreen({
             to={resultsPath}
             className="inline-flex min-h-11 items-center rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-teal-dark hover:underline focus-visible:outline-teal"
           >
-            View Quiz Results (Coming Soon)
+            View Quiz Results
           </Link>
         </div>
       </section>

@@ -1,4 +1,4 @@
-import { Link, useOutletContext } from 'react-router'
+import { Link, useNavigate, useOutletContext } from 'react-router'
 import { getExperimentPaths } from '@/app/paths'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { QuizFeedbackView } from '@/features/assessments/components/QuizFeedbackView'
@@ -13,11 +13,16 @@ import type { Experiment } from '@/types/experiment'
 
 export function ExperimentQuizPage() {
   const experiment = useOutletContext<Experiment>()
+  const navigate = useNavigate()
   const paths = getExperimentPaths(experiment.id)
   usePageTitle(`${experiment.title} — Quiz`)
 
   const assessment = getAssessmentForExperiment(experiment.id)
-  const quizState = useQuizState(assessment)
+  const quizState = useQuizState(assessment, {
+    onSubmitted: (result) => {
+      navigate(paths.results, { state: { result } })
+    },
+  })
 
   const hasQuestions = quizState.questions.length > 0
 
@@ -123,7 +128,7 @@ export function ExperimentQuizPage() {
                   to={paths.results}
                   className="inline-flex min-h-11 items-center rounded text-teal-dark hover:underline focus-visible:outline-teal"
                 >
-                  View Quiz Results (Coming Soon)
+                  View Quiz Results
                 </Link>
               </nav>
             </div>
