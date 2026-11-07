@@ -104,6 +104,7 @@ test('experiment links encode identifiers and keep the existing laboratory URL',
     details: '/experiments/salt%20%2F%20water%3F',
     laboratory: '/experiments/salt%20%2F%20water%3F/lab',
     quiz: '/experiments/salt%20%2F%20water%3F/quiz',
+    experimentResults: '/experiments/salt%20%2F%20water%3F/results',
     results: '/experiments/salt%20%2F%20water%3F/quiz/results',
   })
 })

@@ -30,6 +30,8 @@ export type ManualWorkflowAction = Exclude<WorkflowAction, { kind: 'command' }>
 
 interface SaltSimulationStore {
   activeExperimentId: string
+  definitionId: string
+  definitionVersion: string
   resetRevision: number
   experiment: SaltExperimentState
   workflow: WorkflowState
@@ -62,6 +64,8 @@ interface SaltSimulationStore {
 
 const initialSession = () => ({
   activeExperimentId: saltExperimentDefinition.experimentId,
+  definitionId: saltExperimentDefinition.id,
+  definitionVersion: saltExperimentDefinition.version,
   experiment: initialSaltExperimentState(),
   workflow: initialWorkflowState(saltExperimentDefinition),
   validation: null,

@@ -9,7 +9,7 @@ import {
   safetyLevelLabels,
 } from '@/features/experiments/data/catalogDisplay'
 import { getLabPath } from '@/features/experiments/lib/catalogSelectors'
-import { getLaboratoryPresentation } from '@/features/simulations/lib/workspaceSelectors'
+import { resolveSimulation } from '@/features/simulations/lib/simulationRegistry'
 import type { Experiment, ExperimentCategory } from '@/types/experiment'
 
 interface ExperimentCardProps {
@@ -20,8 +20,7 @@ interface ExperimentCardProps {
 }
 
 export function ExperimentCard({ experiment, category, index, returnTo }: ExperimentCardProps) {
-  const available =
-    experiment.status === 'demo' && Boolean(getLaboratoryPresentation(experiment.id))
+  const available = Boolean(resolveSimulation(experiment))
 
   return (
     <article

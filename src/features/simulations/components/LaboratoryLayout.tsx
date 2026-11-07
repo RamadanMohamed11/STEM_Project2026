@@ -23,22 +23,25 @@ import { ContextualInstruction } from './ContextualInstruction'
 import { LaboratoryEquipmentPreview } from './LaboratoryEquipmentPreview'
 import { ExperimentGuide } from './ExperimentGuide'
 import { ExperimentResults } from './ExperimentResults'
-import { saltExperimentDefinition } from '../data/saltExperimentDefinition'
 import { undissolvedSaltG } from '../engine/saltExperiment'
 import { semanticEventLabels } from '../lib/semanticFeedback'
 import { useSaltSimulationStore } from '../state/useSaltSimulationStore'
 import { useLabSceneStore } from '../state/useLabSceneStore'
-import { restartExperimentSession } from '../state/sessionActions'
+import { restartExperimentSession, suspendLaboratoryInteractions } from '../state/sessionActions'
+import { sessionLifetimeMessage } from '../state/simulationSession'
+import type { SimulationRegistration } from '../lib/simulationRegistry'
+import { getExperimentPaths } from '@/app/paths'
 import type { Experiment } from '@/types/experiment'
-import type { LaboratoryPresentation } from '@/types/laboratory'
 
 export function LaboratoryLayout({
   experiment,
-  presentation,
+  simulation,
 }: {
   experiment: Experiment
-  presentation: LaboratoryPresentation
+  simulation: SimulationRegistration
 }) {
+  const { definition, presentation } = simulation
+  const paths = getExperimentPaths(experiment.id)
   const viewportRef = useRef<HTMLDivElement>(null)
   const [inventoryOpen, setInventoryOpen] = useState(false)
   const [guideOpen, setGuideOpen] = useState(false)
@@ -66,10 +69,9 @@ export function LaboratoryLayout({
   const beginPlacement = useLabSceneStore((state) => state.beginPlacement)
   const cancelPlacement = useLabSceneStore((state) => state.cancelPlacement)
   const resetCamera = useLabSceneStore((state) => state.resetCamera)
-  const validatedSteps = workflow.completed
-    ? saltExperimentDefinition.steps.length
-    : workflow.stepIndex
-  const progress = Math.round((validatedSteps / saltExperimentDefinition.steps.length) * 100)
+  const validatedSteps = workflow.completed ? definition.steps.length : workflow.stepIndex
+  const progress = Math.round((validatedSteps / definition.steps.length) * 100)
+  useEffect(() => () => suspendLaboratoryInteractions(), [])
 
   // Effects are presentation-only. Stopping an animation cannot validate or
   // advance a scientific step: only state-verified semantic events can.
@@ -124,9 +126,9 @@ export function LaboratoryLayout({
       <header className="relative z-30 flex h-[60px] shrink-0 items-center justify-between gap-2 border-b border-white/10 bg-[#071d29] px-3 sm:px-5">
         <div className="flex min-w-0 items-center gap-2.5">
           <Link
-            to="/experiments"
-            aria-label="Exit laboratory"
-            title="Exit laboratory"
+            to={paths.details}
+            aria-label="Back to Details"
+            title="Back to Details"
             className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/15 text-white/80 hover:bg-white/10"
           >
             <ArrowLeft size={18} />
@@ -144,7 +146,7 @@ export function LaboratoryLayout({
         >
           <div className="flex justify-between text-[10px] font-semibold text-white/70">
             <span>
-              Validated steps {validatedSteps} / {saltExperimentDefinition.steps.length}
+              Validated steps {validatedSteps} / {definition.steps.length}
             </span>
             <span>{progress}% validated</span>
           </div>
@@ -439,7 +441,7 @@ export function LaboratoryLayout({
               </button>
             </div>
             <ExperimentGuide
-              definition={saltExperimentDefinition}
+              definition={definition}
               workflow={workflow}
               experiment={chemistry}
               placedIds={placedIds}
@@ -507,6 +509,10 @@ export function LaboratoryLayout({
                 derived from the actual virtual mass deposited in the boat; no calibrated hardware
                 or computational fluid dynamics are simulated.
               </p>
+              <p className="mt-3 text-xs leading-relaxed">
+                {sessionLifetimeMessage} Leaving the lab stops active movements and keeps material
+                already transferred. The camera returns to its starting view when you return.
+              </p>
             </section>
           </div>
         )}
@@ -514,8 +520,25 @@ export function LaboratoryLayout({
         {workflow.completed && (
           <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#031521]/75 p-3 sm:p-6">
             <div className="max-h-full w-full max-w-[870px] overflow-y-auto overscroll-contain rounded-2xl text-[#102b3a] shadow-2xl">
+              <nav
+                aria-label="Completed experiment navigation"
+                className="flex flex-wrap gap-4 bg-white px-5 py-3 text-sm font-semibold text-teal-dark"
+              >
+                <Link
+                  className="inline-flex min-h-11 items-center rounded px-1 hover:underline focus-visible:outline-teal"
+                  to={paths.details}
+                >
+                  Back to Details
+                </Link>
+                <Link
+                  className="inline-flex min-h-11 items-center rounded px-1 hover:underline focus-visible:outline-teal"
+                  to={paths.experimentResults}
+                >
+                  View Results
+                </Link>
+              </nav>
               <ExperimentResults
-                definition={saltExperimentDefinition}
+                definition={definition}
                 experiment={chemistry}
                 workflow={workflow}
                 onRestart={onRestart}

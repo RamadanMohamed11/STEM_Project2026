@@ -5,7 +5,12 @@ import { StatusPill } from '@/components/ui/StatusPill'
 import { demoCatalog } from '@/features/experiments/data/mockExperiments'
 import { findExperimentById } from '@/features/experiments/lib/catalogSelectors'
 import { LaboratoryLayout } from '@/features/simulations/components/LaboratoryLayout'
-import { getLaboratoryPresentation } from '@/features/simulations/lib/workspaceSelectors'
+import { getExperimentPaths } from '@/app/paths'
+import { Button } from '@/components/ui/Button'
+import { ButtonLink } from '@/components/ui/ButtonLink'
+import { previewExperimentId } from '@/features/simulations/lib/simulationRegistry'
+import { useSimulationSession } from '@/features/simulations/state/useSimulationSession'
+import { restartExperimentSession } from '@/features/simulations/state/sessionActions'
 import { usePageTitle } from '@/hooks/usePageTitle'
 
 export function VirtualLabPage() {
@@ -13,11 +18,11 @@ export function VirtualLabPage() {
   // Retain the old preview URL, but serve the actual 3D demo in both entry points.
   const isIntroduction = experimentId === 'preview'
   const experiment = isIntroduction
-    ? demoCatalog.experiments.find((candidate) => candidate.status === 'demo')
+    ? findExperimentById(demoCatalog.experiments, previewExperimentId)
     : experimentId
       ? findExperimentById(demoCatalog.experiments, experimentId)
       : undefined
-  const presentation = experiment ? getLaboratoryPresentation(experiment.id) : undefined
+  const session = useSimulationSession(experiment)
   usePageTitle(experiment?.title ?? 'Experiment Not Found')
 
   const returnLink = (
@@ -75,9 +80,31 @@ export function VirtualLabPage() {
     )
   }
 
-  if (experiment && presentation) {
+  if (experiment && session.simulation && session.phase === 'incompatible')
     return (
-      <LaboratoryLayout key={experiment.id} experiment={experiment} presentation={presentation} />
+      <div className="h-full overflow-y-auto bg-canvas p-6 text-ink">
+        <section className="mx-auto max-w-2xl space-y-5 rounded-xl bg-white p-6">
+          <h1 className="text-2xl font-semibold text-navy">Restart This Experiment</h1>
+          <p>
+            This session does not match this experiment or its current version. Restart to begin
+            this version. This clears the previous session.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={restartExperimentSession}>Restart Experiment</Button>
+            <ButtonLink to={getExperimentPaths(experiment.id).details} variant="secondary">
+              Back to Details
+            </ButtonLink>
+          </div>
+        </section>
+      </div>
+    )
+  if (experiment && session.simulation) {
+    return (
+      <LaboratoryLayout
+        key={experiment.id}
+        experiment={experiment}
+        simulation={session.simulation}
+      />
     )
   }
 

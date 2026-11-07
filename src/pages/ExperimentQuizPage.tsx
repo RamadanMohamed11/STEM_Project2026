@@ -17,7 +17,7 @@ export function ExperimentQuizPage() {
       message="There are no questions to answer yet. When the quiz is ready, you will be able to check what you learned in the lab."
       actions={[
         { label: 'Back to Experiment', to: paths.details },
-        { label: 'View Results Page', to: paths.results, variant: 'secondary' },
+        { label: 'View Quiz Results', to: paths.results, variant: 'secondary' },
       ]}
     />
   )

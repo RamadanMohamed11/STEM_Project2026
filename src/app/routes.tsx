@@ -20,6 +20,7 @@ import { NotFoundPage } from '@/pages/NotFoundPage'
 import { SafetyPage } from '@/pages/SafetyPage'
 import { SignUpPage } from '@/pages/SignUpPage'
 import { QuizResultsPage } from '@/pages/QuizResultsPage'
+import { ExperimentResultsPage } from '@/pages/ExperimentResultsPage'
 import { VirtualLabPage } from '@/pages/VirtualLabPage'
 
 export function AppRoutes() {
@@ -46,6 +47,7 @@ export function AppRoutes() {
           <Route path={routePaths.laboratory} element={<VirtualLabPage />} />
           <Route path={routePaths.experimentDetails} element={<ExperimentRouteLayout />}>
             <Route index element={<ExperimentDetailsPage />} />
+            <Route path="results" element={<ExperimentResultsPage />} />
             <Route path="quiz" element={<ExperimentQuizPage />} />
             <Route path="quiz/results" element={<QuizResultsPage />} />
           </Route>

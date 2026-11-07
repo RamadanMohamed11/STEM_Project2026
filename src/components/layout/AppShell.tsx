@@ -1,5 +1,11 @@
 import { useState } from 'react'
-import { Outlet, useLocation } from 'react-router'
+import { Outlet, matchPath, useLocation } from 'react-router'
+import { routePaths } from '@/app/paths'
+import { demoCatalog } from '@/features/experiments/data/mockExperiments'
+import {
+  previewExperimentId,
+  resolveSimulation,
+} from '@/features/simulations/lib/simulationRegistry'
 import { AppShellFooter } from '@/components/layout/AppShellFooter'
 import { Header } from '@/components/layout/Header'
 import { MobileNavigation } from '@/components/layout/MobileNavigation'
@@ -9,7 +15,15 @@ import { SidebarNavigation } from '@/components/layout/SidebarNavigation'
 export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
   const { pathname } = useLocation()
-  const immersive = /^\/experiments\/(?:preview|exp-salt-water-001)\/lab\/?$/.test(pathname)
+  const labId = matchPath(routePaths.laboratory, pathname)?.params.experimentId
+  const immersive = Boolean(
+    labId &&
+    resolveSimulation(
+      demoCatalog.experiments.find(
+        (experiment) => experiment.id === (labId === 'preview' ? previewExperimentId : labId),
+      ),
+    ),
+  )
 
   // The actual laboratory is a viewport application, not a long dashboard
   // article. Catalog, safety and unavailable routes retain the standard shell.

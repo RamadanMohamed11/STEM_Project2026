@@ -19,6 +19,7 @@ export const routePaths = {
   experimentDetails: '/experiments/:experimentId',
   laboratory: '/experiments/:experimentId/lab',
   experimentQuiz: '/experiments/:experimentId/quiz',
+  experimentResults: '/experiments/:experimentId/results',
   quizResults: '/experiments/:experimentId/quiz/results',
   laboratoryPreview: '/experiments/preview/lab',
 } as const
@@ -38,6 +39,7 @@ export function getExperimentPaths(experimentId: string) {
     details: generatePath(routePaths.experimentDetails, params),
     laboratory: generatePath(routePaths.laboratory, params),
     quiz: generatePath(routePaths.experimentQuiz, params),
+    experimentResults: generatePath(routePaths.experimentResults, params),
     results: generatePath(routePaths.quizResults, params),
   }
 }

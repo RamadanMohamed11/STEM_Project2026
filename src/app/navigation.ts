@@ -41,9 +41,12 @@ export function getActiveNavigationId(pathname: string) {
   if (matchPath(routePaths.curriculumLesson, path)) return 'curriculum'
   if (matchPath(routePaths.laboratory, path)) return 'lab'
   if (
-    [routePaths.experimentDetails, routePaths.experimentQuiz, routePaths.quizResults].some(
-      (pattern) => matchPath(pattern, path),
-    )
+    [
+      routePaths.experimentDetails,
+      routePaths.experimentResults,
+      routePaths.experimentQuiz,
+      routePaths.quizResults,
+    ].some((pattern) => matchPath(pattern, path))
   )
     return 'experiments'
   const item = [...primaryNavigation, ...accountNavigation].find(
@@ -54,6 +57,7 @@ export function getActiveNavigationId(pathname: string) {
 }
 
 export function getPageContext(pathname: string) {
+  if (matchPath(routePaths.experimentResults, pathname)) return 'Experiment Results'
   if (matchPath(routePaths.curriculumLesson, pathname)) return 'Lesson Experiments'
   if (matchPath(routePaths.account, pathname) || matchPath(routePaths.profile, pathname))
     return 'Your Profile'

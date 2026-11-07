@@ -12,3 +12,15 @@ export function restartExperimentSession(): void {
   scene.resetEquipment()
   scene.resetCamera()
 }
+
+/** Drop presentation-only work on navigation. The transfer controller owns its safe interrupted return. */
+export function suspendLaboratoryInteractions(): void {
+  const session = useSaltSimulationStore.getState()
+  if (session.effect) session.stopEffect(session.effect.id)
+  session.stopStream()
+  const scene = useLabSceneStore.getState()
+  if (scene.placement) scene.cancelPlacement()
+  if (scene.pressedId) scene.endPress()
+  if (scene.draggingId) scene.finishDrag()
+  if (scene.hoveredId) scene.setHovered(null)
+}

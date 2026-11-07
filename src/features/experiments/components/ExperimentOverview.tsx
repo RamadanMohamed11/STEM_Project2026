@@ -1,9 +1,10 @@
-import { getExperimentPaths, routePaths } from '@/app/paths'
+import { routePaths } from '@/app/paths'
 import { ButtonLink } from '@/components/ui/ButtonLink'
 import { StatusPill } from '@/components/ui/StatusPill'
 import { ExperimentIllustration } from './ExperimentIllustration'
 import { experimentDifficultyLabels } from '../data/catalogDisplay'
-import { getLaboratoryPresentation } from '@/features/simulations/lib/workspaceSelectors'
+import { resolveSimulation } from '@/features/simulations/lib/simulationRegistry'
+import { SimulationJourneyActions } from '@/features/simulations/components/SimulationJourneyActions'
 import type { Experiment, ExperimentCategory } from '@/types/experiment'
 
 export function ExperimentOverview({
@@ -13,8 +14,7 @@ export function ExperimentOverview({
   experiment: Experiment
   category?: ExperimentCategory
 }) {
-  const laboratoryAvailable =
-    experiment.status === 'demo' && Boolean(getLaboratoryPresentation(experiment.id))
+  const laboratoryAvailable = Boolean(resolveSimulation(experiment))
   const status =
     experiment.status === 'planned'
       ? 'Coming Soon'
@@ -70,16 +70,14 @@ export function ExperimentOverview({
           </figcaption>
         </figure>
       </div>
-      <nav aria-label="Experiment actions" className="flex flex-wrap gap-3">
-        {laboratoryAvailable && (
-          <ButtonLink to={getExperimentPaths(experiment.id).laboratory}>
-            Start 3D Experiment
+      {!laboratoryAvailable && (
+        <nav aria-label="Experiment actions" className="flex flex-wrap gap-3">
+          <ButtonLink to={routePaths.experiments} variant="secondary">
+            Back to Experiments
           </ButtonLink>
-        )}
-        <ButtonLink to={routePaths.experiments} variant="secondary">
-          Back to Experiments
-        </ButtonLink>
-      </nav>
+        </nav>
+      )}
+      <SimulationJourneyActions experiment={experiment} />
       {experiment.status === 'planned' && (
         <p className="text-sm leading-relaxed text-slate">
           This experiment is planned. Its 3D lab is not available yet.

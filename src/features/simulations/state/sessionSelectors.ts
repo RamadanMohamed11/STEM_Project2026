@@ -20,6 +20,8 @@ export function getExperimentSessionSnapshot() {
 
   return {
     activeExperimentId: educational.activeExperimentId,
+    definitionId: educational.definitionId,
+    definitionVersion: educational.definitionVersion,
     currentStepIndex: educational.workflow.stepIndex,
     currentStageIndex: educational.workflow.stageIndex,
     experimentCompleted: educational.workflow.completed,

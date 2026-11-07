@@ -6,8 +6,10 @@ import { ExperimentOverview } from '@/features/experiments/components/Experiment
 import { ExperimentLearningSections } from '@/features/experiments/components/ExperimentLearningSections'
 import { ExperimentToolsSection } from '@/features/experiments/components/ExperimentToolsSection'
 import { ExperimentMaterialsSection } from '@/features/experiments/components/ExperimentMaterialsSection'
+import { ExperimentLearningStageViewer } from '@/features/experiments/components/ExperimentLearningStageViewer'
 import { demoCatalog } from '@/features/experiments/data/mockExperiments'
 import { getExperimentToolsAndMaterials } from '@/features/experiments/data/experimentToolsAndMaterials'
+import { getExperimentLearningStages } from '@/features/experiments/data/experimentLearningStages'
 import { getReviewedExperimentLessons } from '@/features/experiments/lib/experimentDetailsSelectors'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import type { Experiment } from '@/types/experiment'
@@ -17,6 +19,7 @@ export function ExperimentDetailsPage() {
   usePageTitle(`${experiment.title} — Details`)
   const lessons = getReviewedExperimentLessons(sampleCurriculum, experiment.id)
   const toolsAndMaterials = getExperimentToolsAndMaterials(experiment.id)
+  const learningStages = getExperimentLearningStages(experiment.id)
 
   return (
     <div className="mx-auto max-w-6xl space-y-8">
@@ -37,6 +40,7 @@ export function ExperimentDetailsPage() {
         materials={toolsAndMaterials?.materials}
         measurementDisclaimer={toolsAndMaterials?.measurementDisclaimer}
       />
+      <ExperimentLearningStageViewer key={experiment.id} data={learningStages} />
       {lessons.length > 0 && (
         <section
           aria-labelledby="experiment-lessons-title"
