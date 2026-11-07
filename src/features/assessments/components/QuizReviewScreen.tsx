@@ -1,4 +1,12 @@
-import { ArrowLeft, CheckCircle2, Circle, Edit3, Info, Send } from 'lucide-react'
+import {
+  AlertTriangle,
+  ArrowLeft,
+  CheckCircle2,
+  Circle,
+  Edit3,
+  Info,
+  Send,
+} from 'lucide-react'
 import { Link } from 'react-router'
 import type { MultipleChoiceQuestion } from '../../../types/assessment.ts'
 
@@ -7,6 +15,10 @@ interface QuizReviewScreenProps {
   answers: Readonly<Record<string, string>>
   onGoToQuestion: (index: number) => void
   onBackToQuestions: () => void
+  onRequestSubmit?: () => void
+  onConfirmSubmit?: () => void
+  onCancelConfirmation?: () => void
+  isConfirmingUnanswered?: boolean
   detailsPath: string
   resultsPath: string
 }
@@ -16,6 +28,10 @@ export function QuizReviewScreen({
   answers,
   onGoToQuestion,
   onBackToQuestions,
+  onRequestSubmit,
+  onConfirmSubmit,
+  onCancelConfirmation,
+  isConfirmingUnanswered = false,
   detailsPath,
   resultsPath,
 }: QuizReviewScreenProps) {
@@ -54,8 +70,8 @@ export function QuizReviewScreen({
         </div>
 
         <p className="text-sm leading-relaxed text-slate">
-          Review your answers before completing your session. You can return to
-          any question to select or change your answer.
+          Review your answers before submitting your practice attempt. You can return to
+          any question to select or change your answer before final submission.
         </p>
 
         {/* Counters */}
@@ -96,6 +112,55 @@ export function QuizReviewScreen({
           </div>
         </div>
       </section>
+
+      {/* Unanswered Confirmation Prompt */}
+      {isConfirmingUnanswered && unansweredCount > 0 && (
+        <section
+          role="alert"
+          aria-labelledby="unanswered-confirm-title"
+          className="space-y-4 rounded-2xl border-2 border-amber-400 bg-amber-50 p-5 shadow-card sm:p-6"
+        >
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl bg-amber-200/80 text-amber-900">
+              <AlertTriangle size={20} aria-hidden="true" />
+            </span>
+            <div className="space-y-1.5">
+              <h3
+                id="unanswered-confirm-title"
+                className="text-base font-semibold text-amber-950"
+              >
+                You have {unansweredCount} unanswered{' '}
+                {unansweredCount === 1 ? 'question' : 'questions'}
+              </h3>
+              <p className="text-sm leading-relaxed text-amber-900">
+                Unanswered questions will be marked as not answered and receive 0 points.
+                Once submitted, your answers are locked for this attempt. Would you like to
+                submit your quiz anyway or return to answer the remaining questions?
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 border-t border-amber-300/70 pt-3">
+            <button
+              type="button"
+              onClick={onConfirmSubmit}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-amber-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-900 focus-visible:outline-teal"
+            >
+              <Send size={15} aria-hidden="true" />
+              <span>Submit Anyway</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onCancelConfirmation ?? onBackToQuestions}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-amber-300 bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:bg-canvas focus-visible:outline-teal"
+            >
+              <ArrowLeft size={16} aria-hidden="true" />
+              <span>Return to Questions</span>
+            </button>
+          </div>
+        </section>
+      )}
 
       {/* Questions Review List */}
       <section
@@ -179,7 +244,7 @@ export function QuizReviewScreen({
         </div>
       </section>
 
-      {/* Submission Preparation Box (T27 preparation without fake scoring) */}
+      {/* Submission Action Box */}
       <section
         aria-labelledby="submission-prep-title"
         className="space-y-4 rounded-2xl border border-teal/30 bg-teal-soft/30 p-5 shadow-card sm:p-7"
@@ -193,9 +258,9 @@ export function QuizReviewScreen({
               Assessment Submission Notice
             </h3>
             <p className="text-sm leading-relaxed text-ink/80">
-              Quiz questions are coming soon with automatic grading and scoring in Task T27.
-              Your answers are recorded locally during this session so you can review and practice.
-              Assessment results and evaluated answers will be available once the grading engine is released.
+              Submit your practice attempt when you are ready to check your answers and read
+              scientific explanations. Once submitted, your choices for this attempt are locked,
+              and you can start a fresh attempt anytime.
             </p>
           </div>
         </div>
@@ -203,13 +268,11 @@ export function QuizReviewScreen({
         <div className="flex flex-wrap items-center gap-3 border-t border-teal/20 pt-4">
           <button
             type="button"
-            disabled
-            title="Automatic quiz grading is coming soon in Task T27"
-            aria-disabled="true"
-            className="inline-flex min-h-11 cursor-not-allowed items-center gap-2 rounded-xl bg-slate/40 px-5 py-2.5 text-sm font-semibold text-white/90 select-none"
+            onClick={onRequestSubmit}
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-teal px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-dark focus-visible:outline-teal"
           >
             <Send size={15} aria-hidden="true" />
-            <span>Submit Quiz (Coming Soon in T27)</span>
+            <span>Submit Quiz</span>
           </button>
 
           <button

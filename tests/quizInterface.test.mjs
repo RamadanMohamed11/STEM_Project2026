@@ -200,9 +200,9 @@ test('QuizReviewScreen renders complete summary, answered vs unanswered items, a
   assert.match(html, /Change Answer/)
   assert.match(html, /Answer Question/)
 
-  // Submission preparation notice (no fake score!)
+  // Submission preparation notice (no fake score before submission!)
   assert.match(html, /Assessment Submission Notice/)
-  assert.match(html, /Submit Quiz \(Coming Soon in T27\)/)
+  assert.match(html, />Submit Quiz<\/span>/)
   assert.match(html, /Continue Answering/)
   assert.match(html, /Back to Experiment/)
   assert.match(html, /View Quiz Results/)

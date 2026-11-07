@@ -1,13 +1,13 @@
-import { useOutletContext } from 'react-router'
-import { Link } from 'react-router'
+import { Link, useOutletContext } from 'react-router'
 import { getExperimentPaths } from '@/app/paths'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
-import { getAssessmentForExperiment } from '@/features/assessments/lib/assessmentSelectors'
-import { useQuizState } from '@/features/assessments/state/useQuizState'
+import { QuizFeedbackView } from '@/features/assessments/components/QuizFeedbackView'
 import { QuizProgressBar } from '@/features/assessments/components/QuizProgressBar'
 import { QuizQuestionCard } from '@/features/assessments/components/QuizQuestionCard'
 import { QuizReviewScreen } from '@/features/assessments/components/QuizReviewScreen'
 import { QuizUnavailable } from '@/features/assessments/components/QuizUnavailable'
+import { getAssessmentForExperiment } from '@/features/assessments/lib/assessmentSelectors'
+import { useQuizState } from '@/features/assessments/state/useQuizState'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import type { Experiment } from '@/types/experiment'
 
@@ -58,17 +58,28 @@ export function ExperimentQuizPage() {
                 Learning Practice · Draft Assessment:
               </strong>{' '}
               This assessment includes {quizState.totalCount} demonstration review questions for the{' '}
-              {experiment.title.toLowerCase()} experiment. Quiz questions are coming soon with
-              automatic grading and scoring in Task T27.
+              {experiment.title.toLowerCase()} experiment. Practice grading and concept explanations
+              are available below; official curriculum-approved Quiz questions are coming soon.
             </aside>
           )}
 
-          {quizState.isReviewMode ? (
+          {quizState.isSubmitted && quizState.submittedResult ? (
+            <QuizFeedbackView
+              result={quizState.submittedResult}
+              onRetakeQuiz={quizState.retakeQuiz}
+              detailsPath={paths.details}
+              resultsPath={paths.results}
+            />
+          ) : quizState.isReviewMode ? (
             <QuizReviewScreen
               questions={quizState.questions}
               answers={quizState.answers}
               onGoToQuestion={quizState.goToQuestion}
               onBackToQuestions={quizState.exitReview}
+              onRequestSubmit={quizState.requestSubmitQuiz}
+              onConfirmSubmit={quizState.confirmSubmitQuiz}
+              onCancelConfirmation={quizState.cancelSubmitConfirmation}
+              isConfirmingUnanswered={quizState.isConfirmingUnanswered}
               detailsPath={paths.details}
               resultsPath={paths.results}
             />

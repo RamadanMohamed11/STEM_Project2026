@@ -121,3 +121,82 @@ export interface AssessmentAttemptRecord {
   status: 'not-started' | 'in-progress' | 'submitted'
   responses: Readonly<Record<QuestionId, OptionId | null>>
 }
+
+/**
+ * Outcome status for an individual question after grading (T27).
+ */
+export type QuestionFeedbackStatus = 'correct' | 'incorrect' | 'unanswered'
+
+/**
+ * Student-facing heading label for question feedback (T27).
+ */
+export type QuestionFeedbackHeading = 'Correct Answer' | 'Not Quite Right'
+
+/**
+ * Structured question-level educational feedback produced by the pure grading engine (T27).
+ */
+export interface QuestionFeedbackItem {
+  questionId: QuestionId
+  order: number
+  prompt: string
+  status: QuestionFeedbackStatus
+  isCorrect: boolean
+  feedbackHeading: QuestionFeedbackHeading
+  selectedOptionId: OptionId | null
+  selectedOptionLabel: string | null
+  selectedOptionText: string | null
+  correctOptionId: OptionId
+  correctOptionLabel: string
+  correctOptionText: string
+  explanation: string
+  /** True if the submitted answer contained an invalid/unknown option ID that was rejected. */
+  hadInvalidSelection: boolean
+  learningObjectiveId?: EntityId
+  difficulty?: ExperimentDifficulty
+}
+
+/**
+ * Non-fatal validation warnings recorded when sanitizing student answer maps (T27).
+ */
+export type AssessmentGradingWarningCode = 'UNKNOWN_QUESTION_ID' | 'INVALID_OPTION_ID'
+
+export interface AssessmentGradingWarning {
+  code: AssessmentGradingWarningCode
+  message: string
+  questionId: string
+  optionId?: string
+}
+
+/**
+ * Passing evaluation status. Remains `unconfigured` when `passingScore.status === 'unconfigured-draft'`
+ * so the UI never invents arbitrary Pass/Fail labels.
+ */
+export type AssessmentPassStatus = 'unconfigured' | 'passed' | 'failed'
+
+/**
+ * Structured, immutable result record generated once upon quiz submission (T27).
+ * Client-side practice result only; never treated as an official examination grade.
+ */
+export interface AssessmentResultRecord {
+  attemptId: string
+  experimentId: EntityId
+  assessmentId: AssessmentId
+  assessmentVersion: string
+  submittedAnswers: Readonly<Record<QuestionId, OptionId | null>>
+  score: number
+  maxScore: number
+  maximumScore: number
+  percentage: number
+  totalQuestions: number
+  correctCount: number
+  incorrectCount: number
+  unansweredCount: number
+  passStatus: AssessmentPassStatus
+  questionFeedback: readonly QuestionFeedbackItem[]
+  submittedAt: string
+  submissionTimestamp: string
+  /** Explicit integrity marker: client-calculated scores are for student practice only. */
+  isPracticeAssessment: true
+  validationWarnings: readonly AssessmentGradingWarning[]
+}
+
