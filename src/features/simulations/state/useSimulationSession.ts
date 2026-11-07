@@ -17,5 +17,10 @@ export function useSimulationSession(experiment: Experiment | undefined) {
   )
   const placedIds = useSyncExternalStore(useLabSceneStore.subscribe, getPlacedIds, getPlacedIds)
   const simulation = resolveSimulation(experiment)
-  return { state, simulation, ...getSimulationSessionStatus(simulation, state, { placedIds }) }
+  return {
+    state,
+    placedIds,
+    simulation,
+    ...getSimulationSessionStatus(simulation, state, { placedIds }),
+  }
 }

@@ -5,6 +5,7 @@ import {
   FlaskConical,
   LockKeyhole,
   MoveRight,
+  ShieldCheck,
 } from 'lucide-react'
 import type {
   ExperimentWorkflowDefinition,
@@ -12,8 +13,10 @@ import type {
   WorkflowValidation,
 } from '../engine/workflowTypes.ts'
 import type { SaltExperimentState } from '../engine/types.ts'
+import { getContextualSafetyState } from '../lib/contextualSafety.ts'
 import { getRequiredEquipment } from '../lib/executionGuideSelectors.ts'
 import { useContextualGuidance } from '../state/useContextualGuidance'
+import { ContextualSafetyAlert } from './SafetyNotice.tsx'
 import type { InventoryItem, ExperimentGuideStage } from '@/types/laboratory'
 
 interface ExperimentGuideProps {
@@ -42,6 +45,15 @@ export function ExperimentGuide({
   const stage = definition.stages.find((group) => group.id === step.stageId)
   const equipment = getRequiredEquipment(step)
   const count = workflow.completed ? definition.steps.length : workflow.stepIndex
+
+  const safetyState = getContextualSafetyState({
+    definition,
+    workflow,
+    validation,
+    placedIds,
+    actorId: guidance.actorId,
+    targetId: guidance.targetId,
+  })
 
   return (
     <section
@@ -88,6 +100,12 @@ export function ExperimentGuide({
           )}
         </div>
 
+        {safetyState.primaryNotice && (
+          <div className="mt-3">
+            <ContextualSafetyAlert notice={safetyState.primaryNotice} compact />
+          </div>
+        )}
+
         {equipment.length > 0 && (
           <div className="mt-4">
             <h4 className="text-xs font-semibold text-navy">Required equipment</h4>
@@ -123,16 +141,29 @@ export function ExperimentGuide({
             {workflow.measurements.saltG ?? '—'} g selected salt
           </p>
         </div>
-
-        {validation && !validation.valid && validation.stepId === step.id && (
-          <p
-            role="status"
-            className={`mt-3 rounded-md px-3 py-2 text-xs leading-relaxed ${validation.valid ? 'bg-teal-soft/60 text-teal-dark' : 'bg-warning-soft/70 text-navy'}`}
-          >
-            {validation.message}
-          </p>
-        )}
       </div>
+
+      <details className="border-t border-line px-4 py-4">
+        <summary className="mb-3 flex cursor-pointer items-center gap-2 text-xs font-semibold text-navy">
+          <ShieldCheck size={15} className="text-teal" aria-hidden="true" /> Laboratory safety rules
+          ({workflow.safetyAcknowledged ? 'Confirmed' : 'Confirmation required'})
+        </summary>
+        <ul className="space-y-1.5" aria-label="Laboratory safety rules">
+          {safetyState.safetyRules.map((rule) => (
+            <li
+              key={rule.id}
+              className="flex items-start gap-2 rounded-lg bg-canvas/60 px-2.5 py-2 text-xs leading-relaxed text-ink/80"
+            >
+              <CheckCircle2
+                size={15}
+                aria-hidden="true"
+                className={`mt-0.5 shrink-0 ${rule.acknowledged ? 'text-teal-dark' : 'text-ink/45'}`}
+              />
+              <span>{rule.instruction}</span>
+            </li>
+          ))}
+        </ul>
+      </details>
 
       <details className="border-t border-line px-4 py-4">
         <summary className="mb-3 flex cursor-pointer items-center gap-2 text-xs font-semibold text-navy">

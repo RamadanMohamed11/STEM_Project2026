@@ -1,12 +1,29 @@
 import { useEffect, useState } from 'react'
-import { CheckCircle2, Lightbulb, ShieldCheck } from 'lucide-react'
+import {
+  AlertTriangle,
+  Ban,
+  CheckCircle2,
+  Info,
+  Lightbulb,
+  ShieldAlert,
+  ShieldCheck,
+  X,
+} from 'lucide-react'
 import { saltExperimentDefinition } from '../data/saltExperimentDefinition'
+import { getContextualSafetyState, type SafetyWarningLevel } from '../lib/contextualSafety'
 import { semanticEventLabels } from '../lib/semanticFeedback'
 import { acknowledgeLabSafety } from '../state/directInteractions'
 import { useContextualGuidance } from '../state/useContextualGuidance'
 import { useLabSceneStore } from '../state/useLabSceneStore'
 import { useSaltSimulationStore } from '../state/useSaltSimulationStore'
 import type { LaboratoryPresentation } from '@/types/laboratory'
+
+const HUD_SAFETY_ICONS: Readonly<Record<SafetyWarningLevel, typeof Info>> = {
+  info: Info,
+  caution: AlertTriangle,
+  warning: ShieldAlert,
+  blocked: Ban,
+}
 
 /** Only this small HUD subscribes to world positions; physics and layout stay separate. */
 export function ContextualInstruction({
@@ -17,6 +34,8 @@ export function ContextualInstruction({
   presentation: LaboratoryPresentation
 }) {
   const [hintOpen, setHintOpen] = useState(false)
+  const [safetyOpen, setSafetyOpen] = useState(false)
+  const [dismissedWarningText, setDismissedWarningText] = useState<string | null>(null)
   const [recentSuccess, setRecentSuccess] = useState<string | null>(null)
   const guidance = useContextualGuidance()
   const workflow = useSaltSimulationStore((state) => state.workflow)
@@ -24,7 +43,9 @@ export function ContextualInstruction({
   const transfer = useSaltSimulationStore((state) => state.transfer)
   const validation = useSaltSimulationStore((state) => state.validation)
   const feedback = useSaltSimulationStore((state) => state.feedback)
+  const placedIds = useLabSceneStore((state) => state.placedIds)
   const selectedId = useLabSceneStore((state) => state.selectedId)
+  const hoveredId = useLabSceneStore((state) => state.hoveredId)
   const selectionCount = useLabSceneStore((state) => state.selectedIds?.length ?? 0)
   const draggingId = useLabSceneStore((state) => state.draggingId)
   const placement = useLabSceneStore((state) => state.placement)
@@ -68,12 +89,28 @@ export function ContextualInstruction({
       : feedback && !feedback.ok
         ? feedback.message
         : null
-  const visibleWarning = warning?.match(/tilt/i)
+  const rawVisibleWarning = warning?.match(/tilt/i)
     ? 'Read the current step, then select a source and receiver to transfer a measured amount.'
     : warning
+  const visibleWarning =
+    rawVisibleWarning && rawVisibleWarning !== dismissedWarningText ? rawVisibleWarning : null
   const visibleSuccess = !visibleWarning
     ? (recentSuccess ?? (guidance.tone === 'success' ? guidance.feedback : null))
     : null
+
+  const safetyState = getContextualSafetyState({
+    definition: saltExperimentDefinition,
+    workflow,
+    validation,
+    feedback,
+    hoveredId,
+    placedIds,
+    actorId: guidance.actorId,
+    targetId: guidance.targetId,
+  })
+
+  const stepPrecaution = safetyState.stepPrecaution
+  const StepPrecautionIcon = stepPrecaution ? HUD_SAFETY_ICONS[stepPrecaution.level] : ShieldCheck
 
   useEffect(() => {
     let previousCount = useSaltSimulationStore.getState().events.length
@@ -112,6 +149,24 @@ export function ContextualInstruction({
               : `Step ${workflow.stepIndex + 1} / ${saltExperimentDefinition.steps.length} · ${guidance.stepTitle}`}
           </p>
           <div className="flex shrink-0 items-center gap-1.5">
+            {stepPrecaution && (
+              <button
+                type="button"
+                aria-label={safetyOpen ? 'Hide safety notice' : 'Show safety notice'}
+                aria-expanded={safetyOpen}
+                onClick={() => setSafetyOpen((open) => !open)}
+                className={`flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] font-semibold ${
+                  safetyOpen
+                    ? 'bg-[#205d61] text-[#c0fff2]'
+                    : stepPrecaution.level === 'warning'
+                      ? 'bg-amber-400/20 text-amber-200 hover:bg-amber-400/30'
+                      : 'text-white/75 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                <StepPrecautionIcon size={12} aria-hidden="true" />
+                <span>{stepPrecaution.badgeLabel}</span>
+              </button>
+            )}
             <button
               type="button"
               aria-label={hintOpen ? 'Hide contextual hint' : 'Show contextual hint'}
@@ -133,6 +188,26 @@ export function ContextualInstruction({
           </div>
         </div>
         <p className="mt-1 text-xs leading-[1.45] font-medium text-white/95">{instruction}</p>
+        {safetyOpen && stepPrecaution && (
+          <div
+            role="status"
+            data-safety-level={stepPrecaution.level}
+            className="mt-1.5 flex items-start justify-between gap-2 rounded-lg border border-white/15 bg-white/10 px-2.5 py-1.5 text-[11px] leading-relaxed text-[#d9f7f2]"
+          >
+            <div>
+              <p className="font-semibold text-[#7cebd6]">{stepPrecaution.title}</p>
+              <p className="mt-0.5 text-white/90">{stepPrecaution.message}</p>
+            </div>
+            <button
+              type="button"
+              aria-label="Close safety notice"
+              onClick={() => setSafetyOpen(false)}
+              className="rounded p-1 text-white/70 hover:bg-white/10 hover:text-white"
+            >
+              <X size={13} aria-hidden="true" />
+            </button>
+          </div>
+        )}
         {showInteractionHint && (
           <p className="mt-1.5 flex items-start gap-1.5 text-[11px] leading-relaxed text-[#a6e9df]">
             <Lightbulb size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
@@ -147,12 +222,29 @@ export function ContextualInstruction({
           </p>
         )}
         {visibleWarning && (
-          <p
+          <div
             role="status"
-            className="mt-1.5 rounded-md bg-amber-200/10 px-2 py-1 text-[11px] leading-relaxed text-amber-200"
+            data-safety-level={safetyState.blockedNotice?.level ?? 'blocked'}
+            className="mt-1.5 flex items-start justify-between gap-2 rounded-md bg-amber-200/15 px-2.5 py-1.5 text-[11px] leading-relaxed text-amber-200"
           >
-            {visibleWarning}
-          </p>
+            <div className="flex items-start gap-1.5">
+              <Ban size={13} className="mt-0.5 shrink-0 text-amber-300" aria-hidden="true" />
+              <span>
+                <strong className="font-semibold">
+                  {safetyState.blockedNotice?.badgeLabel ?? 'This Action Is Not Allowed'}:
+                </strong>{' '}
+                {visibleWarning}
+              </span>
+            </div>
+            <button
+              type="button"
+              aria-label="Dismiss safety warning"
+              onClick={() => setDismissedWarningText(rawVisibleWarning)}
+              className="rounded p-0.5 text-amber-200/80 hover:bg-amber-200/20 hover:text-white"
+            >
+              <X size={13} aria-hidden="true" />
+            </button>
+          </div>
         )}
         {visibleSuccess && (
           <p role="status" className="mt-1.5 flex items-center gap-1.5 text-[11px] text-[#85efd4]">
