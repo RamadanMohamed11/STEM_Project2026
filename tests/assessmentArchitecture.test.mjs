@@ -322,7 +322,8 @@ test('existing quiz and quiz results routes remain operational with honest place
     assert.match(quizHtml, /Experiment Quiz/)
     assert.match(quizHtml, /Quiz questions are coming soon/)
     assert.match(quizHtml, /6 demonstration review questions/)
-    assert.doesNotMatch(quizHtml, /<form|type="radio"|Score:/i)
+    assert.match(quizHtml, /type="radio"/)
+    assert.doesNotMatch(quizHtml, /<form|Score:/i)
 
     const quizResultsHtml = render('/experiments/exp-salt-water-001/quiz/results')
     assert.match(quizResultsHtml, /Quiz Results/)
