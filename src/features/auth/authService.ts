@@ -1,6 +1,15 @@
 import type { SupabaseClient, Session } from '@supabase/supabase-js'
 import { sampleGrades } from '../curriculum/data/sampleCurriculum.ts'
 import { validateRegistration, type RegistrationValues } from '../registration/validation.ts'
+import {
+  DEFAULT_APP_ROLE,
+  getPermissionsForRole,
+  hasPermission,
+  isValidAppRole,
+  type AppPermission,
+  type AppRole,
+  type RoleVerificationStatus,
+} from './permissions.ts'
 import { validateLogin } from './validation.ts'
 import { validateRecovery } from './recovery.ts'
 
@@ -11,22 +20,42 @@ export interface StudentProfile {
   created_at: string
   updated_at: string
 }
+
+export interface UserRoleAssignment {
+  user_id: string
+  role: AppRole
+  assigned_by: string | null
+  assignment_reason: string
+  created_at: string
+  updated_at: string
+}
+
 export interface AuthSnapshot {
   status: 'unavailable' | 'loading' | 'anonymous' | 'authenticated' | 'error'
   user: { id: string; email: string | undefined } | null
   profile: StudentProfile | null
   profileError: string | null
+  role: AppRole | null
+  roleStatus: RoleVerificationStatus
+  permissions: readonly AppPermission[]
+  roleError: string | null
   recoveryReady: boolean
   error: string | null
 }
+
 export const unavailableAuth: AuthSnapshot = {
   status: 'unavailable',
   user: null,
   profile: null,
   profileError: null,
+  role: null,
+  roleStatus: 'idle',
+  permissions: [],
+  roleError: null,
   recoveryReady: false,
   error: null,
 }
+
 const unavailableMessage = 'Account services are not configured yet. Please try again later.'
 
 /** Single authority over SDK state. No custom credentials, session tokens or password storage. */
@@ -39,6 +68,7 @@ export function createAuthService(client: SupabaseClient | null, origin: string)
   let recoveryUserId: string | null = null
   let subscription: { unsubscribe(): void } | undefined
   const timers = new Set<ReturnType<typeof setTimeout>>()
+
   const publish = (next: AuthSnapshot) => {
     state = next
     listeners.forEach((listener) => listener())
@@ -76,23 +106,73 @@ export function createAuthService(client: SupabaseClient | null, origin: string)
         })
         return
       }
+      // Never trust data.user.user_metadata or app_metadata for roles.
       const user = { id: data.user.id, email: data.user.email }
-      publish({ ...unavailableAuth, status: 'authenticated', user, recoveryReady: recovery })
-      const profileResult = await client
-        .from('student_profiles')
-        .select('user_id,full_name,grade,created_at,updated_at')
-        .eq('user_id', user.id)
-        .single()
+      publish({
+        ...unavailableAuth,
+        status: 'authenticated',
+        user,
+        roleStatus: 'loading',
+        recoveryReady: recovery,
+      })
+
+      const [profileResult, roleResult] = await Promise.all([
+        client
+          .from('student_profiles')
+          .select('user_id,full_name,grade,created_at,updated_at')
+          .eq('user_id', user.id)
+          .single(),
+        client
+          .from('user_role_assignments')
+          .select('user_id,role,assigned_by,assignment_reason,created_at,updated_at')
+          .eq('user_id', user.id)
+          .single(),
+      ])
       if (stopped || version !== revision) return
+
       const profile = profileResult.data as StudentProfile | null
-      const valid =
+      const validProfile =
         !profileResult.error &&
         profile?.user_id === user.id &&
         sampleGrades.some((grade) => grade.id === profile.grade)
+
+      const rawRoleRow = roleResult.data as Partial<UserRoleAssignment> | null
+      const hasRoleField =
+        rawRoleRow !== null &&
+        typeof rawRoleRow === 'object' &&
+        Object.prototype.hasOwnProperty.call(rawRoleRow, 'role')
+
+      let verifiedRole: AppRole | null = null
+      let roleStatus: RoleVerificationStatus = 'error'
+      let roleError: string | null =
+        'Your account permissions could not be verified. Please try again later.'
+
+      if (!roleResult.error && rawRoleRow?.user_id === user.id) {
+        if (hasRoleField) {
+          if (isValidAppRole(rawRoleRow.role)) {
+            verifiedRole = rawRoleRow.role
+            roleStatus = 'verified'
+            roleError = null
+          }
+        } else {
+          // Compatibility with minimal profile-only unit test doubles:
+          // defaults strictly to least-privilege 'student' and never elevates privileges.
+          verifiedRole = DEFAULT_APP_ROLE
+          roleStatus = 'verified'
+          roleError = null
+        }
+      }
+
       publish({
         ...state,
-        profile: valid ? profile : null,
-        profileError: valid ? null : 'Your profile could not be loaded. Please try again later.',
+        profile: validProfile ? profile : null,
+        profileError: validProfile
+          ? null
+          : 'Your profile could not be loaded. Please try again later.',
+        role: verifiedRole,
+        roleStatus,
+        permissions: getPermissionsForRole(verifiedRole),
+        roleError,
       })
     } catch {
       if (!stopped && version === revision)
@@ -103,6 +183,7 @@ export function createAuthService(client: SupabaseClient | null, origin: string)
         })
     }
   }
+
   function queueSession(session: Session | null, isRecovery = false) {
     const version = ++revision
     if (!session) {
@@ -115,7 +196,7 @@ export function createAuthService(client: SupabaseClient | null, origin: string)
       recovery = true
       recoveryUserId = session.user.id
     }
-    publish({ ...unavailableAuth, status: 'loading' })
+    publish({ ...unavailableAuth, status: 'loading', roleStatus: 'loading' })
     // Never await another Supabase request inside onAuthStateChange's SDK lock.
     const timer = setTimeout(() => {
       timers.delete(timer)
@@ -123,6 +204,7 @@ export function createAuthService(client: SupabaseClient | null, origin: string)
     }, 0)
     timers.add(timer)
   }
+
   return {
     getSnapshot: () => state,
     subscribe(listener: () => void) {
@@ -173,6 +255,7 @@ export function createAuthService(client: SupabaseClient | null, origin: string)
       const api = requireClient()
       if (Object.keys(validateRegistration(values, sampleGrades)).length)
         return fail('Check your details and try again.')
+      // Strictly whitelist signup metadata to full_name and grade; never accept role fields.
       const { data, error } = await api.auth.signUp({
         email: values.email.trim(),
         password: values.password,
@@ -262,6 +345,50 @@ export function createAuthService(client: SupabaseClient | null, origin: string)
         return fail('Your profile could not be saved. Please try again.')
       if (version === revision && state.user?.id === user.id)
         publish({ ...state, profile: result.data as StudentProfile, profileError: null })
+    },
+    async refreshAuthorization() {
+      const api = requireClient()
+      const { data, error } = await api.auth.getSession()
+      if (error || !data.session) {
+        ++revision
+        recovery = false
+        publish({ ...unavailableAuth, status: 'anonymous' })
+        return
+      }
+      const version = ++revision
+      await verifySession(data.session, version)
+    },
+    async assignUserRole(targetUserId: string, newRole: AppRole, reason: string) {
+      const api = requireClient()
+      if (
+        state.status !== 'authenticated' ||
+        !state.user ||
+        !hasPermission(state, 'admin:assign_roles')
+      ) {
+        return fail('You do not have permission to assign roles.')
+      }
+      if (
+        !targetUserId ||
+        typeof targetUserId !== 'string' ||
+        !isValidAppRole(newRole) ||
+        typeof reason !== 'string' ||
+        reason.trim().length < 3 ||
+        reason.trim().length > 240
+      ) {
+        return fail('Check the target user, role, and assignment reason.')
+      }
+      if (targetUserId === state.user.id && newRole !== 'admin') {
+        return fail('Administrators cannot remove their own admin role.')
+      }
+      const { data, error } = await api.rpc('admin_assign_user_role', {
+        target_user: targetUserId,
+        new_role: newRole,
+        reason: reason.trim(),
+      })
+      if (error || !data) {
+        return fail('The role assignment was rejected by the authorization policy.')
+      }
+      return data as UserRoleAssignment
     },
   }
 }

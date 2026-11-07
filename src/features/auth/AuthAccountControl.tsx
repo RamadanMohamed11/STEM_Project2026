@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router'
 import { useAuth } from './authContext'
+import { canAccessAdminPortal } from './permissions'
 import { routePaths } from '@/app/paths'
 
 export function AuthAccountControl() {
@@ -8,8 +9,19 @@ export function AuthAccountControl() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   if (state.status !== 'authenticated') return null
+  const showAdminLink = canAccessAdminPortal(state)
   return (
     <div className="mt-4 space-y-2 border-t border-white/15 pt-3 text-sm text-white">
+      {showAdminLink && (
+        <NavLink
+          to={routePaths.admin}
+          className={({ isActive }) =>
+            `flex min-h-11 items-center justify-center rounded-lg hover:bg-white/10 ${isActive ? 'bg-white/14 font-semibold' : ''}`
+          }
+        >
+          Admin
+        </NavLink>
+      )}
       <NavLink
         to={routePaths.profile}
         className={({ isActive }) =>

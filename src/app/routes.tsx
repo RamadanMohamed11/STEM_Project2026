@@ -1,4 +1,6 @@
 import { RequireAuth } from '@/features/auth/RequireAuth'
+import { RequireAdmin } from '@/features/auth/RequireRole'
+import { AdminFoundationPage } from '@/pages/AdminFoundationPage'
 import { StudentProfilePage } from '@/pages/StudentProfilePage'
 import { AuthCallbackPage } from '@/pages/AuthCallbackPage'
 import { PasswordRecoveryPage } from '@/pages/PasswordRecoveryPage'
@@ -33,6 +35,9 @@ export function AppRoutes() {
         <Route element={<RequireAuth />}>
           <Route path={routePaths.account} element={<StudentProfilePage />} />
           <Route path={routePaths.profile} element={<StudentProfilePage />} />
+        </Route>
+        <Route element={<RequireAdmin />}>
+          <Route path={routePaths.admin} element={<AdminFoundationPage />} />
         </Route>
         <Route path={routePaths.signUp} element={<SignUpPage />} />
         <Route path={routePaths.login} element={<LoginPage />} />

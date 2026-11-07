@@ -39,6 +39,7 @@ export function getActiveNavigationId(pathname: string) {
     return 'login'
   if (matchPath(routePaths.profile, path)) return 'profile'
   if (matchPath(routePaths.account, path)) return 'profile'
+  if (matchPath(routePaths.admin, path)) return 'admin'
   if (matchPath(routePaths.authCallback, path)) return 'login'
   if (matchPath(routePaths.curriculumLesson, path)) return 'curriculum'
   if (matchPath(routePaths.laboratory, path)) return 'lab'
@@ -63,6 +64,7 @@ export function getPageContext(pathname: string) {
   if (matchPath(routePaths.curriculumLesson, pathname)) return 'Lesson Experiments'
   if (matchPath(routePaths.account, pathname) || matchPath(routePaths.profile, pathname))
     return 'Your Profile'
+  if (matchPath(routePaths.admin, pathname)) return 'Admin'
   if (matchPath(routePaths.authCallback, pathname)) return 'Confirm Your Email'
   if (matchPath(routePaths.forgotPassword, pathname)) return 'Forgot Password'
   if (matchPath(routePaths.resetPassword, pathname)) return 'Reset Password'

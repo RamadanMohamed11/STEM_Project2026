@@ -7,6 +7,7 @@ export const routePaths = {
   login: '/login',
   account: '/account',
   profile: '/profile',
+  admin: '/admin',
   authCallback: '/auth/callback',
   forgotPassword: '/forgot-password',
   resetPassword: '/reset-password',
