@@ -25,11 +25,11 @@ export function UnitBrowser({
         <details
           key={unit.id}
           open={unit.id === openUnitId || undefined}
-          className="group overflow-hidden rounded-xl border border-line bg-white"
+          className="group overflow-hidden rounded-xl border border-line bg-white shadow-xs transition-all duration-300 hover:border-teal/30 hover:shadow-md"
         >
           <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 p-5 focus-visible:outline-teal sm:p-6 [&::-webkit-details-marker]:hidden">
             <div>
-              <h2 className="text-lg font-semibold text-navy">{unit.title}</h2>
+              <h2 className="text-lg font-semibold text-navy transition-colors group-hover:text-teal-dark">{unit.title}</h2>
               <p className="mt-1 text-sm text-slate">
                 {lessons.length} {lessons.length === 1 ? 'lesson' : 'lessons'}
               </p>
@@ -66,7 +66,7 @@ export function UnitBrowser({
                     <Link
                       to={getCurriculumLessonPath(lesson.id)}
                       aria-label={`View Experiments: ${unit.title}, ${lesson.title}`}
-                      className="inline-flex min-h-11 items-center self-start rounded-lg border border-teal/30 px-4 text-sm font-semibold text-teal-dark hover:bg-teal-soft focus-visible:outline-teal sm:shrink-0"
+                      className="inline-flex min-h-11 items-center self-start rounded-lg border border-teal/30 px-4 text-sm font-semibold text-teal-dark shadow-xs transition-all duration-150 hover:bg-teal-soft hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-teal sm:shrink-0"
                     >
                       View Experiments
                     </Link>

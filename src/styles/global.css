@@ -145,6 +145,120 @@ a {
   }
 }
 
+@keyframes floatParticle {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-8px) translateX(4px) rotate(4deg);
+  }
+  66% {
+    transform: translateY(-4px) translateX(-4px) rotate(-3deg);
+  }
+}
+
+@keyframes floatParticleSlow {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) translateX(-6px) rotate(8deg);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@keyframes gentleBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes liquidWave {
+  0%, 100% {
+    transform: translateX(0) scaleY(1);
+  }
+  50% {
+    transform: translateX(3px) scaleY(1.03);
+  }
+}
+
+@keyframes pulseRing {
+  0% {
+    box-shadow: 0 0 0 0 rgba(19, 139, 133, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(19, 139, 133, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(19, 139, 133, 0);
+  }
+}
+
+@keyframes gradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes celebratePop {
+  0% {
+    transform: scale(0.6) rotate(-8deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12) rotate(3deg);
+    opacity: 1;
+  }
+  80% {
+    transform: scale(0.96) rotate(-1deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes sparkleTwinkle {
+  0%, 100% {
+    transform: scale(0.8) rotate(0deg);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.25) rotate(45deg);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .animate-spin-slow {
   animation: spinSlow 20s linear infinite;
 }
@@ -178,6 +292,57 @@ a {
   animation: shimmerGlow 3s ease-in-out infinite;
 }
 
+.animate-float-particle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: floatParticle 5s ease-in-out infinite;
+}
+
+.animate-float-particle-slow {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: floatParticleSlow 8s ease-in-out infinite;
+}
+
+.animate-ripple {
+  animation: ripple 2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+
+.animate-gentle-bounce {
+  animation: gentleBounce 2.5s ease-in-out infinite;
+}
+
+.animate-liquid-wave {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: liquidWave 3s ease-in-out infinite;
+}
+
+.animate-pulse-ring {
+  animation: pulseRing 2s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+}
+
+.animate-gradient-flow {
+  background-size: 200% 200%;
+  animation: gradientFlow 6s ease-in-out infinite;
+}
+
+.animate-celebrate-pop {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: celebratePop 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+
+.animate-sparkle-twinkle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sparkleTwinkle 2.5s ease-in-out infinite;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -185,5 +350,6 @@ a {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

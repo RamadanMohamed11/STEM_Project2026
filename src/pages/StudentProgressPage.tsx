@@ -106,7 +106,7 @@ function ExperimentProgressCard({ item }: { item: ExperimentProgressOverviewItem
   }
 
   return (
-    <Card padding="md" className="flex flex-col justify-between gap-4">
+    <Card interactive padding="md" className="flex flex-col justify-between gap-4">
       <div className="space-y-3">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>

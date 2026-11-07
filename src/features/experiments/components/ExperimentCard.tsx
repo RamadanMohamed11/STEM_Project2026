@@ -25,15 +25,17 @@ export function ExperimentCard({ experiment, category, index, returnTo }: Experi
   return (
     <article
       aria-label={experiment.title}
-      className="group flex min-w-0 flex-col overflow-hidden rounded-xl border border-line bg-white shadow-card transition-all duration-300 ease-out hover:-translate-y-1 hover:border-teal/40 hover:shadow-lg"
+      className="group flex min-w-0 flex-col overflow-hidden rounded-xl border border-line bg-white shadow-card transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-teal/40 hover:shadow-xl"
     >
       <div className="relative h-43 overflow-hidden border-b border-line bg-[#eaf2f1] sm:h-46">
-        <ExperimentIllustration illustration={experiment.illustration} />
+        <div className="h-full w-full transition-transform duration-500 ease-out group-hover:scale-105">
+          <ExperimentIllustration illustration={experiment.illustration} />
+        </div>
         <div className="absolute inset-x-4 top-4 flex items-start justify-between gap-3">
-          <span className="rounded-md border border-white/70 bg-white/90 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.09em] text-navy">
+          <span className="rounded-md border border-white/70 bg-white/90 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.09em] text-navy shadow-xs backdrop-blur-xs">
             {category?.label ?? 'Science'}
           </span>
-          <span className="rounded-md border border-white/70 bg-white/90 px-2.5 py-1 font-mono text-[11px] text-ink/75">
+          <span className="rounded-md border border-white/70 bg-white/90 px-2.5 py-1 font-mono text-[11px] text-ink/75 shadow-xs backdrop-blur-xs">
             EX {String(index + 1).padStart(2, '0')}
           </span>
         </div>
@@ -53,7 +55,7 @@ export function ExperimentCard({ experiment, category, index, returnTo }: Experi
           </StatusPill>
           <span className="text-xs text-ink/65">Illustrative content</span>
         </div>
-        <h3 className="text-xl font-semibold tracking-tight text-navy">{experiment.title}</h3>
+        <h3 className="text-xl font-semibold tracking-tight text-navy transition-colors duration-200 group-hover:text-teal-dark">{experiment.title}</h3>
         <p className="mt-3 flex-1 text-sm leading-[1.75] text-ink/75">
           {experiment.shortDescription}
         </p>
@@ -88,17 +90,18 @@ export function ExperimentCard({ experiment, category, index, returnTo }: Experi
         <div className="mt-5 border-t border-line pt-4">
           <Link
             to={`${getExperimentPaths(experiment.id).details}${returnTo ? `?${new URLSearchParams({ returnTo })}` : ''}`}
-            className="mb-2 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-teal-dark transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2"
+            className="group/link mb-2 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-teal-dark transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2"
           >
-            View Experiment <ArrowUpRight size={16} aria-hidden="true" />
+            <span>View Experiment</span>
+            <ArrowUpRight size={16} aria-hidden="true" className="transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
           </Link>
           {available ? (
             <Link
               to={getLabPath(experiment)}
-              className="inline-flex min-h-11 w-full items-center justify-between gap-3 rounded-lg bg-teal px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:bg-teal-dark hover:shadow hover:-translate-y-0.5 focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2 active:translate-y-0 active:scale-[0.99]"
+              className="inline-flex min-h-11 w-full items-center justify-between gap-3 rounded-lg bg-teal px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-teal-dark hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2 active:translate-y-0 active:scale-[0.98]"
             >
-              Start Experiment
-              <ArrowUpRight size={18} aria-hidden="true" />
+              <span>Start Experiment</span>
+              <ArrowUpRight size={18} aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </Link>
           ) : (
             <p className="flex min-h-11 items-center gap-2 rounded-lg bg-surface-muted px-4 py-3 text-sm font-medium text-ink/75">

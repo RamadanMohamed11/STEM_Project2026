@@ -108,17 +108,22 @@ export function HowItWorks() {
         {journeySteps.map((step) => (
           <li
             key={step.step}
-            className="group flex flex-col justify-between rounded-xl border border-line bg-white p-5 shadow-card transition-all duration-300 ease-out hover:-translate-y-1 hover:border-teal/30 hover:shadow-md sm:p-6"
+            className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-line bg-white p-5 shadow-card transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-teal/40 hover:shadow-lg sm:p-6"
           >
+            {/* Subtle top accent gradient line on hover */}
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-teal-light via-teal to-teal-dark opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
             <div>
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xl font-black tracking-tight text-teal transition-transform duration-300 ease-out group-hover:scale-110">{step.step}</span>
+                <span className="flex size-9 items-center justify-center rounded-lg bg-teal-soft font-mono text-sm font-bold text-teal-dark shadow-xs transition-all duration-300 group-hover:scale-110 group-hover:bg-teal group-hover:text-white">
+                  {step.step}
+                </span>
                 <StatusPill tone={step.statusTone} dot>
                   {step.status}
                 </StatusPill>
               </div>
 
-              <h3 className="mt-4 text-base font-bold text-navy sm:text-lg">{step.title}</h3>
+              <h3 className="mt-4 text-base font-bold text-navy transition-colors duration-200 group-hover:text-teal-dark sm:text-lg">{step.title}</h3>
 
               <p className="mt-2 text-xs leading-relaxed text-ink/75 sm:text-sm">
                 {step.description}
@@ -132,9 +137,9 @@ export function HowItWorks() {
               >
                 <span>{step.actionLabel}</span>
                 {step.isAvailable ? (
-                  <ArrowRight size={15} aria-hidden="true" />
+                  <ArrowRight size={15} aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1" />
                 ) : (
-                  <ArrowUpRight size={15} aria-hidden="true" />
+                  <ArrowUpRight size={15} aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 )}
               </Link>
             </div>

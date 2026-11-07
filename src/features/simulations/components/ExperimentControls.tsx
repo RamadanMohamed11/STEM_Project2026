@@ -36,15 +36,15 @@ export function ExperimentControls({
           <button
             type="button"
             onClick={onRestart}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-line-strong px-4 text-sm font-semibold text-navy hover:bg-surface-muted"
+            className="group/btn inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-line-strong px-4 text-sm font-semibold text-navy shadow-xs transition-all duration-200 hover:bg-surface-muted hover:border-slate/40 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
           >
-            <RotateCcw size={16} aria-hidden="true" /> Restart experiment
+            <RotateCcw size={16} aria-hidden="true" className="transition-transform duration-300 group-hover/btn:-rotate-90" /> Restart experiment
           </button>
           <Link
             to="/experiments"
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-navy px-4 text-sm font-semibold text-white hover:bg-[#263f52]"
+            className="group/btn inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-navy px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#263f52] hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
           >
-            <ArrowLeft size={16} aria-hidden="true" /> All experiments
+            <ArrowLeft size={16} aria-hidden="true" className="transition-transform duration-200 group-hover/btn:-translate-x-0.5" /> All experiments
           </Link>
         </div>
       </div>

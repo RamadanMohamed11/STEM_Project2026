@@ -108,9 +108,9 @@ export function ChooseTermPage() {
 
       {/* Grade Context Banner */}
       {activeGrade ? (
-        <div className="flex flex-col items-start justify-between gap-4 rounded-xl border border-teal/25 bg-teal-soft/60 p-4 sm:flex-row sm:items-center sm:p-5">
+        <div className="flex flex-col items-start justify-between gap-4 rounded-xl border border-teal/25 bg-teal-soft/60 p-4 shadow-xs transition-all duration-300 hover:border-teal/40 hover:shadow-sm sm:flex-row sm:items-center sm:p-5">
           <div className="flex items-center gap-3">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-teal text-white">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-teal text-white shadow-xs transition-transform duration-300 hover:scale-105">
               <GraduationCap size={20} aria-hidden="true" />
             </span>
             <div>
@@ -123,9 +123,9 @@ export function ChooseTermPage() {
 
           <Link
             to={routePaths.grades}
-            className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-teal/30 bg-white px-3.5 py-1.5 text-xs font-semibold text-teal-dark transition-colors hover:bg-teal-soft focus-visible:outline-teal"
+            className="group/btn inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-teal/30 bg-white px-3.5 py-1.5 text-xs font-semibold text-teal-dark shadow-xs transition-all duration-150 hover:bg-teal-soft hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-teal"
           >
-            <ArrowLeft size={14} aria-hidden="true" />
+            <ArrowLeft size={14} aria-hidden="true" className="transition-transform duration-200 group-hover/btn:-translate-x-0.5" />
             <span>Change Grade</span>
           </Link>
         </div>

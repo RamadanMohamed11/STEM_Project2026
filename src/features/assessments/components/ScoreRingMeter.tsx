@@ -1,3 +1,5 @@
+import { useAnimatedCounter } from '@/hooks/useAnimatedCounter'
+
 interface ScoreRingMeterProps {
   score: number
   maxScore: number
@@ -6,6 +8,8 @@ interface ScoreRingMeterProps {
 
 export function ScoreRingMeter({ score, maxScore, percentage }: ScoreRingMeterProps) {
   const safePercentage = Math.max(0, Math.min(100, Math.round(percentage)))
+  const animatedPercentage = useAnimatedCounter(safePercentage, 800)
+  const animatedScore = useAnimatedCounter(score, 800)
 
   const radius = 54
   const strokeWidth = 10
@@ -71,10 +75,10 @@ export function ScoreRingMeter({ score, maxScore, percentage }: ScoreRingMeterPr
       {/* Center content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
         <span className="text-2xl font-bold tracking-tight tabular-nums text-navy sm:text-3xl">
-          {safePercentage}%
+          {animatedPercentage}%
         </span>
         <span className="text-xs font-semibold tabular-nums text-slate">
-          {score} / {maxScore}
+          {animatedScore} / {maxScore}
         </span>
       </div>
     </div>

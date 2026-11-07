@@ -84,21 +84,21 @@ export function WhyExperimentsMatter() {
           return (
             <div
               key={item.id}
-              className="group flex flex-col justify-between rounded-xl border border-line bg-canvas/60 p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-teal/30 hover:bg-white hover:shadow-md sm:p-6"
+              className="group flex flex-col justify-between rounded-xl border border-line bg-canvas/60 p-5 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-teal/40 hover:bg-white hover:shadow-lg sm:p-6"
             >
               <div>
                 <div className="flex items-center justify-between gap-2">
                   <span
-                    className={`flex size-11 items-center justify-center rounded-xl transition-transform duration-300 ease-out group-hover:scale-110 ${item.iconTone}`}
+                    className={`flex size-11 items-center justify-center rounded-xl shadow-xs transition-transform duration-300 ease-out group-hover:scale-110 group-hover:rotate-3 ${item.iconTone}`}
                   >
                     <Icon size={22} strokeWidth={1.9} aria-hidden="true" />
                   </span>
-                  <span className="rounded-full border border-line bg-white px-2.5 py-0.5 text-[11px] font-semibold text-slate">
+                  <span className="rounded-full border border-line bg-white px-2.5 py-0.5 text-[11px] font-semibold text-slate transition-colors duration-200 group-hover:border-teal/30 group-hover:bg-teal-soft/60 group-hover:text-teal-dark">
                     {item.focusBadge}
                   </span>
                 </div>
 
-                <h3 className="mt-4 text-lg font-bold text-navy">{item.title}</h3>
+                <h3 className="mt-4 text-lg font-bold text-navy transition-colors duration-200 group-hover:text-teal-dark">{item.title}</h3>
 
                 <p className="mt-2 text-sm leading-relaxed text-ink/80">{item.description}</p>
               </div>

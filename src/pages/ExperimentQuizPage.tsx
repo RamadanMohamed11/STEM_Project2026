@@ -109,6 +109,7 @@ export function ExperimentQuizPage() {
 
               {quizState.currentQuestion && (
                 <QuizQuestionCard
+                  key={quizState.currentQuestion.id}
                   question={quizState.currentQuestion}
                   questionIndex={quizState.currentQuestionIndex}
                   totalQuestions={quizState.totalCount}

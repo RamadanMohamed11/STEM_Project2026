@@ -30,19 +30,23 @@ export function CelebrationEffect({ active }: CelebrationEffectProps) {
           @keyframes subtleFloatUp {
             0% {
               opacity: 0;
-              transform: translateY(10px) scale(0.6);
+              transform: translateY(12px) scale(0.5) rotate(-15deg);
             }
             30% {
-              opacity: 0.9;
-              transform: translateY(-4px) scale(1.1);
+              opacity: 1;
+              transform: translateY(-4px) scale(1.15) rotate(5deg);
+            }
+            70% {
+              opacity: 0.85;
+              transform: translateY(-16px) scale(1) rotate(-8deg);
             }
             100% {
               opacity: 0;
-              transform: translateY(-22px) scale(0.8);
+              transform: translateY(-32px) scale(0.7) rotate(20deg);
             }
           }
           .particle-item {
-            animation: subtleFloatUp 1.3s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
+            animation: subtleFloatUp 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
           @media (prefers-reduced-motion: reduce) {
             .particle-item {
@@ -62,6 +66,19 @@ export function CelebrationEffect({ active }: CelebrationEffectProps) {
             style={{ animationDelay: p.delay }}
           />
         ))}
+        {/* Celebration Stars */}
+        <path
+          d="M55 20 L56.5 24 L60.5 25 L57.5 27.5 L58.5 31.5 L55 29.5 L51.5 31.5 L52.5 27.5 L49.5 25 L53.5 24 Z"
+          fill="#fbbf24"
+          className="particle-item"
+          style={{ animationDelay: '250ms', transformOrigin: '55px 25px' }}
+        />
+        <path
+          d="M145 22 L146.5 25.5 L150 26.5 L147.5 28.5 L148.5 32 L145 30.5 L141.5 32 L142.5 28.5 L140 26.5 L143.5 25.5 Z"
+          fill="#76d5cb"
+          className="particle-item"
+          style={{ animationDelay: '180ms', transformOrigin: '145px 26px' }}
+        />
       </svg>
     </div>
   )

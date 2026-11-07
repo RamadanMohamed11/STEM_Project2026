@@ -31,6 +31,7 @@ export function AchievementIllustration({ tier }: AchievementIllustrationProps) 
             stroke="var(--color-teal)"
             strokeWidth="2"
             strokeLinecap="round"
+            className="animate-liquid-wave"
           />
           {/* Measurement ticks */}
           <line x1="22" y1="24" x2="26" y2="24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -39,6 +40,8 @@ export function AchievementIllustration({ tier }: AchievementIllustrationProps) 
           <path
             d="M37 10L38.2 13.8L42 14.5L39 17L40 21L36.5 19L33 21L34 17L31 14.5L34.8 13.8L36 10H37Z"
             fill="var(--color-warning)"
+            className="animate-sparkle-twinkle"
+            style={{ transformOrigin: '36.5px 15.5px' }}
           />
         </svg>
       </div>
@@ -72,9 +75,10 @@ export function AchievementIllustration({ tier }: AchievementIllustrationProps) 
             stroke="var(--color-teal)"
             strokeWidth="2"
             strokeLinecap="round"
+            className="animate-liquid-wave"
           />
           {/* Checkmark badge */}
-          <circle cx="34" cy="16" r="8" fill="var(--color-teal)" />
+          <circle cx="34" cy="16" r="8" fill="var(--color-teal)" className="animate-pulse-glow" style={{ transformOrigin: '34px 16px' }} />
           <path
             d="M31 16L33 18L37 14"
             stroke="white"

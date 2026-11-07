@@ -17,11 +17,14 @@ export function HomePage() {
       {/* Hero Section */}
       <section
         aria-labelledby="home-title"
-        className="overflow-hidden rounded-2xl border border-line bg-white shadow-card lg:grid lg:grid-cols-[minmax(0,1.16fr)_minmax(0,0.94fr)]"
+        className="relative overflow-hidden rounded-2xl border border-line bg-white shadow-card lg:grid lg:grid-cols-[minmax(0,1.16fr)_minmax(0,0.94fr)]"
       >
-        <div className="flex flex-col justify-center px-5 py-8 sm:px-10 sm:py-12 xl:px-12 xl:py-14">
-          <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-teal/20 bg-teal-soft/80 px-3.5 py-1 text-xs font-semibold text-teal-dark sm:mb-5 animate-subtle-float">
-            <Sparkles size={13} className="text-teal" aria-hidden="true" />
+        {/* Subtle decorative background gradient orb */}
+        <div className="pointer-events-none absolute -left-16 -top-16 size-72 rounded-full bg-teal-soft/50 blur-3xl" aria-hidden="true" />
+
+        <div className="relative flex flex-col justify-center px-5 py-8 sm:px-10 sm:py-12 xl:px-12 xl:py-14">
+          <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-teal/20 bg-teal-soft/80 px-3.5 py-1 text-xs font-semibold text-teal-dark sm:mb-5 animate-subtle-float transition-all duration-300 hover:border-teal/40 hover:bg-teal-soft">
+            <Sparkles size={13} className="text-teal animate-sparkle-twinkle" aria-hidden="true" />
             <span>Welcome to STEM Virtual Lab</span>
           </div>
 
@@ -39,15 +42,15 @@ export function HomePage() {
 
           {/* Quick feature highlights for students */}
           <ul className="mt-6 flex flex-wrap gap-2 text-xs font-medium text-navy sm:gap-3">
-            <li className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-canvas px-2.5 py-1.5 transition-all duration-200 hover:border-teal/30 hover:bg-white hover:shadow-xs">
+            <li className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-canvas px-2.5 py-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-teal/40 hover:bg-white hover:shadow-xs">
               <CheckCircle2 size={14} className="text-teal" aria-hidden="true" />
               <span>Full 3D Virtual Lab</span>
             </li>
-            <li className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-canvas px-2.5 py-1.5 transition-all duration-200 hover:border-teal/30 hover:bg-white hover:shadow-xs">
+            <li className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-canvas px-2.5 py-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-teal/40 hover:bg-white hover:shadow-xs">
               <CheckCircle2 size={14} className="text-teal" aria-hidden="true" />
               <span>Step-by-Step Guidance</span>
             </li>
-            <li className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-canvas px-2.5 py-1.5 transition-all duration-200 hover:border-teal/30 hover:bg-white hover:shadow-xs">
+            <li className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-canvas px-2.5 py-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-teal/40 hover:bg-white hover:shadow-xs">
               <CheckCircle2 size={14} className="text-teal" aria-hidden="true" />
               <span>Safe Chemical Practice</span>
             </li>
@@ -58,7 +61,7 @@ export function HomePage() {
             <ButtonLink
               to={routePaths.signUp}
               size="lg"
-              icon={<ArrowRight size={18} aria-hidden="true" />}
+              icon={<ArrowRight size={18} aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1" />}
             >
               Get Started
             </ButtonLink>
@@ -66,7 +69,7 @@ export function HomePage() {
               to={routePaths.experiments}
               variant="secondary"
               size="lg"
-              icon={<FlaskConical size={18} className="text-teal" aria-hidden="true" />}
+              icon={<FlaskConical size={18} className="text-teal transition-transform duration-200 group-hover:rotate-12" aria-hidden="true" />}
             >
               Explore Experiments
             </ButtonLink>

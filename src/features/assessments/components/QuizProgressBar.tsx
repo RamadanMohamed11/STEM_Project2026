@@ -46,7 +46,7 @@ export function QuizProgressBar({
         aria-label={`${answeredCount} of ${total} questions answered`}
       >
         <div
-          className="h-full rounded-full bg-teal transition-all duration-500 ease-out"
+          className="h-full rounded-full bg-gradient-to-r from-teal-light via-teal to-teal-dark transition-all duration-500 ease-out shadow-xs"
           style={{ width: `${percent}%` }}
         />
       </div>
@@ -63,9 +63,9 @@ export function QuizProgressBar({
               onClick={() => onSelectIndex(index)}
               aria-current={isCurrent ? 'step' : undefined}
               aria-label={`Question ${index + 1}: ${isAnswered ? 'Answered' : 'Unanswered'}${isCurrent ? ' (Current)' : ''}`}
-              className={`flex size-8 shrink-0 items-center justify-center rounded-lg text-xs font-semibold transition-all duration-150 select-none focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2 hover:scale-105 active:scale-95 ${
+              className={`flex size-8 shrink-0 items-center justify-center rounded-lg text-xs font-semibold transition-all duration-200 select-none focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2 hover:scale-110 active:scale-95 ${
                 isCurrent
-                  ? 'border-2 border-teal bg-teal text-white shadow-sm'
+                  ? 'border-2 border-teal bg-teal text-white shadow-sm ring-2 ring-teal/30 scale-105'
                   : isAnswered
                     ? 'border border-teal/40 bg-teal-soft text-teal-dark hover:bg-teal-soft/80'
                     : 'border border-line bg-canvas/60 text-slate hover:border-slate hover:bg-canvas'

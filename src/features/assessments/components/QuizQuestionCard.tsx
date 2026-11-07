@@ -34,6 +34,7 @@ export function QuizQuestionCard({
 
   return (
     <article
+      key={question.id}
       aria-labelledby={`question-title-${question.id}`}
       className="animate-fade-in-up space-y-6 rounded-2xl border border-line bg-white p-5 shadow-card sm:p-7"
     >
@@ -110,10 +111,10 @@ export function QuizQuestionCard({
               <label
                 key={option.id}
                 htmlFor={inputId}
-                className={`group flex cursor-pointer items-start gap-3.5 rounded-xl border p-4 transition-all duration-150 select-none focus-within:ring-2 focus-within:ring-teal focus-within:ring-offset-1 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.995] ${
+                className={`group flex cursor-pointer items-start gap-3.5 rounded-xl border p-4 transition-all duration-200 select-none focus-within:ring-2 focus-within:ring-teal focus-within:ring-offset-1 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] ${
                   isSelected
-                    ? 'border-teal bg-teal-soft/45 font-medium text-navy shadow-sm ring-2 ring-teal/20'
-                    : 'border-line bg-white text-ink/90 hover:border-slate/60 hover:bg-canvas/50 hover:shadow-sm'
+                    ? 'border-teal bg-teal-soft/50 font-medium text-navy shadow-md ring-2 ring-teal/25 scale-[1.01]'
+                    : 'border-line bg-white text-ink/90 hover:border-teal/40 hover:bg-canvas/60 hover:shadow-sm'
                 }`}
               >
                 <input
@@ -123,15 +124,15 @@ export function QuizQuestionCard({
                   value={option.id}
                   checked={isSelected}
                   onChange={() => onSelectOption(question.id, option.id)}
-                  className="mt-0.5 size-4 shrink-0 accent-teal focus:outline-none"
+                  className="mt-0.5 size-4 shrink-0 accent-teal transition-transform duration-150 group-hover:scale-110 focus:outline-none"
                 />
 
                 <span className="flex min-w-0 flex-1 items-start gap-2.5 text-sm leading-relaxed sm:text-base">
                   <span
-                    className={`inline-flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-bold transition-all duration-150 ${
+                    className={`inline-flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-bold transition-all duration-200 ${
                       isSelected
-                        ? 'bg-teal text-white shadow-sm scale-105'
-                        : 'bg-canvas text-slate group-hover:bg-teal-soft group-hover:text-teal-dark group-hover:scale-105'
+                        ? 'bg-teal text-white shadow-sm scale-110'
+                        : 'bg-canvas text-slate group-hover:bg-teal-soft group-hover:text-teal-dark group-hover:scale-110'
                     }`}
                     aria-hidden="true"
                   >
@@ -151,13 +152,13 @@ export function QuizQuestionCard({
           type="button"
           onClick={onPrevious}
           disabled={isFirst}
-          className={`inline-flex min-h-11 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all select-none focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2 ${
+          className={`group/btn inline-flex min-h-11 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all select-none focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2 active:scale-[0.98] ${
             isFirst
               ? 'cursor-not-allowed border border-line bg-canvas/60 text-slate/50'
-              : 'border border-line bg-white text-navy hover:bg-canvas'
+              : 'border border-line bg-white text-navy hover:bg-canvas hover:border-slate/40'
           }`}
         >
-          <ArrowLeft size={16} aria-hidden="true" />
+          <ArrowLeft size={16} aria-hidden="true" className="transition-transform duration-200 group-hover/btn:-translate-x-1" />
           <span>Previous</span>
         </button>
 
@@ -165,19 +166,19 @@ export function QuizQuestionCard({
           <button
             type="button"
             onClick={onOpenReview}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:bg-canvas focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2"
+            className="group/btn inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:bg-canvas hover:border-slate/40 focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2 active:scale-[0.98] transition-all"
           >
-            <ListChecks size={16} aria-hidden="true" />
+            <ListChecks size={16} aria-hidden="true" className="transition-transform duration-200 group-hover/btn:scale-110" />
             <span>Review Answers</span>
           </button>
 
           <button
             type="button"
             onClick={onNext}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-teal px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-teal-dark focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2"
+            className="group/btn inline-flex min-h-11 items-center gap-2 rounded-xl bg-teal px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-teal-dark hover:shadow-md focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2 active:scale-[0.98] transition-all"
           >
             <span>{isLast ? 'Review Answers' : 'Next'}</span>
-            <ArrowRight size={16} aria-hidden="true" />
+            <ArrowRight size={16} aria-hidden="true" className="transition-transform duration-200 group-hover/btn:translate-x-1" />
           </button>
         </div>
       </div>

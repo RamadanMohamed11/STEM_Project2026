@@ -28,13 +28,17 @@ interface StatusPillProps {
 export function StatusPill({ children, tone = 'neutral', dot = false, className = '' }: StatusPillProps) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 text-xs font-semibold tracking-wide select-none ${toneStyles[tone]} ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 text-xs font-semibold tracking-wide select-none transition-all duration-200 hover:scale-[1.02] ${toneStyles[tone]} ${className}`}
     >
       {dot && (
-        <span
-          className={`size-1.5 shrink-0 rounded-full ${dotStyles[tone]}`}
-          aria-hidden="true"
-        />
+        <span className="relative flex size-1.5 shrink-0 items-center justify-center" aria-hidden="true">
+          <span
+            className={`absolute inline-flex size-full rounded-full opacity-75 motion-safe:animate-ping ${dotStyles[tone]}`}
+          />
+          <span
+            className={`relative inline-flex size-1.5 rounded-full ${dotStyles[tone]}`}
+          />
+        </span>
       )}
       {children}
     </span>

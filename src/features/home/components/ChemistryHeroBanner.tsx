@@ -7,9 +7,13 @@ export function ChemistryHeroBanner() {
       aria-label="Interactive chemistry laboratory visualization showing glassware, solutions, and molecular structures"
       className="relative flex h-full min-h-[320px] w-full flex-col justify-between overflow-hidden bg-gradient-to-br from-[#162635] via-[#122230] to-[#0d1822] p-5 text-white sm:min-h-[380px] sm:p-7 lg:min-h-[460px] lg:p-8"
     >
+      {/* Ambient background glow orbs */}
+      <div className="pointer-events-none absolute -left-20 -top-20 size-60 rounded-full bg-teal/15 blur-3xl animate-pulse-glow" aria-hidden="true" />
+      <div className="pointer-events-none absolute -bottom-20 -right-20 size-72 rounded-full bg-teal-light/10 blur-3xl animate-subtle-float-slow" aria-hidden="true" />
+
       {/* Top Header Information in Banner */}
       <div className="relative z-10 flex items-center justify-between gap-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-light/25 bg-teal/15 px-3 py-1 text-teal-light backdrop-blur-sm">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-light/25 bg-teal/15 px-3 py-1 text-teal-light backdrop-blur-sm shadow-[0_0_12px_rgba(118,213,203,0.15)] transition-all duration-300 hover:border-teal-light/40 hover:bg-teal/25">
           <Atom size={13} className="text-teal-light animate-spin-slow" aria-hidden="true" />
           Interactive Chemistry
         </span>
@@ -52,7 +56,7 @@ export function ChemistryHeroBanner() {
 
           {/* Radial Glow */}
           <radialGradient id="glow" cx="50%" cy="55%" r="45%">
-            <stop offset="0%" stopColor="#138b85" stopOpacity="0.25" />
+            <stop offset="0%" stopColor="#138b85" stopOpacity="0.3" />
             <stop offset="100%" stopColor="#138b85" stopOpacity="0" />
           </radialGradient>
         </defs>
@@ -60,6 +64,16 @@ export function ChemistryHeroBanner() {
         {/* Background grid & subtle glow */}
         <rect width="540" height="380" fill="url(#chemGrid)" />
         <circle cx="270" cy="220" r="180" fill="url(#glow)" className="animate-pulse-glow" style={{ transformOrigin: '270px 220px' }} />
+
+        {/* Ambient floating chemical ions/sparkles in background */}
+        <g opacity="0.6">
+          <circle cx="95" cy="85" r="2" fill="#76d5cb" className="animate-float-particle" style={{ animationDelay: '0s' }} />
+          <circle cx="165" cy="120" r="1.5" fill="#fbbf24" className="animate-float-particle-slow" style={{ animationDelay: '1s' }} />
+          <circle cx="340" cy="90" r="2.5" fill="#76d5cb" className="animate-float-particle" style={{ animationDelay: '2s' }} />
+          <circle cx="485" cy="105" r="1.8" fill="#fbbf24" className="animate-float-particle-slow" style={{ animationDelay: '1.5s' }} />
+          <circle cx="495" cy="230" r="2" fill="#76d5cb" className="animate-float-particle" style={{ animationDelay: '3s' }} />
+          <circle cx="50" cy="260" r="1.5" fill="#76d5cb" className="animate-float-particle-slow" style={{ animationDelay: '2.5s' }} />
+        </g>
 
         {/* Workbench Bench Line */}
         <line x1="30" y1="315" x2="510" y2="315" stroke="#ffffff" strokeOpacity="0.18" strokeWidth="1.5" />
@@ -106,7 +120,7 @@ export function ChemistryHeroBanner() {
         </g>
 
         {/* 1. LEFT APPARATUS: Glass Beaker with Solution & Stirring Rod */}
-        <g id="beakerGroup" transform="translate(70, 160)">
+        <g id="beakerGroup" transform="translate(70, 160)" className="transition-transform duration-300 ease-out hover:-translate-y-1 cursor-pointer">
           {/* Beaker Body */}
           <path
             d="M20 20 L20 140 Q20 152 32 152 L98 152 Q110 152 110 140 L110 20"
@@ -164,14 +178,22 @@ export function ChemistryHeroBanner() {
           />
 
           {/* Dissolved Solute Particles in Beaker */}
-          <circle cx="55" cy="115" r="2.5" fill="#fbbf24" opacity="0.8" />
-          <circle cx="75" cy="130" r="2" fill="#fbbf24" opacity="0.75" />
-          <circle cx="45" cy="138" r="2" fill="#fbbf24" opacity="0.7" />
-          <circle cx="85" cy="100" r="1.5" fill="#fbbf24" opacity="0.8" />
+          <circle cx="55" cy="115" r="2.5" fill="#fbbf24" opacity="0.85" className="animate-float-particle" style={{ animationDelay: '0.5s' }} />
+          <circle cx="75" cy="130" r="2" fill="#fbbf24" opacity="0.75" className="animate-float-particle-slow" style={{ animationDelay: '1.5s' }} />
+          <circle cx="45" cy="138" r="2" fill="#fbbf24" opacity="0.7" className="animate-float-particle" style={{ animationDelay: '2.2s' }} />
+          <circle cx="85" cy="100" r="1.5" fill="#fbbf24" opacity="0.8" className="animate-float-particle-slow" style={{ animationDelay: '0.8s' }} />
+        </g>
+
+        {/* Reaction Vapor Sparkles rising from flask neck */}
+        <g opacity="0.85">
+          <circle cx="268" cy="98" r="2" fill="#76d5cb" className="animate-bubble-rise" style={{ animationDelay: '0.2s', animationDuration: '3s' }} />
+          <circle cx="274" cy="78" r="1.5" fill="#fbbf24" className="animate-bubble-rise" style={{ animationDelay: '1.2s', animationDuration: '2.6s' }} />
+          <circle cx="265" cy="58" r="2.2" fill="#76d5cb" className="animate-bubble-rise" style={{ animationDelay: '2.1s', animationDuration: '3.4s' }} />
+          <path d="M272 45 L273 48 L276 49 L273 50 L272 53 L271 50 L268 49 L271 48 Z" fill="#76d5cb" className="animate-sparkle-twinkle" style={{ transformOrigin: '272px 49px' }} />
         </g>
 
         {/* 2. CENTER APPARATUS: Erlenmeyer Conical Flask */}
-        <g id="flaskGroup" transform="translate(205, 95)">
+        <g id="flaskGroup" transform="translate(205, 95)" className="transition-transform duration-300 ease-out hover:-translate-y-1 cursor-pointer">
           {/* Flask Neck & Outer Shell */}
           <path
             d="M50 25 H80 M56 25 V75 L12 185 Q4 205 28 205 H102 Q126 205 118 185 L74 75 V25"
@@ -279,7 +301,7 @@ export function ChemistryHeroBanner() {
         </g>
 
         {/* 3. RIGHT APPARATUS: Precision Graduated Cylinder */}
-        <g id="cylinderGroup" transform="translate(370, 130)">
+        <g id="cylinderGroup" transform="translate(370, 130)" className="transition-transform duration-300 ease-out hover:-translate-y-1 cursor-pointer">
           {/* Heavy Base */}
           <path
             d="M8 180 L22 170 H48 L62 180 Z"
@@ -335,7 +357,7 @@ export function ChemistryHeroBanner() {
         </g>
 
         {/* Floating Science Measurement Badge (Center-Left) */}
-        <g transform="translate(140, 60)" opacity="0.95" className="animate-subtle-float">
+        <g transform="translate(140, 60)" opacity="0.95" className="animate-subtle-float transition-all duration-300 hover:scale-105 cursor-pointer">
           <rect
             x="0"
             y="0"
@@ -343,12 +365,12 @@ export function ChemistryHeroBanner() {
             height="32"
             rx="8"
             fill="#162635"
-            fillOpacity="0.85"
+            fillOpacity="0.9"
             stroke="#76d5cb"
-            strokeOpacity="0.35"
-            strokeWidth="1"
+            strokeOpacity="0.45"
+            strokeWidth="1.2"
           />
-          <circle cx="16" cy="16" r="4" fill="#138b85" />
+          <circle cx="16" cy="16" r="4" fill="#138b85" className="animate-pulse" />
           <text x="27" y="15" fill="#ffffff" fontSize="9" fontWeight="600">
             H₂O + NaCl
           </text>

@@ -15,6 +15,7 @@ import {
 } from '@/features/assessments/state/assessmentResultsStore'
 import { useStudentAssessmentCatalog } from '@/features/assessments/state/useStudentAssessmentCatalog'
 import { useStudentExperimentCatalog } from '@/features/experiments/state/useStudentExperimentCatalog'
+import { useAnimatedCounter } from '@/hooks/useAnimatedCounter'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import type { AssessmentResultRecord } from '@/types/assessment'
 import type { Experiment } from '@/types/experiment'
@@ -195,48 +196,12 @@ export function QuizResultsPage() {
             })()}
 
             {/* Score Breakdown Counters Grid */}
-            <div className="grid grid-cols-2 gap-3 border-t border-line pt-5 sm:grid-cols-4">
-              <div className="rounded-xl border border-line bg-canvas/60 p-4">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate">
-                  Total Questions
-                </span>
-                <p className="mt-1 text-2xl font-bold tabular-nums text-navy">
-                  {result.totalQuestions}
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-teal/30 bg-teal-soft/40 p-4">
-                <span className="text-xs font-semibold uppercase tracking-wider text-teal-dark">
-                  Correct Answers
-                </span>
-                <p className="mt-1 text-2xl font-bold tabular-nums text-teal-dark">
-                  {result.correctCount}
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-rose-200 bg-rose-50/60 p-4">
-                <span className="text-xs font-semibold uppercase tracking-wider text-rose-900">
-                  Incorrect Answers
-                </span>
-                <p className="mt-1 text-2xl font-bold tabular-nums text-rose-900">
-                  {result.incorrectCount}
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-amber-300 bg-amber-50/70 p-4">
-                <span className="text-xs font-semibold uppercase tracking-wider text-amber-900">
-                  Unanswered
-                </span>
-                <p className="mt-1 text-2xl font-bold tabular-nums text-amber-900">
-                  {result.unansweredCount}
-                </p>
-              </div>
-            </div>
+            <QuizBreakdownGrid result={result} />
 
             {/* Educational Practice Notice */}
             <aside
               aria-label="Practice assessment educational notice"
-              className="rounded-xl border border-line bg-canvas/70 p-4 text-xs leading-relaxed text-slate"
+              className="rounded-xl border border-line bg-canvas/70 p-4 text-xs leading-relaxed text-slate transition-all duration-200 hover:border-slate/40"
             >
               <strong className="font-semibold text-navy">Practice Assessment Notice:</strong>{' '}
               This score was calculated in your browser to help you review and practice chemistry
@@ -249,31 +214,31 @@ export function QuizResultsPage() {
               <button
                 type="button"
                 onClick={handleScrollToReview}
-                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-teal px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-dark focus-visible:outline-teal"
+                className="group/btn inline-flex min-h-11 items-center gap-2 rounded-xl bg-teal px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-teal-dark hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all focus-visible:outline-teal"
               >
-                <ArrowDown size={16} aria-hidden="true" />
+                <ArrowDown size={16} aria-hidden="true" className="transition-transform duration-200 group-hover/btn:translate-y-0.5" />
                 <span>Review Answers</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleRetake}
-                className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-white px-5 py-2.5 text-sm font-semibold text-navy hover:bg-canvas focus-visible:outline-teal"
+                className="group/btn inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-white px-5 py-2.5 text-sm font-semibold text-navy hover:bg-canvas hover:border-slate/40 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all focus-visible:outline-teal"
               >
-                <RotateCcw size={16} aria-hidden="true" />
+                <RotateCcw size={16} aria-hidden="true" className="transition-transform duration-300 group-hover/btn:-rotate-90" />
                 <span>Try Again</span>
               </button>
 
               <Link
                 to={paths.details}
-                className="inline-flex min-h-11 items-center rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:bg-canvas focus-visible:outline-teal"
+                className="inline-flex min-h-11 items-center rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:bg-canvas hover:border-slate/40 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all focus-visible:outline-teal"
               >
                 Back to Experiment
               </Link>
 
               <Link
                 to={routePaths.experiments}
-                className="inline-flex min-h-11 items-center rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-teal-dark hover:underline focus-visible:outline-teal"
+                className="inline-flex min-h-11 items-center rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-teal-dark hover:underline hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all focus-visible:outline-teal"
               >
                 Explore Experiments
               </Link>
@@ -287,3 +252,51 @@ export function QuizResultsPage() {
     </div>
   )
 }
+
+function QuizBreakdownGrid({ result }: { result: AssessmentResultRecord }) {
+  const animatedTotal = useAnimatedCounter(result.totalQuestions, 500)
+  const animatedCorrect = useAnimatedCounter(result.correctCount, 700)
+  const animatedIncorrect = useAnimatedCounter(result.incorrectCount, 700)
+  const animatedUnanswered = useAnimatedCounter(result.unansweredCount, 700)
+
+  return (
+    <div className="grid grid-cols-2 gap-3 border-t border-line pt-5 sm:grid-cols-4">
+      <div className="group rounded-xl border border-line bg-canvas/60 p-4 transition-all duration-200 hover:-translate-y-1 hover:border-slate/40 hover:bg-white hover:shadow-sm">
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate">
+          Total Questions
+        </span>
+        <p className="mt-1 text-2xl font-bold tabular-nums text-navy transition-transform duration-200 group-hover:scale-105">
+          {animatedTotal}
+        </p>
+      </div>
+
+      <div className="group rounded-xl border border-teal/30 bg-teal-soft/40 p-4 transition-all duration-200 hover:-translate-y-1 hover:border-teal/50 hover:bg-teal-soft/60 hover:shadow-sm">
+        <span className="text-xs font-semibold uppercase tracking-wider text-teal-dark">
+          Correct Answers
+        </span>
+        <p className="mt-1 text-2xl font-bold tabular-nums text-teal-dark transition-transform duration-200 group-hover:scale-105">
+          {animatedCorrect}
+        </p>
+      </div>
+
+      <div className="group rounded-xl border border-rose-200 bg-rose-50/60 p-4 transition-all duration-200 hover:-translate-y-1 hover:border-rose-300 hover:bg-rose-50 hover:shadow-sm">
+        <span className="text-xs font-semibold uppercase tracking-wider text-rose-900">
+          Incorrect Answers
+        </span>
+        <p className="mt-1 text-2xl font-bold tabular-nums text-rose-900 transition-transform duration-200 group-hover:scale-105">
+          {animatedIncorrect}
+        </p>
+      </div>
+
+      <div className="group rounded-xl border border-amber-300 bg-amber-50/70 p-4 transition-all duration-200 hover:-translate-y-1 hover:border-amber-400 hover:bg-amber-100/70 hover:shadow-sm">
+        <span className="text-xs font-semibold uppercase tracking-wider text-amber-900">
+          Unanswered
+        </span>
+        <p className="mt-1 text-2xl font-bold tabular-nums text-amber-900 transition-transform duration-200 group-hover:scale-105">
+          {animatedUnanswered}
+        </p>
+      </div>
+    </div>
+  )
+}
+

@@ -90,21 +90,24 @@ export function EverydayChemistry() {
           return (
             <article
               key={item.id}
-              className="group flex flex-col justify-between rounded-xl border border-line bg-white p-5 shadow-card transition-all duration-300 ease-out hover:-translate-y-1 hover:border-teal/30 hover:shadow-md sm:p-6"
+              className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-line bg-white p-5 shadow-card transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-teal/40 hover:shadow-lg sm:p-6"
             >
+              {/* Subtle top accent gradient line on hover */}
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-teal-light via-teal to-teal-dark opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
               <div>
                 <div className="flex items-center justify-between gap-2">
                   <span
-                    className={`flex size-11 items-center justify-center rounded-xl transition-transform duration-300 ease-out group-hover:scale-110 ${item.iconBg} ${item.iconColor}`}
+                    className={`flex size-11 items-center justify-center rounded-xl shadow-xs transition-transform duration-300 ease-out group-hover:scale-110 group-hover:rotate-3 ${item.iconBg} ${item.iconColor}`}
                   >
                     <Icon size={22} strokeWidth={1.9} aria-hidden="true" />
                   </span>
-                  <span className="rounded-md border border-line bg-canvas px-2 py-0.5 text-[11px] font-semibold text-slate">
+                  <span className="rounded-md border border-line bg-canvas px-2 py-0.5 text-[11px] font-semibold text-slate transition-colors duration-200 group-hover:border-teal/30 group-hover:bg-teal-soft/60 group-hover:text-teal-dark">
                     {item.tag}
                   </span>
                 </div>
 
-                <h3 className="mt-4 text-base font-bold text-navy sm:text-lg">
+                <h3 className="mt-4 text-base font-bold text-navy transition-colors duration-200 group-hover:text-teal-dark sm:text-lg">
                   {item.title}
                 </h3>
                 <p className="text-xs font-medium text-teal-dark">{item.subtitle}</p>

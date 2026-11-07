@@ -24,11 +24,11 @@ export function GradeOptionCard({ grade, detail, isSelected, onSelect }: GradeOp
           onSelect(grade.id)
         }
       }}
-      className={`group relative flex cursor-pointer flex-col justify-between rounded-2xl border p-5 transition-all duration-200 ease-out select-none sm:p-6 hover:-translate-y-1 hover:shadow-lg ${
+      className={`group relative flex cursor-pointer flex-col justify-between rounded-2xl border p-5 transition-all duration-300 ease-out select-none sm:p-6 hover:-translate-y-1.5 hover:shadow-xl ${
         isSelected
-          ? 'border-teal bg-teal-soft/15 shadow-md ring-2 ring-teal/25'
+          ? 'border-teal bg-teal-soft/20 shadow-md ring-2 ring-teal/30'
           : 'border-line bg-white shadow-card hover:border-teal/40'
-      } focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2`}
+      } focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2 active:scale-[0.99]`}
     >
       <div>
         {/* Header: Icon, Badge, and Selection Indicator */}
@@ -36,15 +36,15 @@ export function GradeOptionCard({ grade, detail, isSelected, onSelect }: GradeOp
           <div className="flex items-center gap-3">
             {Icon && (
               <span
-                className={`flex size-12 items-center justify-center rounded-xl transition-colors ${
-                  isSelected ? 'bg-teal text-white' : 'bg-teal-soft text-teal-dark group-hover:bg-teal-soft/80'
+                className={`flex size-12 items-center justify-center rounded-xl shadow-xs transition-all duration-300 ${
+                  isSelected ? 'bg-teal text-white scale-105' : 'bg-teal-soft text-teal-dark group-hover:bg-teal group-hover:text-white group-hover:scale-105'
                 }`}
               >
                 <Icon size={24} strokeWidth={1.8} aria-hidden="true" />
               </span>
             )}
             <div>
-              <span className="rounded-md border border-line bg-canvas px-2.5 py-0.5 text-xs font-semibold text-slate">
+              <span className="rounded-md border border-line bg-canvas px-2.5 py-0.5 text-xs font-semibold text-slate transition-colors group-hover:border-teal/20">
                 {detail?.levelBadge ?? `Order ${grade.order}`}
               </span>
               <p className="mt-1 text-xs font-semibold text-teal-dark">
@@ -57,12 +57,12 @@ export function GradeOptionCard({ grade, detail, isSelected, onSelect }: GradeOp
           <div
             className={`flex size-6 shrink-0 items-center justify-center rounded-full border transition-all duration-200 ${
               isSelected
-                ? 'border-teal bg-teal text-white shadow-sm scale-105'
-                : 'border-line-strong bg-canvas text-transparent group-hover:border-slate group-hover:scale-105'
+                ? 'border-teal bg-teal text-white shadow-sm scale-110'
+                : 'border-line-strong bg-canvas text-transparent group-hover:border-teal/50 group-hover:scale-105'
             }`}
             aria-hidden="true"
           >
-            {isSelected ? <Check size={14} strokeWidth={3} className="animate-scale-in" /> : <Circle size={10} className="opacity-0" />}
+            {isSelected ? <Check size={14} strokeWidth={3} className="animate-celebrate-pop" /> : <Circle size={10} className="opacity-0" />}
           </div>
         </div>
 

@@ -86,9 +86,9 @@ export function ChooseGradePage() {
       {selectedGrade && (
         <div
           role="status"
-          className="flex items-center gap-3 rounded-xl border border-teal/20 bg-teal-soft/80 p-4 text-xs text-teal-dark sm:text-sm"
+          className="animate-slide-in-right flex items-center gap-3 rounded-xl border border-teal/20 bg-teal-soft/80 p-4 text-xs text-teal-dark shadow-xs sm:text-sm"
         >
-          <CheckCircle2 size={18} className="shrink-0 text-teal" aria-hidden="true" />
+          <CheckCircle2 size={18} className="shrink-0 text-teal animate-scale-in" aria-hidden="true" />
           <span>
             You have selected <strong className="text-navy">{selectedGrade.title}</strong>. Click
             below to continue to your academic terms.

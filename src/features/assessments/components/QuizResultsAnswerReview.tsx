@@ -63,13 +63,13 @@ export function QuizResultsAnswerReview({ feedbackItems }: QuizResultsAnswerRevi
             type="button"
             onClick={() => setFilter('all')}
             aria-pressed={filter === 'all'}
-            className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all duration-150 active:scale-95 ${
+            className={`group inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all duration-200 active:scale-95 ${
               filter === 'all'
-                ? 'bg-white text-navy shadow-sm'
-                : 'text-slate hover:text-navy'
+                ? 'bg-white text-navy shadow-sm ring-1 ring-teal/20 scale-[1.02]'
+                : 'text-slate hover:bg-white/60 hover:text-navy hover:-translate-y-0.5'
             }`}
           >
-            <Filter size={13} aria-hidden="true" />
+            <Filter size={13} className="transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
             <span>All ({totalCount})</span>
           </button>
 
@@ -77,13 +77,13 @@ export function QuizResultsAnswerReview({ feedbackItems }: QuizResultsAnswerRevi
             type="button"
             onClick={() => setFilter('missed')}
             aria-pressed={filter === 'missed'}
-            className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all duration-150 active:scale-95 ${
+            className={`group inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all duration-200 active:scale-95 ${
               filter === 'missed'
-                ? 'bg-white text-navy shadow-sm'
-                : 'text-slate hover:text-navy'
+                ? 'bg-white text-navy shadow-sm ring-1 ring-rose-200 scale-[1.02]'
+                : 'text-slate hover:bg-white/60 hover:text-navy hover:-translate-y-0.5'
             }`}
           >
-            <XCircle size={13} className="text-rose-600" aria-hidden="true" />
+            <XCircle size={13} className="text-rose-600 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
             <span>Needs Review ({missedCount})</span>
           </button>
 
@@ -91,13 +91,13 @@ export function QuizResultsAnswerReview({ feedbackItems }: QuizResultsAnswerRevi
             type="button"
             onClick={() => setFilter('correct')}
             aria-pressed={filter === 'correct'}
-            className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all duration-150 active:scale-95 ${
+            className={`group inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all duration-200 active:scale-95 ${
               filter === 'correct'
-                ? 'bg-white text-navy shadow-sm'
-                : 'text-slate hover:text-navy'
+                ? 'bg-white text-navy shadow-sm ring-1 ring-teal/20 scale-[1.02]'
+                : 'text-slate hover:bg-white/60 hover:text-navy hover:-translate-y-0.5'
             }`}
           >
-            <CheckCircle2 size={13} className="text-teal" aria-hidden="true" />
+            <CheckCircle2 size={13} className="text-teal transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
             <span>Correct ({correctCount})</span>
           </button>
         </div>
@@ -117,12 +117,12 @@ export function QuizResultsAnswerReview({ feedbackItems }: QuizResultsAnswerRevi
               <article
                 key={item.questionId}
                 aria-label={`Question ${item.order} feedback`}
-                className={`space-y-4 rounded-xl border p-4 sm:p-5 transition-all duration-200 hover:shadow-xs ${
+                className={`animate-fade-in-up space-y-4 rounded-xl border p-4 sm:p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-md ${
                   isCorrect
-                    ? 'border-teal/30 bg-teal-soft/20'
+                    ? 'border-teal/30 bg-teal-soft/20 hover:border-teal/50'
                     : isUnanswered
-                      ? 'border-amber-300 bg-amber-50/50'
-                      : 'border-rose-200 bg-rose-50/35'
+                      ? 'border-amber-300 bg-amber-50/50 hover:border-amber-400'
+                      : 'border-rose-200 bg-rose-50/35 hover:border-rose-300'
                 }`}
               >
                 {/* Header & Status Badge */}

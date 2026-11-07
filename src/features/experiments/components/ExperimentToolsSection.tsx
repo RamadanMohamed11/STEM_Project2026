@@ -30,16 +30,18 @@ export function ExperimentToolsSection({ tools }: ExperimentToolsSectionProps) {
           {tools.map((tool) => (
             <article
               key={tool.id}
-              className="flex flex-col justify-between rounded-xl border border-line bg-white p-5 shadow-xs transition-shadow hover:shadow-sm"
+              className="group flex flex-col justify-between rounded-xl border border-line bg-white p-5 shadow-xs transition-all duration-300 ease-out hover:-translate-y-1 hover:border-teal/30 hover:shadow-md"
               aria-labelledby={`tool-title-${tool.id}`}
             >
               <div className="space-y-4">
                 <div className="flex items-start justify-between gap-3">
-                  <ToolAndMaterialVisual
-                    visual={tool.visual}
-                    altText={`${tool.name} laboratory illustration`}
-                    className="size-20 shrink-0"
-                  />
+                  <div className="transition-transform duration-300 group-hover:scale-105">
+                    <ToolAndMaterialVisual
+                      visual={tool.visual}
+                      altText={`${tool.name} laboratory illustration`}
+                      className="size-20 shrink-0"
+                    />
+                  </div>
                   {tool.specification && (
                     <span className="inline-block rounded-md bg-canvas px-2.5 py-1 text-right text-[11px] font-medium text-slate">
                       {tool.specification}
@@ -48,7 +50,7 @@ export function ExperimentToolsSection({ tools }: ExperimentToolsSectionProps) {
                 </div>
 
                 <div>
-                  <h3 id={`tool-title-${tool.id}`} className="text-base font-semibold text-navy">
+                  <h3 id={`tool-title-${tool.id}`} className="text-base font-semibold text-navy transition-colors duration-200 group-hover:text-teal-dark">
                     {tool.name}
                   </h3>
                   <p className="mt-1 text-xs leading-relaxed text-slate">

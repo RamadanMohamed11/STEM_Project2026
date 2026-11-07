@@ -62,9 +62,9 @@ export function QuizReviewScreen({
           <button
             type="button"
             onClick={onBackToQuestions}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-white px-4 py-2 text-sm font-semibold text-navy hover:bg-canvas focus-visible:outline-teal"
+            className="group/btn inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-white px-4 py-2 text-sm font-semibold text-navy shadow-xs transition-all duration-150 hover:bg-canvas hover:border-slate/40 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-teal"
           >
-            <ArrowLeft size={16} aria-hidden="true" />
+            <ArrowLeft size={16} aria-hidden="true" className="transition-transform duration-200 group-hover/btn:-translate-x-1" />
             <span>Continue Answering</span>
           </button>
         </div>
@@ -76,34 +76,34 @@ export function QuizReviewScreen({
 
         {/* Counters */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <div className="rounded-xl border border-line bg-canvas/60 p-4">
+          <div className="group rounded-xl border border-line bg-canvas/60 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-xs">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate">
               Total Questions
             </span>
-            <p className="mt-1 text-2xl font-bold tabular-nums text-navy">{total}</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-navy transition-transform duration-200 group-hover:scale-105">{total}</p>
           </div>
 
-          <div className="rounded-xl border border-teal/30 bg-teal-soft/40 p-4">
+          <div className="group rounded-xl border border-teal/30 bg-teal-soft/40 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:bg-teal-soft/60 hover:shadow-xs">
             <span className="text-xs font-semibold uppercase tracking-wider text-teal-dark">
               Answered Questions
             </span>
-            <p className="mt-1 text-2xl font-bold tabular-nums text-teal-dark">
+            <p className="mt-1 text-2xl font-bold tabular-nums text-teal-dark transition-transform duration-200 group-hover:scale-105">
               {answeredCount}
             </p>
           </div>
 
           <div
-            className={`rounded-xl border p-4 ${
+            className={`group rounded-xl border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs ${
               unansweredCount > 0
-                ? 'border-amber-300 bg-amber-50/70'
-                : 'border-line bg-canvas/60'
+                ? 'border-amber-300 bg-amber-50/70 hover:bg-amber-100/70'
+                : 'border-line bg-canvas/60 hover:bg-white'
             }`}
           >
             <span className="text-xs font-semibold uppercase tracking-wider text-slate">
               Unanswered Questions
             </span>
             <p
-              className={`mt-1 text-2xl font-bold tabular-nums ${
+              className={`mt-1 text-2xl font-bold tabular-nums transition-transform duration-200 group-hover:scale-105 ${
                 unansweredCount > 0 ? 'text-amber-900' : 'text-slate'
               }`}
             >
@@ -272,31 +272,31 @@ export function QuizReviewScreen({
           <button
             type="button"
             onClick={onRequestSubmit}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-teal px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-dark focus-visible:outline-teal"
+            className="group/btn inline-flex min-h-11 items-center gap-2 rounded-xl bg-teal px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-teal-dark hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all focus-visible:outline-teal"
           >
-            <Send size={15} aria-hidden="true" />
+            <Send size={15} aria-hidden="true" className="transition-transform duration-200 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
             <span>Submit Quiz</span>
           </button>
 
           <button
             type="button"
             onClick={onBackToQuestions}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:bg-canvas focus-visible:outline-teal"
+            className="group/btn inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:bg-canvas hover:border-slate/40 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all focus-visible:outline-teal"
           >
-            <ArrowLeft size={16} aria-hidden="true" />
+            <ArrowLeft size={16} aria-hidden="true" className="transition-transform duration-200 group-hover/btn:-translate-x-0.5" />
             <span>Back to Questions</span>
           </button>
 
           <Link
             to={detailsPath}
-            className="inline-flex min-h-11 items-center rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:bg-canvas focus-visible:outline-teal"
+            className="inline-flex min-h-11 items-center rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:bg-canvas hover:border-slate/40 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all focus-visible:outline-teal"
           >
             Back to Experiment
           </Link>
 
           <Link
             to={resultsPath}
-            className="inline-flex min-h-11 items-center rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-teal-dark hover:underline focus-visible:outline-teal"
+            className="inline-flex min-h-11 items-center rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-teal-dark hover:underline hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all focus-visible:outline-teal"
           >
             View Quiz Results
           </Link>

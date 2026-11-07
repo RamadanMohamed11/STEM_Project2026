@@ -38,24 +38,24 @@ export function NavigationLinks({ variant, onNavigate }: NavigationLinksProps) {
                     title={desktop ? label : undefined}
                     aria-label={desktop ? label : undefined}
                     aria-current={active ? 'page' : undefined}
-                    className={`group relative flex min-h-12 items-center gap-3 rounded-lg text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-teal-light focus-visible:outline-offset-2 ${
+                    className={`group relative flex min-h-12 items-center gap-3 rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-2 focus-visible:outline-teal-light focus-visible:outline-offset-2 active:scale-[0.98] ${
                       desktop ? 'justify-center px-3 xl:justify-start xl:px-4' : 'px-4'
                     } ${
                       active
-                        ? 'bg-white/14 font-semibold text-white'
-                        : 'text-white/75 hover:bg-white/10 hover:text-white'
+                        ? 'bg-white/14 font-semibold text-white shadow-sm'
+                        : 'text-white/75 hover:bg-white/10 hover:text-white hover:translate-x-0.5'
                     }`}
                   >
                     {active && (
                       <span
-                        className="absolute inset-y-2.5 start-0 w-[3px] rounded-e-full bg-teal-light"
+                        className="absolute inset-y-2.5 start-0 w-[3px] rounded-e-full bg-teal-light shadow-[0_0_8px_rgba(118,213,203,0.8)]"
                         aria-hidden="true"
                       />
                     )}
                     <Icon
                       size={20}
                       strokeWidth={active ? 2.1 : 1.8}
-                      className="shrink-0 transition-transform group-hover:scale-105"
+                      className="shrink-0 transition-transform duration-200 group-hover:scale-110 group-active:scale-95"
                       aria-hidden="true"
                     />
                     <span className={desktop ? 'hidden xl:inline' : undefined}>{label}</span>

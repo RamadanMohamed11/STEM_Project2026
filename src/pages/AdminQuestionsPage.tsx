@@ -795,6 +795,7 @@ export function AdminQuestionsPage({ initialState }: AdminQuestionsPageProps = {
 
               {orderedQuestions[previewQuestionIndex] && (
                 <QuizQuestionCard
+                  key={orderedQuestions[previewQuestionIndex].id}
                   question={orderedQuestions[previewQuestionIndex]}
                   questionIndex={previewQuestionIndex}
                   totalQuestions={orderedQuestions.length}

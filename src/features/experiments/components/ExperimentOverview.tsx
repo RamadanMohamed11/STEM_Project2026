@@ -61,8 +61,8 @@ export function ExperimentOverview({
             The duration is a guide for this sample activity.
           </p>
         </section>
-        <figure className="min-w-0 rounded-lg bg-teal-soft/60 p-3">
-          <div className="h-44 sm:h-52">
+        <figure className="group min-w-0 overflow-hidden rounded-lg bg-teal-soft/60 p-3 transition-all duration-300 hover:shadow-md">
+          <div className="h-44 sm:h-52 transition-transform duration-500 ease-out group-hover:scale-105">
             <ExperimentIllustration illustration={experiment.illustration} />
           </div>
           <figcaption className="pb-1 text-center text-xs text-slate">

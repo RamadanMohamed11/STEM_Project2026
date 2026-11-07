@@ -59,17 +59,19 @@ export function ExperimentMaterialsSection({
             {materials.map((material) => (
               <article
                 key={material.id}
-                className="flex flex-col justify-between rounded-xl border border-line bg-white p-5 shadow-xs transition-shadow hover:shadow-sm"
+                className="group flex flex-col justify-between rounded-xl border border-line bg-white p-5 shadow-xs transition-all duration-300 ease-out hover:-translate-y-1 hover:border-teal/30 hover:shadow-md"
                 aria-labelledby={`material-title-${material.id}`}
               >
                 <div className="space-y-4">
                   {/* Header: Visual + Name & Formula + Role */}
                   <div className="flex items-start gap-4">
-                    <ToolAndMaterialVisual
-                      visual={material.visual}
-                      altText={`${material.name} container illustration`}
-                      className="size-20 shrink-0"
-                    />
+                    <div className="transition-transform duration-300 group-hover:scale-105">
+                      <ToolAndMaterialVisual
+                        visual={material.visual}
+                        altText={`${material.name} container illustration`}
+                        className="size-20 shrink-0"
+                      />
+                    </div>
                     <div className="min-w-0 flex-1 space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="inline-block rounded bg-teal-soft px-2 py-0.5 text-[11px] font-semibold text-teal-dark">
@@ -81,7 +83,7 @@ export function ExperimentMaterialsSection({
                       </div>
                       <h3
                         id={`material-title-${material.id}`}
-                        className="text-lg font-semibold text-navy"
+                        className="text-lg font-semibold text-navy transition-colors duration-200 group-hover:text-teal-dark"
                       >
                         {material.name}
                       </h3>
