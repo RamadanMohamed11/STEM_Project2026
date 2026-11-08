@@ -4,6 +4,9 @@ import { useFrame } from '@react-three/fiber'
 
 import { useLabSceneStore } from '../state/useLabSceneStore'
 import { useSaltSimulationStore } from '../state/useSaltSimulationStore'
+import { benchColor, benchVolumeMl, useBenchLiquidsStore } from '../state/useBenchLiquidsStore'
+import { pourSourceDimensions, receiverRimHeight } from '../lib/benchLiquids'
+import { getPourPose } from './equipmentPose'
 import { undissolvedSaltG } from '../engine/saltExperiment'
 import { EquipmentPhysicsCollider } from './LaboratoryPhysics'
 import { BeakerSaltContent } from './effects/BeakerSaltContent'
@@ -28,6 +31,11 @@ export function EquipmentRenderer({ entry }: { entry: EquipmentRegistryEntry }) 
       ? state.experiment.waterMl[entry.id]
       : undefined,
   )
+  // L5: practice liquid (library vessels and practice copies), from the L1 engine.
+  const benchMl = useBenchLiquidsStore((state) =>
+    state.lab.containers[entry.id] ? benchVolumeMl(state, entry.id) : undefined,
+  )
+  const benchTint = useBenchLiquidsStore((state) => benchColor(state, entry.id) ?? undefined)
   const remainingSaltG = useSaltSimulationStore((state) =>
     entry.id === 'sodium-chloride' ? state.experiment.saltStockG : undefined,
   )
@@ -62,6 +70,30 @@ export function EquipmentRenderer({ entry }: { entry: EquipmentRegistryEntry }) 
     const boatAttached =
       entry.id === 'weighing-boat' && scene.relationships[entry.id]?.targetId === 'digital-balance'
     const pan = boatAttached ? boatPanOffset(scene.positions, rotation) : null
+    const benchPour = useBenchLiquidsStore.getState().pour
+    if (benchPour?.sourceId === entry.id && benchPour.angle > 0.001) {
+      const from = scene.positions[entry.id]
+      const to = scene.positions[benchPour.targetId]
+      if (from && to) {
+        const pose = getPourPose(
+          entry.id,
+          from,
+          benchPour.targetId,
+          to,
+          benchPour.angle,
+          rotation,
+          {
+            source: pourSourceDimensions(entry.id),
+            targetRim:
+              (receiverRimHeight(benchPour.targetId) ?? 0) +
+              snapElevation(benchPour.targetId, scene.relationships),
+          },
+        )
+        visual.position.set(pose.x, pose.y, pose.z)
+        visual.rotation.set(pose.rotationX, 0, pose.rotationZ)
+        return
+      }
+    }
     const transfer = useSaltSimulationStore.getState().transfer
     const automated = getTransferEquipmentPose(
       transfer,
@@ -134,7 +166,9 @@ export function EquipmentRenderer({ entry }: { entry: EquipmentRegistryEntry }) 
                 visual={entry.visual}
                 modelId={entry.modelId}
                 selected={selected || hovered}
-                waterMl={waterMl}
+                waterMl={waterMl ?? benchMl}
+                liquidMl={benchMl}
+                liquidColor={benchTint}
                 remainingSaltG={remainingSaltG}
                 pouring={pouring}
               />

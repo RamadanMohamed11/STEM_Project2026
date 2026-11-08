@@ -82,8 +82,10 @@ export function getPourPose(
   target: Point2D,
   tilt: number,
   yaw = 0,
+  /** L5: dimensions for bench vessels outside the salt tables. */
+  overrides?: { source?: PourSourceDimensions; targetRim?: number },
 ): PourPose {
-  const dimensions = POUR_SOURCE_DIMENSIONS[sourceId]
+  const dimensions = overrides?.source ?? POUR_SOURCE_DIMENSIONS[sourceId]
   if (!dimensions) {
     return { x: 0, y: PIVOT_HEIGHT, z: 0, rotationX: 0, rotationZ: 0, outlet: [0, PIVOT_HEIGHT, 0] }
   }
@@ -109,7 +111,7 @@ export function getPourPose(
   const lipHeight = dimensions.rim - PIVOT_HEIGHT
   const reach = lipHeight * sinTilt + dimensions.radius * cosTilt
   const unassistedY = PIVOT_HEIGHT + lipHeight * cosTilt - dimensions.radius * sinTilt
-  const rim = RECEIVER_RIM_HEIGHTS[targetId]
+  const rim = overrides?.targetRim ?? RECEIVER_RIM_HEIGHTS[targetId]
   const phase = Math.min(1, angle / POUR_ASSIST_ANGLE)
   const blend = rim === undefined ? 0 : phase * phase * (3 - 2 * phase)
   const x = (localX - reach * forwardX) * blend

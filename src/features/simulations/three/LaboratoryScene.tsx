@@ -7,6 +7,7 @@ import { LaboratoryLighting } from './LaboratoryLighting'
 import { SceneInteractionManager } from './SceneInteractionManager'
 import { WasteBinMarker } from './WasteBinMarker'
 import { AdaptiveRenderQuality } from './AdaptiveRenderQuality'
+import { BenchPourEffects } from './BenchPourEffects'
 import { PlacementController } from './PlacementController'
 import { SimulationSceneEffects } from './SimulationSceneEffects'
 import { LaboratoryPhysics } from './LaboratoryPhysics'
@@ -109,6 +110,7 @@ export default function LaboratoryScene() {
           </LaboratoryPhysics>
           <PlacementController />
           <WasteBinMarker />
+          <BenchPourEffects />
           <EquipmentAffordanceHints />
           <SimulationSceneEffects />
         </Suspense>

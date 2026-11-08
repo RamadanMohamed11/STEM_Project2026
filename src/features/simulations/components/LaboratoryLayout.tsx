@@ -19,6 +19,7 @@ import { Link } from 'react-router'
 import { LaboratoryCanvas } from './LaboratoryCanvas'
 import { PairInteractionPanel } from './PairInteractionPanel'
 import { MaterialTransferController } from '../three/MaterialTransferController'
+import { BenchLiquidsController } from '../three/BenchLiquidsController'
 import { ContextualInstruction } from './ContextualInstruction'
 import { LabInventoryPanel } from './LabInventoryPanel'
 import { BenchToolbar } from './BenchToolbar'
@@ -278,6 +279,7 @@ export function LaboratoryLayout({
 
       <div className="relative min-h-0 flex-1">
         <MaterialTransferController />
+        <BenchLiquidsController />
         <LaboratoryCanvas />
         <PairInteractionPanel inventoryOpen={inventoryOpen || helpOpen} />
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Redo2, RotateCcw, RotateCw, Trash2, Undo2, LayoutTemplate } from 'lucide-react'
 import { useLabSceneStore } from '../state/useLabSceneStore'
 import { useSaltSimulationStore } from '../state/useSaltSimulationStore'
+import { useBenchLiquidsStore } from '../state/useBenchLiquidsStore'
 import { isExtraInstance, resolveEquipment } from '../three/sceneConfig'
 
 function isTyping(target: EventTarget | null) {
@@ -29,9 +30,11 @@ export function BenchToolbar() {
   const interacting = useLabSceneStore(
     (state) => !!state.placement || !!state.draggingId || !!state.pressedId,
   )
-  const busy = useSaltSimulationStore(
+  const saltBusy = useSaltSimulationStore(
     (state) => !!state.transfer || !!state.effect || !!state.livePour,
   )
+  const pouring = useBenchLiquidsStore((state) => !!state.pour)
+  const busy = saltBusy || pouring
   const [confirmReset, setConfirmReset] = useState(false)
   const locked = busy || interacting
   const selectedLabel = selectedId ? (resolveEquipment(selectedId)?.label ?? selectedId) : null
@@ -42,6 +45,7 @@ export function BenchToolbar() {
       const scene = useLabSceneStore.getState()
       const simulation = useSaltSimulationStore.getState()
       if (simulation.transfer || simulation.effect || simulation.livePour) return
+      if (useBenchLiquidsStore.getState().pour) return
       const mod = event.ctrlKey || event.metaKey
       const key = event.key.toLowerCase()
       if (mod && key === 'z' && !event.shiftKey) {

@@ -2,9 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 import { useThree, type ThreeEvent } from '@react-three/fiber'
 import { Group, MeshBasicMaterial, Plane, Raycaster, Vector2, Vector3 } from 'three'
 import { useLabSceneStore } from '../state/useLabSceneStore'
+import { useBenchLiquidsStore } from '../state/useBenchLiquidsStore'
 import { useSaltSimulationStore } from '../state/useSaltSimulationStore'
 import { handlePhysicalInteraction, inspectFinalSolution } from '../state/directInteractions'
-import { BENCH_TOP, isChemistryLinked, type EquipmentRegistryEntry, type Point2D } from './sceneConfig'
+import {
+  BENCH_TOP,
+  isChemistryLinked,
+  type EquipmentRegistryEntry,
+  type Point2D,
+} from './sceneConfig'
 import { constrainDragMovement, validatePlacement } from './movement'
 import {
   findSnapTarget,
@@ -210,7 +216,9 @@ export function useEquipmentManipulation(entry: EquipmentRegistryEntry) {
       scene.draggingId ||
       scene.placement ||
       simulation.effect ||
-      simulation.transfer
+      simulation.transfer ||
+      // L5: the bench is still while a practice pour is tilted.
+      useBenchLiquidsStore.getState().pour
     )
       return
     event.stopPropagation()

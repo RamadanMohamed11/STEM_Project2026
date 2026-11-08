@@ -66,3 +66,12 @@ The reusable hazard catalog is draft guidance requiring academic review. No haza
 - The burette shows a capacity label instead of a top-down 0–50 mL scale; that scale comes with the L8 instruments.
 - Standing items without a stand (test tube, hard-glass tube) stand upright on the bench for clarity.
 - See 3D_MODELS.md.
+
+## L5 limitations (8 November 2026)
+
+- Practice pouring covers library vessels and practice copies only; the guided salt experiment keeps its own validated pour.
+- Liquid is discarded when a vessel leaves the bench, and undo/redo do not restore liquids.
+- The burette and separating-funnel taps come with L8.
+- The catalogue liquids are colourless, so mixtures look clear; pH is the visible result for now.
+- Tilting uses a tilt control and buttons in the panel, not a 3D grab-and-tip gesture.
+- See LIQUIDS_POURING.md.

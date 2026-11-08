@@ -1,5 +1,7 @@
 import { useId, useRef, useState, type FormEvent } from 'react'
 import { resolveEquipment } from '../three/sceneConfig'
+import { isBenchLiquidContainer } from '../lib/benchLiquids'
+import { BenchPourPanel } from './BenchPourPanel'
 import { ArrowRight, ArrowRightLeft, CheckCircle2, Droplets, Package2, X } from 'lucide-react'
 import {
   resolvePairInteractions,
@@ -374,7 +376,11 @@ export function PairInteractionPanel({ inventoryOpen = false }: { inventoryOpen?
       <header className="mb-2.5 flex items-center justify-between gap-2">
         <h2 className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#69dec8]">
           <ArrowRightLeft size={13} aria-hidden="true" />
-          {ids.length === 1 ? 'Selected object' : 'Smart transfer'}
+          {ids.length === 1
+            ? 'Selected object'
+            : ids.every(isBenchLiquidContainer)
+              ? 'Practice pour'
+              : 'Smart transfer'}
         </h2>
         <button
           type="button"
@@ -390,6 +396,8 @@ export function PairInteractionPanel({ inventoryOpen = false }: { inventoryOpen?
       </header>
       {ids.length === 1 ? (
         <SingleObjectInfo id={ids[0]} chemistry={chemistry} />
+      ) : ids.length === 2 && !operation && ids.every(isBenchLiquidContainer) ? (
+        <BenchPourPanel key={contextKey} ids={ids} />
       ) : ids.length === 2 ? (
         <PairActions key={contextKey} ids={ids} operation={operation} />
       ) : (

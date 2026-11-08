@@ -251,3 +251,73 @@ export function transferMaterial(
     })
   return { ok: true, state: next, events }
 }
+
+// ---------------------------------------------------------------------------
+// L5: pouring a mixture
+// ---------------------------------------------------------------------------
+
+export interface PourResult {
+  state: LabState
+  events: LabEvent[]
+  /** Liquid volume that arrived in the target (mL). */
+  pouredMl: number
+  /** Liquid volume that overflowed the target and was lost (mL). */
+  spilledMl: number
+}
+
+/**
+ * Pours `volumeMl` of liquid from one container to another. Every liquid and dissolved
+ * (aqueous) species leaves in proportion to the liquid volume, so mixtures keep their
+ * composition; settled solids and gases stay behind. If the target overflows, the excess is
+ * spilled (lost) and reported. Amounts are conserved: source loss = target gain + spill.
+ */
+export function pourLiquid(
+  definition: ChemistryDefinition,
+  state: LabState,
+  from: string,
+  to: string,
+  volumeMl: number,
+): PourResult {
+  const none: PourResult = { state, events: [], pouredMl: 0, spilledMl: 0 }
+  const target = getContainerDefinition(definition, to)
+  if (from === to || !target || !state.containers[from] || !state.containers[to]) return none
+  const sourceVolume = readVolumeMl(definition, state, from)
+  const requested = Math.min(Number.isFinite(volumeMl) ? volumeMl : 0, sourceVolume)
+  if (requested <= AMOUNT_EPSILON) return none
+  const fraction = requested / sourceVolume
+  const free =
+    target.capacity.unit === 'mL'
+      ? Math.max(0, target.capacity.value - readVolumeMl(definition, state, to))
+      : 0
+  const keptFraction = Math.min(1, free / requested)
+
+  const leaving: Record<string, number> = {}
+  const arriving: Record<string, number> = {}
+  const events: LabEvent[] = []
+  for (const [substanceId, amount] of Object.entries(state.containers[from].contents)) {
+    const substance = getSubstance(definition, substanceId)
+    if (!substance || (substance.state !== 'liquid' && substance.state !== 'aqueous')) continue
+    if (!target.accepts.includes(substance.state)) continue
+    // A full pour moves the exact remaining amount (no floating-point residue).
+    const share = fraction >= 1 - 1e-12 ? amount : amount * fraction
+    leaving[substanceId] = -share
+    const kept = share * keptFraction
+    if (kept > 0) arriving[substanceId] = kept
+    const unit = substanceUnit(substance)
+    if (kept > AMOUNT_EPSILON)
+      events.push({ type: 'transferred', from, to, substanceId, amount: kept, unit })
+    if (share - kept > AMOUNT_EPSILON)
+      events.push({
+        type: 'overflow',
+        containerId: to,
+        substanceId,
+        amount: share - kept,
+        unit,
+      })
+  }
+  if (Object.keys(leaving).length === 0) return none
+  let next = withContents(state, from, leaving)
+  next = withContents(next, to, arriving)
+  const pouredMl = requested * keptFraction
+  return { state: next, events, pouredMl, spilledMl: requested - pouredMl }
+}

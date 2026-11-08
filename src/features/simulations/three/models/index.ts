@@ -26,6 +26,9 @@ export interface EquipmentModelProps {
   visual: EquipmentVisual | 'spatula' | 'weighing-boat' | 'library'
   /** L4: library model id when visual is 'library'. */
   modelId?: string
+  /** L5: practice liquid volume / colour for library vessels. */
+  liquidMl?: number
+  liquidColor?: string
   selected: boolean
   waterMl?: number
   remainingSaltG?: number
@@ -38,6 +41,8 @@ export interface EquipmentModelProps {
 export function EquipmentModel({
   visual,
   modelId,
+  liquidMl,
+  liquidColor,
   selected,
   waterMl,
   remainingSaltG,
@@ -67,6 +72,13 @@ export function EquipmentModel({
     case 'sodium-chloride':
       return createElement(SodiumChlorideContainer, { selected, remainingSaltG })
     case 'library':
-      return modelId ? createElement(LibraryModel, { id: modelId, selected }) : null
+      return modelId
+        ? createElement(LibraryModel, {
+            id: modelId,
+            selected,
+            volumeMl: liquidMl,
+            liquidColor,
+          })
+        : null
   }
 }
