@@ -3,11 +3,13 @@ import {
   AlertTriangle,
   Award,
   BookOpen,
+  Cloud,
   CheckCircle2,
   Clock,
   FlaskConical,
   HardDrive,
   Play,
+  RefreshCw,
   RotateCcw,
   Sparkles,
   Trash2,
@@ -21,6 +23,7 @@ import { Card } from '@/components/ui/Card'
 import { StatusPill } from '@/components/ui/StatusPill'
 import {
   clearStudentProgress,
+  retryStudentProgressSync,
   useStudentProgressOverview,
 } from '@/features/progress/state/studentProgressStore'
 import { restartExperimentSession } from '@/features/simulations/state/sessionActions'
@@ -223,6 +226,7 @@ export function StudentProgressPage() {
     overview.completedCount > 0 ||
     overview.quizCompletedCount > 0 ||
     overview.recentActivities.length > 0
+  const isAccount = overview.source === 'account'
 
   return (
     <PageContainer>
@@ -230,14 +234,18 @@ export function StudentProgressPage() {
         <PageHeader
           eyebrow="Learning Tracker"
           title="My Progress"
-          description="Review your validated 3D chemistry laboratory steps, completed experiments, and latest practice quiz scores on this device."
+          description={
+            isAccount
+              ? 'Review your validated 3D chemistry laboratory steps, completed experiments, and latest practice quiz scores saved to your account.'
+              : 'Review your validated 3D chemistry laboratory steps, completed experiments, and latest practice quiz scores on this device.'
+          }
           action={
             <div className="flex flex-wrap items-center gap-2.5">
               <ButtonLink to={routePaths.experiments} variant="secondary" size="sm">
                 <BookOpen className="h-4 w-4" aria-hidden="true" />
                 Browse Experiments
               </ButtonLink>
-              {hasAnyRecordedProgress && (
+              {hasAnyRecordedProgress && !isAccount && (
                 <Button
                   variant="secondary"
                   size="sm"
@@ -251,6 +259,39 @@ export function StudentProgressPage() {
             </div>
           }
         />
+
+      {overview.syncStatus === 'syncing' && (
+        <p role="status" className="text-sm font-medium text-teal-dark">
+          Syncing your progress with your account…
+        </p>
+      )}
+
+      {overview.syncMessage && (
+        <Card
+          padding="md"
+          className={
+            overview.syncStatus === 'error'
+              ? 'border-amber-300 bg-amber-50/90 text-amber-950'
+              : 'border-teal/30 bg-teal-soft/60 text-navy'
+          }
+          role={overview.syncStatus === 'error' ? 'alert' : 'status'}
+        >
+          <div className="flex flex-wrap items-start gap-3">
+            {overview.syncStatus === 'error' ? (
+              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" aria-hidden="true" />
+            ) : (
+              <Cloud className="mt-0.5 h-5 w-5 shrink-0 text-teal-dark" aria-hidden="true" />
+            )}
+            <p className="min-w-0 flex-1 text-sm">{overview.syncMessage}</p>
+            {overview.syncStatus === 'error' && isAccount && (
+              <Button variant="secondary" size="sm" onClick={() => void retryStudentProgressSync()}>
+                <RefreshCw className="h-4 w-4" aria-hidden="true" />
+                Try again
+              </Button>
+            )}
+          </div>
+        </Card>
+      )}
 
       {!overview.storageHealthy && (
         <Card
@@ -623,30 +664,49 @@ export function StudentProgressPage() {
         ) : (
           <Card padding="md" className="bg-surface-muted/40">
             <p className="text-sm text-ink-secondary">
-              No recent activity recorded on this device yet. Your validated laboratory milestones
+              No recent activity recorded {isAccount ? 'in your account' : 'on this device'} yet.
+              Your validated laboratory milestones
               and submitted quiz results will appear here automatically.
             </p>
           </Card>
         )}
       </section>
 
-        {/* Local Device Scope & Shared Computer Privacy Notice */}
-        <Card padding="md" className="border-line bg-surface-muted/50">
-          <div className="flex items-start gap-3">
-            <HardDrive className="mt-0.5 h-5 w-5 shrink-0 text-teal" aria-hidden="true" />
-            <div className="space-y-1 text-xs text-ink-secondary">
-              <p className="font-semibold text-ink">
-                Local Device Progress Storage (Scope: {overview.scope})
-              </p>
-              <p>
-                Progress shown on this page is stored locally in this web browser so you can track
-                your chemistry practice without requiring a backend database. On a shared school or
-                library computer, use <span className="font-semibold">Clear Local Progress</span>{' '}
-                when you finish your session.
-              </p>
+        {/* Progress scope & shared computer privacy notice */}
+        {isAccount ? (
+          <Card padding="md" className="border-line bg-surface-muted/50">
+            <div className="flex items-start gap-3">
+              <Cloud className="mt-0.5 h-5 w-5 shrink-0 text-teal" aria-hidden="true" />
+              <div className="space-y-1 text-xs text-ink-secondary">
+                <p className="font-semibold text-ink">Saved to your account</p>
+                <p>
+                  Your laboratory steps and practice quiz attempts are saved to your student account,
+                  so they are available when you log in on another device. Your teacher’s
+                  administrators can view them. Detailed 3D bench positions are not saved, so an
+                  unfinished experiment restarts from Step 1. On a shared computer, log out when you
+                  finish.
+                </p>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        ) : (
+          <Card padding="md" className="border-line bg-surface-muted/50">
+            <div className="flex items-start gap-3">
+              <HardDrive className="mt-0.5 h-5 w-5 shrink-0 text-teal" aria-hidden="true" />
+              <div className="space-y-1 text-xs text-ink-secondary">
+                <p className="font-semibold text-ink">
+                  Local Device Progress Storage (Scope: {overview.scope})
+                </p>
+                <p>
+                  Progress shown on this page is stored locally in this web browser. Log in to save
+                  it to your account and see it on other devices. On a shared school or library
+                  computer, use <span className="font-semibold">Clear Local Progress</span> when you
+                  finish your session.
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
       </div>
     </PageContainer>
   )

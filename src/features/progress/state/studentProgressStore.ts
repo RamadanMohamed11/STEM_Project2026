@@ -9,6 +9,8 @@ import type {
   ExperimentProgressStatus,
   ExperimentResumeMode,
   ProgressActivityEntry,
+  ProgressSource,
+  ProgressSyncStatus,
   ProgressValidationIssue,
   QuizProgressSummary,
   StudentProgressOverview,
@@ -18,8 +20,18 @@ import { resolveSimulation } from '../../simulations/lib/simulationRegistry.ts'
 import { useSaltSimulationStore } from '../../simulations/state/useSaltSimulationStore.ts'
 import {
   createLocalProgressRepository,
+  type ProgressStorageAdapter,
   type StudentProgressRepository,
 } from '../lib/progressRepository.ts'
+import {
+  changedProgressRows,
+  envelopeFromAccountRows,
+  planLocalProgressMigration,
+  progressRowFromRecord,
+  quizAttemptRowFromResult,
+  type QuizAttemptRow,
+} from '../lib/accountProgress.ts'
+import type { AccountProgressApi } from '../lib/accountProgressApi.ts'
 import {
   createEmptyExperimentProgressRecord,
   createEmptyProgressEnvelope,
@@ -81,11 +93,7 @@ export function applySimulationMilestoneToEnvelope(
 
   const existing =
     envelope.experiments[input.experimentId] ??
-    createEmptyExperimentProgressRecord(
-      input.experimentId,
-      input.definitionVersion,
-      totalStepCount,
-    )
+    createEmptyExperimentProgressRecord(input.experimentId, input.definitionVersion, totalStepCount)
 
   const versionChanged = existing.experimentDefinitionVersion !== input.definitionVersion
   const baseRecord = versionChanged
@@ -314,6 +322,9 @@ export interface BuildProgressOverviewOptions {
   liveInMemoryExperimentIds?: ReadonlySet<string>
   storageHealthy?: boolean
   validationIssues?: readonly ProgressValidationIssue[]
+  source?: ProgressSource
+  syncStatus?: ProgressSyncStatus
+  syncMessage?: string | null
 }
 
 /**
@@ -399,6 +410,9 @@ export function buildStudentProgressOverview(
 
   return {
     scope: 'local-device',
+    source: options.source ?? 'device',
+    syncStatus: options.syncStatus ?? 'idle',
+    syncMessage: options.syncMessage ?? null,
     storageHealthy,
     availableCount: catalog.length,
     executableCount,
@@ -461,6 +475,10 @@ function getLiveInMemoryExperimentIds(): ReadonlySet<string> {
 export function configureStudentProgressRepository(
   repository?: StudentProgressRepository,
 ): StudentProgressOverview {
+  connectGeneration += 1
+  account = null
+  syncStatus = 'idle'
+  syncMessage = null
   activeRepository = repository ?? createLocalProgressRepository()
   currentLoadState = activeRepository.load()
   currentEnvelope = currentLoadState.envelope
@@ -494,6 +512,9 @@ export function getStudentProgressOverview(): StudentProgressOverview {
       liveInMemoryExperimentIds: getLiveInMemoryExperimentIds(),
       storageHealthy: currentStorageHealthy,
       validationIssues: currentValidationIssues,
+      source: account ? 'account' : 'device',
+      syncStatus,
+      syncMessage,
     })
   }
   return cachedOverviewSnapshot
@@ -523,6 +544,7 @@ export function recordQuizResultProgress(result: AssessmentResultRecord): boolea
     return false
   }
   currentEnvelope = updated.envelope
+  if (account) account.pendingAttempts.push(quizAttemptRowFromResult(account.userId, result))
   const saveResult = activeRepository.save(currentEnvelope)
   currentStorageHealthy = saveResult.storageHealthy
   if (saveResult.issues.length > 0) {
@@ -533,6 +555,8 @@ export function recordQuizResultProgress(result: AssessmentResultRecord): boolea
 }
 
 export function clearStudentProgress(): void {
+  // Account records are never deleted from the browser.
+  if (account) return
   const cleared = activeRepository.clear()
   currentEnvelope = createEmptyProgressEnvelope()
   currentValidationIssues = []
@@ -553,6 +577,200 @@ export function useStudentProgressOverview(): StudentProgressOverview {
     getStudentProgressOverview,
     getStudentProgressOverview,
   )
+}
+
+// ============================================================================
+// T48 Account Mode: Supabase-backed progress for signed-in students
+// ============================================================================
+
+export const PROGRESS_MIGRATION_FLAG_PREFIX = 'stem_virtual_lab_progress_migrated_v1:'
+
+export const progressSyncMessages = {
+  loadFailed:
+    'Your account progress could not be loaded. Showing progress saved on this device instead.',
+  saveFailed:
+    'Some progress could not be saved to your account yet. It will be retried with your next step.',
+  migrated: 'Progress saved on this device was added to your account.',
+} as const
+
+interface AccountSession {
+  userId: string
+  api: AccountProgressApi
+  lastSynced: Map<string, string>
+  pendingAttempts: QuizAttemptRow[]
+  queue: Promise<void>
+}
+
+let account: AccountSession | null = null
+let connectGeneration = 0
+let syncStatus: ProgressSyncStatus = 'idle'
+let syncMessage: string | null = null
+
+/** In account mode the envelope lives in memory and is written through to Supabase. */
+const accountRepository: StudentProgressRepository = {
+  load: () => ({
+    envelope: currentEnvelope,
+    issues: [],
+    storageHealthy: true,
+    loadedFromStorage: true,
+  }),
+  save: () => {
+    scheduleAccountSync()
+    return { ok: true, storageHealthy: true, issues: [] }
+  },
+  clear: () => ({ ok: false, storageHealthy: true }),
+}
+
+function safeStorage(storage?: ProgressStorageAdapter | null): ProgressStorageAdapter | null {
+  if (storage !== undefined) return storage
+  try {
+    return typeof window !== 'undefined' && window.localStorage ? window.localStorage : null
+  } catch {
+    return null
+  }
+}
+
+function scheduleAccountSync(): void {
+  const session = account
+  if (!session) return
+  const rows = changedProgressRows(session.userId, currentEnvelope, session.lastSynced)
+  const attempts = session.pendingAttempts.splice(0)
+  if (rows.length === 0 && attempts.length === 0) return
+  syncStatus = 'syncing'
+  notifyListeners()
+  session.queue = session.queue.then(async () => {
+    try {
+      await session.api.upsertProgress(rows)
+      for (const row of rows) session.lastSynced.set(row.experiment_id, JSON.stringify(row))
+      await session.api.insertAttempts(attempts)
+      if (account !== session) return
+      syncStatus = 'idle'
+      if (syncMessage === progressSyncMessages.saveFailed) syncMessage = null
+    } catch {
+      // Unsaved rows stay "dirty" (lastSynced unchanged); attempts are re-queued.
+      session.pendingAttempts.unshift(...attempts)
+      if (account !== session) return
+      syncStatus = 'error'
+      syncMessage = progressSyncMessages.saveFailed
+    }
+    notifyListeners()
+  })
+}
+
+/** Retries any unsaved account writes (e.g. from a "Try again" button). */
+export function retryStudentProgressSync(): Promise<void> {
+  scheduleAccountSync()
+  return account?.queue ?? Promise.resolve()
+}
+
+/** Resolves when queued account writes have finished (tests and page unload helpers). */
+export function flushStudentProgressSync(): Promise<void> {
+  return account?.queue ?? Promise.resolve()
+}
+
+export interface ConnectAccountOptions {
+  /** Device storage holding pre-login progress and the migration flag (tests inject this). */
+  storage?: ProgressStorageAdapter | null
+}
+
+/**
+ * Switches to account mode for a signed-in student. On the first sign-in for this user on this
+ * device, progress saved on the device is uploaded once, then removed from the device so a later
+ * account on a shared computer does not inherit it.
+ */
+export async function connectStudentProgressAccount(
+  userId: string,
+  api: AccountProgressApi,
+  options: ConnectAccountOptions = {},
+): Promise<void> {
+  if (account?.userId === userId) return
+  const generation = ++connectGeneration
+  syncStatus = 'syncing'
+  syncMessage = null
+  notifyListeners()
+
+  try {
+    let remote = await api.fetchAll(userId)
+    if (generation !== connectGeneration) return
+
+    const storage = safeStorage(options.storage)
+    const flagKey = PROGRESS_MIGRATION_FLAG_PREFIX + userId
+    let migratedNow = false
+    let alreadyMigrated = false
+    try {
+      alreadyMigrated = storage?.getItem(flagKey) === 'done'
+    } catch {
+      alreadyMigrated = false
+    }
+    if (!alreadyMigrated) {
+      const deviceRepository = createLocalProgressRepository({ storage })
+      const plan = planLocalProgressMigration(
+        userId,
+        deviceRepository.load().envelope,
+        remote.progress,
+        remote.attempts,
+      )
+      await api.upsertProgress(plan.progressRows)
+      await api.insertAttempts(plan.quizRows)
+      try {
+        storage?.setItem(flagKey, 'done')
+      } catch {
+        // Re-running the migration is harmless: uploads are idempotent.
+      }
+      deviceRepository.clear()
+      migratedNow = plan.progressRows.length + plan.quizRows.length > 0
+      if (migratedNow) remote = await api.fetchAll(userId)
+      if (generation !== connectGeneration) return
+    }
+
+    const envelope = envelopeFromAccountRows(remote.progress, remote.attempts, {
+      titleOf: (id) => resolveExperimentTitle(id),
+    })
+    account = {
+      userId,
+      api,
+      lastSynced: new Map(
+        Object.values(envelope.experiments).map((record) => [
+          record.experimentId,
+          JSON.stringify(progressRowFromRecord(userId, record)),
+        ]),
+      ),
+      pendingAttempts: [],
+      queue: Promise.resolve(),
+    }
+    activeRepository = accountRepository
+    currentEnvelope = envelope
+    currentValidationIssues = []
+    currentStorageHealthy = true
+    syncStatus = 'idle'
+    syncMessage = migratedNow ? progressSyncMessages.migrated : null
+    lastObservedSimMilestone = captureCurrentSimulationMilestoneTuple()
+    notifyListeners()
+  } catch {
+    if (generation !== connectGeneration) return
+    syncStatus = 'error'
+    syncMessage = progressSyncMessages.loadFailed
+    notifyListeners()
+  }
+}
+
+/** Returns to device-local progress (signed out). Account data is not copied to the device. */
+export function disconnectStudentProgressAccount(options: ConnectAccountOptions = {}): void {
+  connectGeneration += 1
+  const wasAccount = account !== null
+  account = null
+  if (!wasAccount && syncStatus === 'idle') return
+  syncStatus = 'idle'
+  syncMessage = null
+  if (wasAccount) {
+    activeRepository = createLocalProgressRepository({ storage: safeStorage(options.storage) })
+    currentLoadState = activeRepository.load()
+    currentEnvelope = currentLoadState.envelope
+    currentValidationIssues = currentLoadState.issues
+    currentStorageHealthy = currentLoadState.storageHealthy
+    lastObservedSimMilestone = captureCurrentSimulationMilestoneTuple()
+  }
+  notifyListeners()
 }
 
 // ============================================================================

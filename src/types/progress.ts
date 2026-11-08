@@ -105,8 +105,16 @@ export interface ExperimentProgressOverviewItem {
   primaryActionLabel: 'Continue' | 'Restart Experiment' | 'Start Experiment' | 'Try Again'
 }
 
+/** Where the overview's data comes from (T48). */
+export type ProgressSource = 'device' | 'account'
+export type ProgressSyncStatus = 'idle' | 'syncing' | 'error'
+
 export interface StudentProgressOverview {
   scope: 'local-device'
+  /** `account`: loaded from and saved to the signed-in student's Supabase records. */
+  source: ProgressSource
+  syncStatus: ProgressSyncStatus
+  syncMessage: string | null
   storageHealthy: boolean
   availableCount: number
   executableCount: number
