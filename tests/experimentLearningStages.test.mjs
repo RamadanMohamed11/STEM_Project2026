@@ -77,11 +77,15 @@ test('five educational stages are ordered, linked to verified simulation steps, 
     ],
   )
 
-  // Planned and unknown experiments return undefined (no fabricated stages)
-  for (const planned of demoCatalog.experiments.filter((e) => e.status === 'planned')) {
-    assert.equal(getExperimentLearningStages(planned.id), undefined)
-  }
+  // Unknown experiments return undefined
   assert.equal(getExperimentLearningStages('unknown-id'), undefined)
+
+  // Syllabus experiments have full 5 learning stages (T40)
+  for (const exp of demoCatalog.experiments) {
+    const stageData = getExperimentLearningStages(exp.id)
+    assert.ok(stageData, `Experiment ${exp.id} has learning stages`)
+    assert.equal(stageData.stages.length, 5, `Experiment ${exp.id} must have exactly 5 stages`)
+  }
 })
 
 test('stage navigation state clamps boundaries and computes Previous/Next availability', () => {
@@ -196,16 +200,27 @@ test('experiment details route renders five educational stages, navigation contr
     assert.equal(useSaltSimulationStore.getState().workflow.completed, false)
     assert.equal(useSaltSimulationStore.getState().workflow.stepIndex, 0)
 
-    // Planned experiment renders honest empty state for learning stages
-    const plannedMarkup = await renderToStaticMarkup(
+    // Syllabus experiment renders full learning stages without empty state
+    const volumeMarkup = await renderToStaticMarkup(
       React.createElement(
         MemoryRouter,
         { initialEntries: ['/experiments/exp-volume-002'] },
         React.createElement(AppRoutes),
       ),
     )
+    assert.ok(volumeMarkup.includes('Educational Learning Stages'))
     assert.ok(
-      plannedMarkup.includes(
+      !volumeMarkup.includes(
+        'Five-stage educational explanations and demonstration videos for this planned experiment have not been finalized yet.',
+      ),
+    )
+
+    // Undefined data produces honest empty placeholder
+    const emptyMarkup = await renderToStaticMarkup(
+      React.createElement(ExperimentLearningStageViewer, { data: undefined }),
+    )
+    assert.ok(
+      emptyMarkup.includes(
         'Five-stage educational explanations and demonstration videos for this planned experiment have not been finalized yet.',
       ),
     )

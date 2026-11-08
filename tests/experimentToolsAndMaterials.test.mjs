@@ -67,13 +67,12 @@ test('tools and materials catalog adheres to experiment definition and avoids fa
   assert.equal(salt.stockQuantity.unit, 'g')
   assert.ok(salt.safetyNotes.length > 0)
 
-  // Planned experiments must return undefined (no fabricated data)
-  for (const planned of demoCatalog.experiments.filter((e) => e.status === 'planned')) {
-    assert.equal(
-      getExperimentToolsAndMaterials(planned.id),
-      undefined,
-      `Planned experiment ${planned.id} must not have fabricated tools/materials`,
-    )
+  // Syllabus experiments have full tools and materials (T40)
+  for (const exp of demoCatalog.experiments) {
+    const data = getExperimentToolsAndMaterials(exp.id)
+    assert.ok(data, `Experiment ${exp.id} has tools and materials`)
+    assert.ok(data.tools.length >= 2, `${exp.id} must require at least two tools`)
+    assert.ok(data.materials.length >= 1, `${exp.id} must require at least one material`)
   }
 
   // Unknown IDs return undefined
@@ -152,7 +151,7 @@ test('experiment details route renders laboratory tools and chemical materials w
   }
 })
 
-test('planned experiments render honest empty states without fabricated requirements', async () => {
+test('syllabus experiment details routes render full laboratory tools and chemical materials without empty states', async () => {
   const vite = await createServer({
     server: { middlewareMode: true, hmr: false },
     appType: 'custom',
@@ -167,24 +166,22 @@ test('planned experiments render honest empty states without fabricated requirem
       ),
     )
 
-    // Headings still render
+    // Headings render
     assert.ok(markup.includes('Laboratory Tools'), 'Laboratory Tools heading')
     assert.ok(markup.includes('Chemical Materials'), 'Chemical Materials heading')
 
-    // Honest empty states
+    // Real tools and materials render without empty placeholders
+    assert.ok(markup.includes('Graduated Cylinder'), 'Graduated Cylinder tool rendered')
+    assert.ok(markup.includes('Volumetric Pipette'), 'Volumetric Pipette tool rendered')
+    assert.ok(markup.includes('Distilled Water'), 'Distilled Water material rendered')
     assert.ok(
-      markup.includes('Tools and laboratory apparatus for this planned experiment have not been finalized yet'),
-      'Honest tools placeholder',
+      !markup.includes('Tools and laboratory apparatus for this planned experiment have not been finalized yet'),
+      'Must not show empty tools placeholder',
     )
     assert.ok(
-      markup.includes('Chemical materials and reagents for this planned experiment have not been finalized yet'),
-      'Honest materials placeholder',
+      !markup.includes('Chemical materials and reagents for this planned experiment have not been finalized yet'),
+      'Must not show empty materials placeholder',
     )
-
-    // Ensure NO fabricated tools are shown
-    assert.ok(!markup.includes('250 mL Borosilicate Glass'))
-    assert.ok(!markup.includes('Experiment Target'))
-    assert.ok(!markup.includes('Stock Supply'))
   } finally {
     await vite.close()
   }

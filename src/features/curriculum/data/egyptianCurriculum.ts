@@ -4,6 +4,7 @@ import {
   saltDissolutionLearning,
   liquidVolumeLearning,
   phIndicatorsLearning,
+  experimentLearningContentCatalog,
 } from '../../experiments/data/experimentLearningContent.ts'
 
 export const egyptianGrades: readonly Grade[] = [
@@ -413,7 +414,7 @@ export const egyptianLessons: readonly Lesson[] = [
   },
 ]
 
-export const egyptianExperiments: readonly Experiment[] = [
+const rawEgyptianExperiments: readonly Experiment[] = [
   // 1. Existing playable salt dissolution experiment (Grade 1 Term 1, Unit 3, Lesson 1)
   {
     id: 'exp-salt-water-001',
@@ -877,6 +878,11 @@ export const egyptianExperiments: readonly Experiment[] = [
     },
   },
 ]
+
+export const egyptianExperiments: readonly Experiment[] = rawEgyptianExperiments.map((exp) => ({
+  ...exp,
+  learning: experimentLearningContentCatalog[exp.id] ?? exp.learning,
+}))
 
 export const egyptianLessonExperiments: readonly LessonExperiment[] = [
   // Grade 1 Term 1 - Unit 1 Lesson 1

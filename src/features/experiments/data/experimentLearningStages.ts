@@ -337,8 +337,12 @@ export const saltDissolutionLearningStages: ExperimentLearningStagesData = {
   ],
 }
 
+import { allSyllabusLearningStages } from './syllabusLearningStages.ts'
+export * from './syllabusLearningStages.ts'
+
 export const experimentLearningStagesCatalog: readonly ExperimentLearningStagesData[] = [
   saltDissolutionLearningStages,
+  ...allSyllabusLearningStages,
 ]
 
 /**

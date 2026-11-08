@@ -3,6 +3,7 @@ import { routePaths } from '@/app/paths'
 import { findExperimentById } from '@/features/experiments/lib/catalogSelectors'
 import { JourneyPlaceholder } from './JourneyPlaceholder'
 import { sampleCurriculum } from '@/features/curriculum/data/sampleCurriculum'
+import { egyptianCurriculum } from '@/features/curriculum/data/egyptianCurriculum'
 import { resolveResultsReturn } from '@/features/experiments/lib/catalogUrlState'
 import { useStudentExperimentCatalog } from '@/features/experiments/state/useStudentExperimentCatalog'
 
@@ -12,7 +13,9 @@ export function ExperimentRouteLayout() {
   const [params] = useSearchParams()
   const { catalog } = useStudentExperimentCatalog()
   const experiment = experimentId
-    ? findExperimentById(catalog.experiments, experimentId)
+    ? (findExperimentById(catalog.experiments, experimentId) ??
+       findExperimentById(catalog.curriculum?.experiments ?? [], experimentId) ??
+       findExperimentById(egyptianCurriculum.experiments, experimentId))
     : undefined
 
   if (!experiment) {
@@ -30,7 +33,7 @@ export function ExperimentRouteLayout() {
 
   const returnPath = resolveResultsReturn(params.get('returnTo'), experiment.id, {
     ...catalog,
-    curriculum: catalog.curriculum ?? sampleCurriculum,
+    curriculum: catalog.curriculum ?? (catalog.experiments.length > 3 ? egyptianCurriculum : sampleCurriculum),
   })
   return (
     <>
