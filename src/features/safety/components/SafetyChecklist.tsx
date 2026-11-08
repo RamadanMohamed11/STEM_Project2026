@@ -11,7 +11,7 @@ function SafetyAcknowledgement({ complete }: { complete: boolean }) {
       <p role="status" className="font-semibold text-teal-dark">
         {complete
           ? 'All statements confirmed. You can continue.'
-          : 'Confirm each statement before continuing from this checklist.'}
+          : 'Confirm each statement, and finish any activities listed above, before continuing.'}
       </p>
       <p className="text-slate">
         This is your acknowledgement, not proof of practical lab skills or a safety certificate.
@@ -23,18 +23,32 @@ function SafetyAcknowledgement({ complete }: { complete: boolean }) {
   )
 }
 
-export function SafetyChecklist() {
+export interface SafetyRequirement {
+  id: string
+  label: string
+  href: string
+  done: boolean
+}
+
+export function SafetyChecklist({
+  requirements = [],
+}: {
+  requirements?: readonly SafetyRequirement[]
+}) {
   const [confirmed, setConfirmed] = useState<ReadonlySet<string>>(() => new Set())
   const [attempted, setAttempted] = useState(false)
   const navigate = useNavigate()
   const prefix = useId()
   const { count, total, complete } = getChecklistProgress(safetyChecklist, confirmed)
   const errorId = `${prefix}-error`
+  const pendingRequirements = requirements.filter((requirement) => !requirement.done)
+  const activitiesDone = pendingRequirements.length === 0
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!complete) {
+    if (!complete || !activitiesDone) {
       setAttempted(true)
+      if (complete) return
       event.currentTarget
         .querySelector<HTMLInputElement>('input[type="checkbox"]:not(:checked)')
         ?.focus()
@@ -73,6 +87,31 @@ export function SafetyChecklist() {
               className="block h-2 w-full overflow-hidden rounded-full accent-teal"
             />
           </div>
+          {requirements.length > 0 && (
+            <ul aria-label="Activities to finish first" className="mb-5 space-y-2">
+              {requirements.map((requirement) => (
+                <li key={requirement.id} className="flex flex-wrap items-center gap-2 text-sm">
+                  <span
+                    className={`font-semibold ${requirement.done ? 'text-success' : 'text-warning-dark'}`}
+                  >
+                    {requirement.done ? 'Done:' : 'To do:'}
+                  </span>
+                  <a
+                    href={requirement.href}
+                    className="text-teal-dark underline underline-offset-4 focus-visible:outline-teal"
+                  >
+                    {requirement.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+          {attempted && complete && !activitiesDone && (
+            <p role="alert" className="mb-4 text-sm font-medium text-danger">
+              Finish {pendingRequirements.map((requirement) => requirement.label).join(' and ')}{' '}
+              before continuing.
+            </p>
+          )}
           {attempted && !complete && (
             <p id={errorId} role="alert" className="mb-4 text-sm font-medium text-danger">
               Please confirm the remaining {total - count}{' '}
@@ -115,7 +154,7 @@ export function SafetyChecklist() {
           </ul>
         </fieldset>
         <div className="mt-6 border-t border-line pt-5">
-          <SafetyAcknowledgement complete={complete} />
+          <SafetyAcknowledgement complete={complete && activitiesDone} />
         </div>
         <Button
           type="submit"
