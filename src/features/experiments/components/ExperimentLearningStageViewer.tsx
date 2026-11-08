@@ -5,6 +5,8 @@ import { getLearningStageNavigationState } from '../data/experimentLearningStage
 import type { ExperimentLearningStagesData } from '../types/learningStages.ts'
 import { EducationalVideoPlayer } from './EducationalVideoPlayer'
 import { ToolAndMaterialVisual } from './ToolAndMaterialVisual'
+import { ExplainThis } from '@/features/ai/components/ExplainThis'
+import { buildExplainPrompt } from '@/features/ai/lib/tutorContext'
 
 export interface ExperimentLearningStageViewerProps {
   data: ExperimentLearningStagesData | undefined
@@ -169,6 +171,17 @@ export function ExperimentLearningStageViewer({
                     <strong className="font-semibold text-navy">Scientific Explanation: </strong>
                     {stage.scientificExplanation}
                   </div>
+                  <ExplainThis
+                    key={stage.id}
+                    experimentId={data.experimentId}
+                    stage={stage.title}
+                    prompt={buildExplainPrompt({
+                      kind: 'stage',
+                      stageTitle: stage.title,
+                      experimentTitle: data.experimentTitle,
+                    })}
+                    fallback={stage.scientificExplanation}
+                  />
                 </div>
 
                 {/* Key Highlights */}
@@ -193,9 +206,7 @@ export function ExperimentLearningStageViewer({
                 {/* Ordered Instructions */}
                 {stage.steps.length > 0 && (
                   <div className="space-y-3">
-                    <h4 className="text-sm font-semibold text-navy">
-                      Ordered Stage Instructions
-                    </h4>
+                    <h4 className="text-sm font-semibold text-navy">Ordered Stage Instructions</h4>
                     <ol className="space-y-2.5">
                       {stage.steps.map((stepText, idx) => (
                         <li

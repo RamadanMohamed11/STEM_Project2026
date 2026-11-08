@@ -108,3 +108,23 @@ export function summarizeLabState(input: LabStateInput) {
     )
   return clipLabState(parts.join(' ')) ?? ''
 }
+
+const MAX_PROMPT_CHARS = 2000
+
+function oneLine(text: string, max: number) {
+  const clean = text.replace(/\s+/g, ' ').trim()
+  return clean.length > max ? `${clean.slice(0, max - 1)}…` : clean
+}
+
+/** Fixed "Explain this" prompts. Only titles/observations from our own data are inserted. */
+export function buildExplainPrompt(
+  request:
+    | { kind: 'stage'; stageTitle: string; experimentTitle: string }
+    | { kind: 'observation'; observation: string; experimentTitle: string },
+) {
+  const prompt =
+    request.kind === 'stage'
+      ? `Explain what happens in the "${oneLine(request.stageTitle, 120)}" stage of "${oneLine(request.experimentTitle, 160)}". Keep it short and focus on the science a secondary student needs.`
+      : `Explain the observed change in "${oneLine(request.experimentTitle, 160)}": ${oneLine(request.observation, 1200)}. Explain why it happens at the particle level and whether it is a physical or chemical change.`
+  return oneLine(prompt, MAX_PROMPT_CHARS)
+}

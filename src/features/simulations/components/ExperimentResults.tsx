@@ -17,6 +17,8 @@ import {
   undissolvedSaltG,
 } from '../engine/saltExperiment.ts'
 import { getExperimentResultsSummary } from '../lib/resultsSummary.ts'
+import { ExplainThis } from '@/features/ai/components/ExplainThis'
+import { buildExplainPrompt } from '@/features/ai/lib/tutorContext'
 
 interface ExperimentResultsProps {
   definition: ExperimentWorkflowDefinition
@@ -224,6 +226,22 @@ export function ExperimentResults({
             <p className="mt-3 rounded-lg bg-teal-soft/55 px-3 py-2 text-xs font-medium leading-relaxed text-navy">
               {summary.scientificExplanation.physicalChangeClarification}
             </p>
+            <ExplainThis
+              className="mt-3"
+              experimentId={definition.experimentId}
+              stage="results"
+              label="Explain what happened"
+              prompt={buildExplainPrompt({
+                kind: 'observation',
+                experimentTitle: summary.experimentTitle,
+                observation: `${summary.simulatedObservations.headline}. ${summary.simulatedObservations.summary}`,
+              })}
+              fallback={[
+                definition.resultExplanation,
+                summary.scientificExplanation.ionProcessExplanation,
+                summary.scientificExplanation.physicalChangeClarification,
+              ].join('\n\n')}
+            />
           </section>
         </div>
 

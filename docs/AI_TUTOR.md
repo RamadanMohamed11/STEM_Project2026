@@ -197,3 +197,37 @@ curl -N -X POST http://127.0.0.1:54321/functions/v1/ai-tutor -H "Authorization: 
   - The details card expands and shows the log-in prompt and disclaimer.
   - The lab toolbar button toggles the panel (`display: none` / `block`, 380 px wide).
 - **Not yet verified:** a real signed-in conversation. The function is not deployed (see T45), and Claude did not sign in to the hosted Supabase project.
+
+# T47 — "Explain this" AI explanations
+
+## Where
+
+- **Educational Learning Stages** on Experiment Details: an **Explain this** button under each stage's Scientific Explanation. It resets when the stage changes (`key={stage.id}`). It sends `stage: <stage title>` and the prompt `Explain what happens in the "<stage>" stage of "<experiment>"…`.
+- **Lab results** (`ExperimentResults`): **Explain what happened** in the "Scientific principle & explanation" card. This appears in the lab completion overlay and on the results page. It sends `stage: "results"` and the prompt `Explain the observed change in "<experiment>": <observation headline. summary>…`. The prompt asks for a particle-level explanation and a physical-or-chemical classification.
+
+The prompts are fixed templates from `buildExplainPrompt` (`src/features/ai/lib/tutorContext.ts`), filled only with our own titles and observations, and kept within 2,000 characters. A test confirms they pass the server validation. The AI is called **only on click**.
+
+## Fallback
+
+`explainStateFromOutcome` (`src/features/ai/lib/explainState.ts`) makes every failure end with the existing static text, under a reason line. The static text is the stage's `scientificExplanation` or, for results, the result explanation plus the ion-process and physical-change text.
+
+| Outcome                                    | Shown                                                                                                                              |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Done with text                             | The AI explanation and the "AI answers can be wrong — check with your teacher." disclaimer                                         |
+| Logged out / 401                           | "Log in to get an AI explanation. Here is the saved explanation:" and the static text (no request is made when logged out)         |
+| 429                                        | The server's limit message, then the static text                                                                                   |
+| Network, 5xx, cut-off stream, empty answer | "The AI explanation is not available right now. Here is the saved explanation:" and the static text. Partial AI text is discarded. |
+| Stopped by the student                     | The partial text is kept and marked "(stopped)". If there was no text yet, the panel returns to the button.                        |
+
+While answering, the button becomes **Stop**; afterwards it reads **Explain again**. The output region is `aria-live="polite"` with `aria-busy` while streaming, so screen readers read the finished text.
+
+`src/features/ai/lib/tutorSession.ts` (`askTutor`) now holds the Supabase config and session-token lookup. It is shared by the chat panel and Explain this.
+
+## Verification
+
+- `tests/explainThis.test.mjs` (3 tests) covers the prompt templates against the server validator, the full outcome-to-fallback table, and an SSR check that the button renders and no AI output appears until a click.
+- Full suite: 382 pass. Typecheck, lint and build pass.
+- Browser, logged out, on Details:
+  - Clicking **Explain this** shows the log-in reason and the saved explanation, and the button becomes **Explain again**.
+  - **Next Stage** resets it.
+- **Not verified:** a live AI explanation (the function is not deployed yet), and the results-panel button in the browser. That button only appears after all 9 lab steps; it reuses the same component.

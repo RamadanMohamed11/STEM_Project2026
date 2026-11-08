@@ -4,17 +4,8 @@ import { AlertCircle, ChevronDown, LogIn, RotateCcw, Send, Sparkles, Square } fr
 import { routePaths } from '@/app/paths'
 import { Button } from '@/components/ui/Button'
 import { useAuth } from '@/features/auth/authContext'
-import { getSupabaseClient, supabaseConfig } from '@/lib/supabase/client'
-import {
-  AI_TUTOR_CLIENT_LIMITS,
-  clipLabState,
-  getAiTutorEndpoint,
-  prepareHistory,
-  streamTutorReply,
-  toStageLabel,
-  tutorMessages,
-  type TutorChatMessage,
-} from '../lib/aiTutorClient'
+import { AI_TUTOR_CLIENT_LIMITS, type TutorChatMessage } from '../lib/aiTutorClient'
+import { askTutor } from '../lib/tutorSession'
 
 interface ChatEntry extends TutorChatMessage {
   id: number
@@ -70,20 +61,6 @@ export function AiTutorPanel({
   }, [messages])
 
   async function ask(history: ChatEntry[]) {
-    const client = getSupabaseClient()
-    if (!client || !supabaseConfig) {
-      setProblem({ kind: 'error', message: tutorMessages.unavailable })
-      return
-    }
-    const { data } = await client.auth.getSession()
-    const token = data.session?.access_token
-    if (!token) {
-      setProblem({ kind: 'unauthorized', message: tutorMessages.unauthorized })
-      return
-    }
-
-    const stageLabel = toStageLabel(stage)
-    const labState = clipLabState(getLabState?.())
     const replyId = nextId++
     setMessages([...history, { id: replyId, role: 'assistant', content: '', streaming: true }])
     setBusy(true)
@@ -93,17 +70,12 @@ export function AiTutorPanel({
     abortRef.current = controller
 
     let replyText = ''
-    const outcome = await streamTutorReply({
-      endpoint: getAiTutorEndpoint(supabaseConfig.url),
-      publishableKey: supabaseConfig.publishableKey,
-      accessToken: token,
+    const outcome = await askTutor({
+      experimentId,
+      stage,
+      labState: getLabState?.(),
+      messages: history,
       signal: controller.signal,
-      body: {
-        experimentId,
-        ...(stageLabel ? { stage: stageLabel } : {}),
-        ...(labState ? { labState } : {}),
-        messages: prepareHistory(history),
-      },
       onDelta: (text) => {
         replyText += text
         setMessages((current) =>
