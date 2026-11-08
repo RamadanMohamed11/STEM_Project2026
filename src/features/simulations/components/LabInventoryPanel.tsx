@@ -356,7 +356,8 @@ function InventoryCard({
   onClick: (id: string) => void
   onNote: (id: string) => void
 }) {
-  const usable = entry.availability.status === 'available' && !!entry.visual
+  const usable = entry.availability.status === 'available' && !!(entry.visual || entry.modelId)
+  const practice = !entry.inExperiment && !!entry.modelId
   const hasNote = !!getEquipmentCatalogItem(entry.id)
   const canAdd = usable && copies < maxCopies
   const status = !usable
@@ -369,7 +370,9 @@ function InventoryCard({
         : 'On workbench · grab to move'
       : placing
         ? 'Click bench to place'
-        : 'Drag to bench'
+        : practice
+          ? 'Practice item · drag to bench'
+          : 'Drag to bench'
 
   return (
     <li className="relative flex flex-col">

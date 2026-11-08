@@ -1,4 +1,5 @@
 import type { EquipmentVisual } from '@/types/laboratory'
+import { LIBRARY_MODEL_IDS, LIBRARY_MODELS } from './models/library/modelSpecs.ts'
 
 /** All world dimensions are metres; Y is up and the table surface is Y = 0.78. */
 export const BENCH_TOP = 0.78
@@ -37,14 +38,20 @@ export function cameraPositionForAspect(aspect: number): [number, number, number
 
 export type Point2D = { x: number; z: number }
 
+/** 'library' = an L4 procedural model rendered from its spec (see models/library). */
+export type BenchVisual = EquipmentVisual | 'library'
+
 export interface EquipmentRegistryEntry {
   id: string
-  visual: EquipmentVisual
+  visual: BenchVisual
   label: string
   footprintRadius: number
   defaultPosition: Point2D
   /** L3: how many copies may be on the bench (canonical + extras). Default 1. */
   maxInstances?: number
+  /** L4: library model id (visual 'library') and its collider height. */
+  modelId?: string
+  height?: number
 }
 
 export const equipmentRegistry: readonly EquipmentRegistryEntry[] = [
@@ -114,6 +121,26 @@ export const equipmentRegistry: readonly EquipmentRegistryEntry[] = [
   },
 ]
 
+/**
+ * L4 library equipment: every other catalogue item, rendered from procedural specs. These are
+ * practice equipment (no chemistry yet); they are not on the bench at the start.
+ */
+export const libraryEquipmentRegistry: readonly EquipmentRegistryEntry[] = LIBRARY_MODEL_IDS.map(
+  (id) => {
+    const spec = LIBRARY_MODELS[id]
+    return {
+      id,
+      label: spec.label,
+      visual: 'library',
+      modelId: id,
+      footprintRadius: spec.footprintRadius,
+      defaultPosition: { x: 0, z: 0 },
+      maxInstances: spec.maxInstances ?? 1,
+      height: spec.height,
+    }
+  },
+)
+
 export const DEFAULT_CAMERA_POSITION = CAMERA_DESKTOP_POSITION
 export const DEFAULT_CAMERA_TARGET = CAMERA_TARGET
 
@@ -149,8 +176,20 @@ export function makeInstanceId(typeId: string, n: number) {
 }
 
 const resolvedCache = new Map<string, EquipmentRegistryEntry>(
-  equipmentRegistry.map((entry) => [entry.id, entry]),
+  [...equipmentRegistry, ...libraryEquipmentRegistry].map((entry) => [entry.id, entry]),
 )
+
+const chemistryIds = new Set(equipmentRegistry.map((entry) => entry.id))
+
+/** The experiment's own items (canonical ids) — the only ones linked to the chemistry today. */
+export function isChemistryLinked(id: string) {
+  return chemistryIds.has(id)
+}
+
+/** L4 library model (any copy). */
+export function isLibraryEquipment(id: string) {
+  return resolveEquipment(id)?.visual === 'library'
+}
 
 /** Registry entry for a canonical or extra-instance id; undefined for unknown/invalid ids. */
 export function resolveEquipment(id: string): EquipmentRegistryEntry | undefined {

@@ -12,6 +12,7 @@ import { PIVOT_HEIGHT } from './equipmentPose'
 import { registerVisualAnchor } from './equipmentVisualAnchors'
 import { getTransferEquipmentPose } from './transferMotion'
 import { boatPanOffset, useEquipmentManipulation } from './useEquipmentManipulation'
+import { snapElevation } from './benchLayout'
 import type { EquipmentRegistryEntry } from './sceneConfig'
 
 /** Rendering follows quantities and operation poses; native pointer ownership is isolated in a hook. */
@@ -20,6 +21,8 @@ export function EquipmentRenderer({ entry }: { entry: EquipmentRegistryEntry }) 
   const rotation = useLabSceneStore((state) => state.rotations[entry.id] ?? 0)
   const selected = useLabSceneStore((state) => state.selectedIds.includes(entry.id))
   const hovered = useLabSceneStore((state) => state.hoveredId === entry.id)
+  // L4: items snapped onto a holder (tripod ring, clamp jaws) are raised to the snap point.
+  const elevation = useLabSceneStore((state) => snapElevation(entry.id, state.relationships))
   const waterMl = useSaltSimulationStore((state) =>
     entry.id === 'water' || entry.id === 'beaker' || entry.id === 'graduated-cylinder'
       ? state.experiment.waterMl[entry.id]
@@ -111,6 +114,7 @@ export function EquipmentRenderer({ entry }: { entry: EquipmentRegistryEntry }) 
       >
         <group
           name={entry.id}
+          position={[0, elevation, 0]}
           rotation={[0, rotation, 0]}
           userData={{ equipmentId: entry.id, label: entry.label, draggable: true }}
           onPointerDown={handlePointerDown}
@@ -128,6 +132,7 @@ export function EquipmentRenderer({ entry }: { entry: EquipmentRegistryEntry }) 
             <group position={[0, -PIVOT_HEIGHT, 0]}>
               <EquipmentModel
                 visual={entry.visual}
+                modelId={entry.modelId}
                 selected={selected || hovered}
                 waterMl={waterMl}
                 remainingSaltG={remainingSaltG}

@@ -75,7 +75,8 @@ interface LabSceneState {
   removeFromBench: (id: string) => void
   beginDrag: (id: string) => void
   finishDrag: () => void
-  move: (id: string, requested: Point2D) => void
+  /** `overlapAllowed`: extra ids a drag may pass over (L4 snap holders). */
+  move: (id: string, requested: Point2D, overlapAllowed?: ReadonlySet<string>) => void
   rotate: (id: string, direction: 1 | -1) => void
   setRelationship: (relationship: SpatialRelationship) => void
   clearFeedback: () => void
@@ -91,6 +92,8 @@ interface LabSceneState {
   resetBench: () => void
   /** Locks an item to a holder's snap point (part of the drag that placed it). */
   snapTo: (id: string, holderId: string, position: Point2D) => void
+  /** L4: a drag released over a holder without snapping settles back here (same history entry). */
+  settleDrag: (id: string, position: Point2D) => void
 }
 
 const initialRotations = () => Object.fromEntries(equipmentRegistry.map((item) => [item.id, 0]))
@@ -324,16 +327,14 @@ export const useLabSceneStore = create<LabSceneState>((set, get) => ({
           : {}),
       }
     }),
-  move: (id, requested) =>
+  move: (id, requested, overlapAllowed) =>
     set((state) => {
       if (!state.placedIds.includes(id) || state.placement) return state
-      const check = validatePlacement(
-        id,
-        requested,
-        state.positions,
-        state.placedIds,
-        snappedPartners(id, state.relationships),
-      )
+      const partners = snappedPartners(id, state.relationships)
+      // Only a live drag of this item may pass over extra holders.
+      if (overlapAllowed && state.draggingId === id)
+        for (const other of overlapAllowed) partners.add(other)
+      const check = validatePlacement(id, requested, state.positions, state.placedIds, partners)
       if (!check.valid) return { feedback: placementMessage(check.reason) }
       // L3: items snapped onto this holder move with it.
       const from = state.positions[id]
@@ -467,6 +468,15 @@ export const useLabSceneStore = create<LabSceneState>((set, get) => ({
               [id]: { actorId: id, targetId: holderId, kind: 'snapped' },
             },
             feedback: `${labelOf(id)} snapped into place.`,
+          }
+        : state,
+    ),
+  settleDrag: (id, position) =>
+    set((state) =>
+      state.placedIds.includes(id)
+        ? {
+            positions: { ...state.positions, [id]: { ...position } },
+            feedback: `${labelOf(id)} did not fit there and moved back.`,
           }
         : state,
     ),

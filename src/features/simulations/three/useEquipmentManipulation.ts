@@ -4,9 +4,14 @@ import { Group, MeshBasicMaterial, Plane, Raycaster, Vector2, Vector3 } from 'th
 import { useLabSceneStore } from '../state/useLabSceneStore'
 import { useSaltSimulationStore } from '../state/useSaltSimulationStore'
 import { handlePhysicalInteraction, inspectFinalSolution } from '../state/directInteractions'
-import { BENCH_TOP, type EquipmentRegistryEntry, type Point2D } from './sceneConfig'
+import { BENCH_TOP, isChemistryLinked, type EquipmentRegistryEntry, type Point2D } from './sceneConfig'
 import { constrainDragMovement, validatePlacement } from './movement'
-import { findSnapTarget, isOverWasteBin, snappedPartners } from './benchLayout'
+import {
+  findSnapTarget,
+  isOverWasteBin,
+  snapHolderCandidates,
+  snappedPartners,
+} from './benchLayout'
 import { findGestureTarget, overVesselOpening } from './equipmentGestures'
 import {
   initialCircularGesture,
@@ -43,6 +48,8 @@ interface GrabSession {
   offset: Point2D
   initial: Point2D
   lastValid: Point2D
+  /** L4: last position that overlaps nothing except existing snap partners. */
+  lastStrict: Point2D
   last: Point2D | null
   travel: number
   insideBeaker: boolean
@@ -141,12 +148,28 @@ export function useEquipmentManipulation(entry: EquipmentRegistryEntry) {
     if (entry.id === 'stirring-rod' && session.insideBeaker) return
     const latest = useLabSceneStore.getState()
     // L3 snap points: lock onto a compatible holder released nearby (rules in benchLayout.ts).
-    const snap = findSnapTarget(entry.id, latest.positions[entry.id] ?? entry.defaultPosition, latest)
+    // The experiment's own (chemistry-linked) items stay on the bench until heating arrives (L7).
+    const snap = isChemistryLinked(entry.id)
+      ? null
+      : findSnapTarget(entry.id, latest.positions[entry.id] ?? entry.defaultPosition, latest)
     if (snap) {
       latest.snapTo(entry.id, snap.holderId, snap.position)
       return
     }
     const position = latest.positions[entry.id] ?? entry.defaultPosition
+    // Released over a holder but outside its snap radius: return to the last clear spot.
+    if (
+      !validatePlacement(
+        entry.id,
+        position,
+        latest.positions,
+        latest.placedIds,
+        snappedPartners(entry.id, latest.relationships),
+      ).valid
+    ) {
+      latest.settleDrag(entry.id, session.lastStrict)
+      return
+    }
     if (
       entry.id === 'spatula' &&
       session.insideJar &&
@@ -206,6 +229,7 @@ export function useEquipmentManipulation(entry: EquipmentRegistryEntry) {
       offset: { x: initial.x - point.x, z: initial.z - point.z },
       initial: { ...initial },
       lastValid: initial,
+      lastStrict: initial,
       last: point,
       travel: 0,
       insideBeaker: false,
@@ -316,7 +340,11 @@ export function useEquipmentManipulation(entry: EquipmentRegistryEntry) {
         session.scoopLast = null
         session.scoopTravel = 0
       }
-      const partners = snappedPartners(entry.id, latest.relationships)
+      const strictPartners = snappedPartners(entry.id, latest.relationships)
+      // L4: allow passing over compatible holders (tripod, clamp stand…) to reach the snap point.
+      const partners = isChemistryLinked(entry.id)
+        ? strictPartners
+        : new Set([...strictPartners, ...snapHolderCandidates(entry.id, latest.placedIds)])
       const check = validatePlacement(
         entry.id,
         requested,
@@ -340,8 +368,13 @@ export function useEquipmentManipulation(entry: EquipmentRegistryEntry) {
           partners,
         )
         if (distance(safe, session.lastValid) > 0.002) {
-          latest.move(entry.id, safe)
+          latest.move(entry.id, safe, partners)
           session.lastValid = safe
+          if (
+            validatePlacement(entry.id, safe, latest.positions, latest.placedIds, strictPartners)
+              .valid
+          )
+            session.lastStrict = safe
         }
       }
     }

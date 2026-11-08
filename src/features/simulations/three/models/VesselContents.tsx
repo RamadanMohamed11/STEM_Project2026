@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { Vector2 } from 'three'
 import { boundedFraction } from '../effects/effectMath'
 import { glassEdgeOpacity } from './glassMaterial'
+import type { FillModel } from './library/glassware'
 
 interface VesselContentsProps {
   volumeMl: number
@@ -82,6 +83,61 @@ export function VesselContents({
           roughness={0.24}
         />
       </mesh>
+    </group>
+  )
+}
+
+interface ProfiledVesselContentsProps {
+  volumeMl: number
+  /** L4a fill model: the liquid follows the vessel's real inner shape. */
+  fill: FillModel
+  color?: string
+}
+
+/** Liquid body that follows any lathe vessel (conical, round, bottle), calibrated in mL. */
+export function ProfiledVesselContents({
+  volumeMl,
+  fill,
+  color = '#d5e9e9',
+}: ProfiledVesselContentsProps) {
+  const profile = useMemo(() => fill.liquidProfile(volumeMl), [fill, volumeMl])
+  const points = useMemo(() => profile?.map(([r, y]) => new Vector2(r, y)), [profile])
+  if (!profile || !points) return null
+  const surfaceY = fill.heightForVolume(volumeMl)
+  const surfaceRadius = fill.surfaceRadius(volumeMl)
+
+  return (
+    <group name="vessel-contents">
+      <mesh name="liquid-volume" renderOrder={3}>
+        <latheGeometry args={[points, 36]} />
+        <meshPhysicalMaterial
+          color={color}
+          transparent
+          opacity={0.32}
+          depthWrite={false}
+          roughness={0.13}
+          metalness={0}
+          clearcoat={0.8}
+          clearcoatRoughness={0.09}
+          envMapIntensity={0.65}
+        />
+      </mesh>
+      {surfaceRadius > 0.004 && (
+        <mesh
+          position={[0, surfaceY - 0.001, 0]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          renderOrder={4}
+        >
+          <torusGeometry args={[surfaceRadius - 0.0015, 0.0015, 6, 36]} />
+          <meshStandardMaterial
+            color="#c6dcd3"
+            transparent
+            opacity={0.55}
+            depthWrite={false}
+            roughness={0.24}
+          />
+        </mesh>
+      )}
     </group>
   )
 }

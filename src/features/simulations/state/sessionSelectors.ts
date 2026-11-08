@@ -1,7 +1,7 @@
 import { saltExperimentDefinition } from '../data/saltExperimentDefinition.ts'
 import {
   equipmentRegistry,
-  isExtraInstance,
+  isChemistryLinked,
   resolveEquipment,
   type EquipmentRegistryEntry,
 } from '../three/sceneConfig.ts'
@@ -35,7 +35,7 @@ export function getExperimentSessionSnapshot() {
     equipmentInstances: [
       ...equipmentRegistry,
       ...spatial.placedIds
-        .filter(isExtraInstance)
+        .filter((id) => !isChemistryLinked(id))
         .map(resolveEquipment)
         .filter((item): item is EquipmentRegistryEntry => item !== undefined),
     ].map((item) => ({

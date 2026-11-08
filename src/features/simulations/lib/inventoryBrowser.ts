@@ -9,6 +9,7 @@ import {
   type EquipmentCategory,
 } from '../../experiments/data/equipmentCatalog.ts'
 import type { CoreExperimentDefinition } from '../engine/core/index.ts'
+import { getLibraryModel } from '../three/models/library/modelSpecs.ts'
 import type { EquipmentVisual, InventoryItem } from '../../../types/laboratory.ts'
 
 export type InventoryCategoryFilter = 'all' | EquipmentCategory
@@ -43,6 +44,8 @@ export interface InventoryEntry {
   description: string
   /** Present only when the item can be rendered and placed in the 3D lab. */
   visual?: EquipmentVisual
+  /** L4: procedural library model id — placeable as practice equipment (no chemistry yet). */
+  modelId?: string
   /** Part of this experiment's inventory (shown first, enabled in guided mode). */
   inExperiment: boolean
   availability: InventoryAvailability
@@ -85,8 +88,8 @@ function formulaFor(core: CoreExperimentDefinition | undefined, id: string) {
 
 /**
  * Builds the browsable list. Experiment items come first (with their 3D visual); in `free` mode
- * or when `includeCatalog` is set, the rest of the catalogue is appended. Only experiment items
- * have 3D models today, so catalogue-only items are listed but not placeable.
+ * or when `includeCatalog` is set, the rest of the catalogue is appended. Catalogue items with an
+ * L4 library model are placeable as practice equipment; items without one are listed only.
  */
 export function buildInventoryEntries(options: {
   experimentItems: readonly InventoryItem[]
@@ -124,6 +127,7 @@ export function buildInventoryEntries(options: {
     for (const catalog of equipmentCatalog) {
       if (seen.has(catalog.id)) continue
       seen.add(catalog.id)
+      const model = getLibraryModel(catalog.id)
       entries.push({
         id: catalog.id,
         name: catalog.name,
@@ -131,8 +135,10 @@ export function buildInventoryEntries(options: {
         formula: formulaFor(options.core, catalog.id),
         description: catalog.use,
         inExperiment: false,
-        availability:
-          mode === 'guided'
+        modelId: model?.id,
+        availability: model
+          ? { status: 'available' }
+          : mode === 'guided'
             ? { status: 'not-in-experiment', reason: 'Not used in this experiment' }
             : { status: 'no-3d-model', reason: '3D model coming soon' },
         searchText: normalizeSearch(

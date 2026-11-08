@@ -5,6 +5,12 @@
  */
 import { BENCH_TOP, EQUIPMENT_LIMITS, instanceTypeId, type Point2D } from './sceneConfig.ts'
 import type { SpatialRelationship } from '../engine/spatialInteractions.ts'
+import {
+  CLAMP_JAW_Y,
+  CLAMP_REACH,
+  GAUZE_THICKNESS,
+  TRIPOD_TOP,
+} from './models/library/modelSpecs.ts'
 
 export interface SnapRule {
   id: string
@@ -17,11 +23,18 @@ export interface SnapRule {
   /** Release distance from the snap point that captures the item (metres). */
   captureRadius: number
   label: string
+  /** L4: height the snapped item is raised to (metres above the bench). Default 0. */
+  elevation?: number
+  /** Per item type override of `elevation`. */
+  elevationByType?: Readonly<Record<string, number>>
 }
 
+/** Lift for vessels on the tripod (ring top + gauze), from the L4 model dimensions. */
+const ON_TRIPOD = TRIPOD_TOP + 0.018 + GAUZE_THICKNESS
+
 /**
- * Holder types arrive with the L4 models (tripod, clamp stand, burner). Until then these rules are
- * inert because no holder of these types can be on the bench.
+ * Snap rules use the L4 library models (tripod, wire gauze, clamp stand, burette stand, rack).
+ * `elevation` raises the snapped item to the holder's support (per item type when given).
  */
 export const SNAP_RULES: readonly SnapRule[] = [
   {
@@ -31,12 +44,23 @@ export const SNAP_RULES: readonly SnapRule[] = [
       'beaker',
       'beaker-100',
       'erlenmeyer-flask',
+      'erlenmeyer-flask-100',
       'evaporating-dish',
       'round-bottom-flask',
     ],
     offset: { x: 0, z: 0 },
     captureRadius: 0.3,
     label: 'on the tripod',
+    elevation: ON_TRIPOD,
+  },
+  {
+    id: 'gauze-on-tripod',
+    holderType: 'tripod',
+    itemTypes: ['wire-gauze'],
+    offset: { x: 0, z: 0 },
+    captureRadius: 0.3,
+    label: 'on the tripod',
+    elevation: TRIPOD_TOP + 0.018,
   },
   {
     id: 'burner-under-tripod',
@@ -51,14 +75,42 @@ export const SNAP_RULES: readonly SnapRule[] = [
     holderType: 'clamp-stand',
     itemTypes: [
       'erlenmeyer-flask',
+      'erlenmeyer-flask-100',
       'round-bottom-flask',
       'test-tube',
-      'burette',
+      'hard-glass-tube',
       'graduated-cylinder',
     ],
-    offset: { x: 0.32, z: 0 },
+    offset: { x: CLAMP_REACH, z: 0 },
     captureRadius: 0.3,
     label: 'in the clamp',
+    // Jaws grip the neck: raise each item so its neck meets the jaws.
+    elevationByType: {
+      'erlenmeyer-flask': CLAMP_JAW_Y - 0.75,
+      'erlenmeyer-flask-100': CLAMP_JAW_Y - 0.57,
+      'round-bottom-flask': CLAMP_JAW_Y - 0.82,
+      'test-tube': CLAMP_JAW_Y - 0.7,
+      'hard-glass-tube': CLAMP_JAW_Y - 0.8,
+      'graduated-cylinder': CLAMP_JAW_Y - 0.9,
+    },
+  },
+  {
+    id: 'flask-under-burette',
+    holderType: 'burette',
+    itemTypes: ['erlenmeyer-flask', 'erlenmeyer-flask-100', 'beaker-100'],
+    offset: { x: 0, z: 0 },
+    captureRadius: 0.3,
+    label: 'under the burette',
+    elevation: 0.035,
+  },
+  {
+    id: 'rack-holds-test-tube',
+    holderType: 'test-tube-rack',
+    itemTypes: ['test-tube'],
+    offset: { x: -0.3, z: 0 },
+    captureRadius: 0.25,
+    label: 'in the rack',
+    elevation: 0.025,
   },
 ]
 
@@ -117,6 +169,42 @@ export function findSnapTarget(
     }
   }
   return best
+}
+
+/** Height an item is raised to by the snap rule it is held by (0 when not snapped). */
+export function snapElevation(
+  id: string,
+  relationships: Readonly<Record<string, SpatialRelationship>>,
+  rules: readonly SnapRule[] = SNAP_RULES,
+) {
+  const relation = relationships[id]
+  if (!relation || relation.kind !== 'snapped' || relation.actorId !== id) return 0
+  const type = instanceTypeId(id)
+  const holderType = instanceTypeId(relation.targetId)
+  const rule = rules.find(
+    (candidate) => candidate.holderType === holderType && candidate.itemTypes.includes(type),
+  )
+  return rule?.elevationByType?.[type] ?? rule?.elevation ?? 0
+}
+
+/**
+ * Holders on the bench that `id` could snap to. While dragging, the item may pass over their
+ * footprint so it can reach the snap point; a release that does not snap is rejected.
+ */
+export function snapHolderCandidates(
+  id: string,
+  placedIds: readonly string[],
+  rules: readonly SnapRule[] = SNAP_RULES,
+) {
+  const type = instanceTypeId(id)
+  const holders = new Set<string>()
+  for (const holderId of placedIds) {
+    if (holderId === id) continue
+    const holderType = instanceTypeId(holderId)
+    if (rules.some((rule) => rule.holderType === holderType && rule.itemTypes.includes(type)))
+      holders.add(holderId)
+  }
+  return holders
 }
 
 /** Ids that may overlap `id` because one is snapped to the other. */

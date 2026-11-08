@@ -1,4 +1,5 @@
 import { useId, useRef, useState, type FormEvent } from 'react'
+import { resolveEquipment } from '../three/sceneConfig'
 import { ArrowRight, ArrowRightLeft, CheckCircle2, Droplets, Package2, X } from 'lucide-react'
 import {
   resolvePairInteractions,
@@ -27,7 +28,7 @@ function equipment(id: string) {
 }
 
 function name(id: string): string {
-  return equipment(id)?.label ?? id.replaceAll('-', ' ')
+  return equipment(id)?.label ?? resolveEquipment(id)?.label ?? id.replaceAll('-', ' ')
 }
 
 function SingleObjectInfo({ id, chemistry }: { id: string; chemistry: SaltExperimentState }) {

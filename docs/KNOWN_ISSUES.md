@@ -56,3 +56,13 @@ The Experiments Library page (`src/features/curriculum/components/CurriculumExpe
 ## T41 limitations (8 November 2026)
 
 The reusable hazard catalog is draft guidance requiring academic review. No hazardous experiment was invented or published for demonstration: the acknowledgement interaction used an isolated ignored QA fixture, while the existing planned halogen experiment was visually reviewed with its actual T40 material data. Future real hazardous content needs explicit reviewed associations and end-to-end validation with its supported simulation and catalog loading/fallback behavior. The acknowledgement is in-memory frontend learning UX, not verified training, account persistence, scientific completion or server authorization. Fume hoods are engineering controls; PPE and glove selection remain activity-specific. See HAZARD_WARNINGS.md.
+
+## L4 limitations (8 November 2026)
+
+- The 52 library models are practice equipment: they render, collide, snap, copy and undo, but hold no chemistry until the 3D lab moves onto the L1 engine (L5).
+- The experiment's own chemistry-linked items (salt beaker, cylinder…) do not snap onto holders yet.
+- Snapping happens only when the item is dragged onto the holder, not when the holder is dragged under the item.
+- Rotating a holder does not swing its snapped items around it.
+- The burette shows a capacity label instead of a top-down 0–50 mL scale; that scale comes with the L8 instruments.
+- Standing items without a stand (test tube, hard-glass tube) stand upright on the bench for clarity.
+- See 3D_MODELS.md.

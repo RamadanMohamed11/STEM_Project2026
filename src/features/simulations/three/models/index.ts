@@ -9,6 +9,7 @@ import { StirringRod } from './StirringRod'
 import { Spatula } from './Spatula'
 import { WeighingBoat } from './WeighingBoat'
 import { WaterContainer } from './WaterContainer'
+import { LibraryModel } from './library/LibraryModel'
 
 export {
   Beaker,
@@ -22,7 +23,9 @@ export {
 }
 
 export interface EquipmentModelProps {
-  visual: EquipmentVisual | 'spatula' | 'weighing-boat'
+  visual: EquipmentVisual | 'spatula' | 'weighing-boat' | 'library'
+  /** L4: library model id when visual is 'library'. */
+  modelId?: string
   selected: boolean
   waterMl?: number
   remainingSaltG?: number
@@ -34,6 +37,7 @@ export interface EquipmentModelProps {
 /** Coordinates and interactions are controlled by the scene parent. */
 export function EquipmentModel({
   visual,
+  modelId,
   selected,
   waterMl,
   remainingSaltG,
@@ -62,5 +66,7 @@ export function EquipmentModel({
       return createElement(WaterContainer, { selected, waterMl, pouring: pouring || liveWaterPour })
     case 'sodium-chloride':
       return createElement(SodiumChlorideContainer, { selected, remainingSaltG })
+    case 'library':
+      return modelId ? createElement(LibraryModel, { id: modelId, selected }) : null
   }
 }

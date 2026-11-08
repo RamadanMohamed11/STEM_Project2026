@@ -8,7 +8,7 @@ import {
   useBeforePhysicsStep,
   type RapierRigidBody,
 } from '@react-three/rapier'
-import { BENCH_DEPTH, BENCH_TOP, BENCH_WIDTH, type Point2D } from './sceneConfig'
+import { BENCH_DEPTH, BENCH_TOP, BENCH_WIDTH, resolveEquipment, type Point2D } from './sceneConfig'
 import { useLabSceneStore } from '../state/useLabSceneStore'
 
 const TABLETOP_HALF_THICKNESS = 0.07
@@ -80,7 +80,7 @@ export function EquipmentPhysicsCollider({
   // kinematic target instead of rewriting a world transform during render.
   const [initialPosition] = useState(() => ({ x: position.x, z: position.z }))
   const { rapier } = useRapier()
-  const height = BODY_HEIGHT_BY_ID[id] ?? 0.7
+  const height = BODY_HEIGHT_BY_ID[id] ?? resolveEquipment(id)?.height ?? 0.7
   const halfHeight = height / 2
 
   useBeforePhysicsStep(() => {

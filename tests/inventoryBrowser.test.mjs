@@ -99,7 +99,7 @@ test('category, search and letter filters combine; counts and letters follow the
   assert.equal(ALPHABET.length, 26)
 })
 
-test('catalogue items: guided shows them disabled, free mode marks them as no 3D model yet', () => {
+test('catalogue items: every one has an L4 model and is placeable as practice equipment', () => {
   const withCatalog = buildInventoryEntries({
     experimentItems: items,
     core: saltCoreExperiment,
@@ -118,7 +118,11 @@ test('catalogue items: guided shows them disabled, free mode marks them as no 3D
   assert.ok(withCatalog.length > items.length)
   const extra = withCatalog.filter((entry) => !entry.inExperiment)
   assert.ok(
-    extra.every((entry) => entry.availability.status === 'not-in-experiment' && !entry.visual),
+    extra.every(
+      (entry) =>
+        entry.availability.status === 'available' && !entry.visual && entry.modelId === entry.id,
+    ),
+    'catalogue-only items are practice equipment rendered by the L4 library',
   )
   assert.ok(
     extra.some((entry) => entry.category === 'heating'),
@@ -128,7 +132,9 @@ test('catalogue items: guided shows them disabled, free mode marks them as no 3D
 
   const free = buildInventoryEntries({ experimentItems: items, mode: 'free' })
   assert.ok(
-    free.filter((e) => !e.inExperiment).every((e) => e.availability.status === 'no-3d-model'),
+    free
+      .filter((e) => !e.inExperiment)
+      .every((e) => e.availability.status === 'available' && e.modelId),
   )
   assert.ok(free.filter((e) => e.inExperiment).every((e) => e.availability.status === 'available'))
   assert.deepEqual(ids(filterInventory(free, { ...all, query: 'bunsen' })).length > 0, true)

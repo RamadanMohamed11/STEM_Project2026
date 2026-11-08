@@ -16,8 +16,10 @@ const EQUIPMENT_DRAG_TYPE = 'application/x-stem-lab-equipment'
  * Model contents are memoized as its parent moves under the pointer. */
 const GhostEquipmentModel = memo(function GhostEquipmentModel({
   visual,
+  modelId,
 }: {
   visual: (typeof equipmentRegistry)[number]['visual']
+  modelId?: string
 }) {
   const model = useRef<Group>(null)
   useLayoutEffect(() => {
@@ -39,11 +41,11 @@ const GhostEquipmentModel = memo(function GhostEquipmentModel({
       object.castShadow = false
       object.receiveShadow = false
     })
-  }, [visual])
+  }, [visual, modelId])
 
   return (
     <group ref={model}>
-      <EquipmentModel visual={visual} selected={false} />
+      <EquipmentModel visual={visual} modelId={modelId} selected={false} />
     </group>
   )
 })
@@ -258,7 +260,7 @@ export function PlacementController() {
 
   return (
     <group position={[placement.position.x, BENCH_TOP + 0.013, placement.position.z]}>
-      <GhostEquipmentModel visual={entry.visual} />
+      <GhostEquipmentModel visual={entry.visual} modelId={entry.modelId} />
       <mesh raycast={() => undefined} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 0]}>
         <ringGeometry args={[entry.footprintRadius + 0.035, entry.footprintRadius + 0.085, 64]} />
         <meshBasicMaterial
