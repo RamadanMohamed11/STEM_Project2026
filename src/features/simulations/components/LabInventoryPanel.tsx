@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { LaboratoryEquipmentPreview } from './LaboratoryEquipmentPreview'
 import { getEquipmentCatalogItem } from '@/features/experiments/data/equipmentCatalog'
+import { instancesOnBench, resolveEquipment } from '../three/sceneConfig'
 import {
   ALPHABET,
   INVENTORY_CATEGORIES,
@@ -53,6 +54,8 @@ export interface LabInventoryPanelProps {
   placingId: string | null
   disabled: boolean
   onItemClick: (id: string) => void
+  /** L3: place the next free copy at a suggested spot (keyboard-friendly, no pointer needed). */
+  onAddToBench?: (typeId: string) => void
   onCollapse: () => void
 }
 
@@ -70,6 +73,7 @@ export function LabInventoryPanel({
   placingId,
   disabled,
   onItemClick,
+  onAddToBench,
   onCollapse,
 }: LabInventoryPanelProps) {
   const [category, setCategory] = useState<InventoryCategoryFilter>('all')
@@ -269,6 +273,9 @@ export function LabInventoryPanel({
                     key={entry.id}
                     entry={entry}
                     placed={placedIds.includes(entry.id)}
+                    copies={instancesOnBench(entry.id, placedIds)}
+                    maxCopies={resolveEquipment(entry.id)?.maxInstances ?? 1}
+                    onAdd={onAddToBench}
                     selected={selectedId === entry.id}
                     placing={placingId === entry.id}
                     disabled={disabled}
@@ -333,8 +340,14 @@ function InventoryCard({
   noteOpen,
   onClick,
   onNote,
+  copies,
+  maxCopies,
+  onAdd,
 }: {
   entry: InventoryEntry
+  copies: number
+  maxCopies: number
+  onAdd?: (typeId: string) => void
   placed: boolean
   selected: boolean
   placing: boolean
@@ -345,24 +358,27 @@ function InventoryCard({
 }) {
   const usable = entry.availability.status === 'available' && !!entry.visual
   const hasNote = !!getEquipmentCatalogItem(entry.id)
+  const canAdd = usable && copies < maxCopies
   const status = !usable
     ? entry.availability.status === 'available'
       ? '3D model coming soon'
       : entry.availability.reason
     : placed
-      ? 'On workbench · grab to move'
+      ? copies > 1
+        ? `${copies} on workbench · grab to move`
+        : 'On workbench · grab to move'
       : placing
         ? 'Click bench to place'
         : 'Drag to bench'
 
   return (
-    <li className="relative">
+    <li className="relative flex flex-col">
       <button
         type="button"
         disabled={disabled || !usable}
-        draggable={usable && !placed && !disabled}
+        draggable={canAdd && !disabled}
         onDragStart={(event) => {
-          if (placed || !usable) {
+          if (!canAdd) {
             event.preventDefault()
             return
           }
@@ -373,7 +389,7 @@ function InventoryCard({
         onClick={() => onClick(entry.id)}
         aria-pressed={usable ? selected : undefined}
         title={entry.description}
-        className={`flex h-full w-full flex-col items-center gap-1 rounded-xl border px-1.5 pb-2 pt-2.5 text-center transition-colors focus-visible:outline-2 focus-visible:outline-[#138b85] disabled:cursor-not-allowed ${
+        className={`flex w-full flex-1 flex-col items-center gap-1 rounded-xl border px-1.5 pb-2 pt-2.5 text-center transition-colors focus-visible:outline-2 focus-visible:outline-[#138b85] disabled:cursor-not-allowed ${
           !usable
             ? 'border-dashed border-[#d5dee2] bg-[#f6f8f9] opacity-70'
             : selected || placing
@@ -402,6 +418,20 @@ function InventoryCard({
           {status}
         </span>
       </button>
+      {onAdd && usable && (
+        <button
+          type="button"
+          disabled={disabled || !canAdd}
+          onClick={() => onAdd(entry.id)}
+          aria-label={
+            placed ? `Add another ${entry.name} to the bench` : `Add ${entry.name} to the bench`
+          }
+          title={canAdd ? 'Place at a free spot on the bench' : `Up to ${maxCopies} on the bench`}
+          className="mt-1 flex min-h-8 w-full items-center justify-center rounded-lg border border-[#cfdcdf] bg-white text-[10px] font-semibold text-[#0d6f6a] hover:bg-[#e4f8f4] focus-visible:outline-2 focus-visible:outline-[#138b85] disabled:cursor-not-allowed disabled:opacity-45"
+        >
+          {placed ? (canAdd ? '+ Add another' : `Max ${maxCopies}`) : '+ Add to bench'}
+        </button>
+      )}
       {hasNote && (
         <button
           type="button"

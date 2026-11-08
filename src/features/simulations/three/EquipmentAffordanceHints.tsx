@@ -1,7 +1,7 @@
 import { Html } from '@react-three/drei'
 import { useLabSceneStore } from '../state/useLabSceneStore'
 import { useSaltSimulationStore } from '../state/useSaltSimulationStore'
-import { BENCH_TOP, equipmentRegistry } from './sceneConfig'
+import { resolveEquipment, BENCH_TOP } from './sceneConfig'
 
 const heights: Record<string, number> = {
   beaker: 0.78,
@@ -28,7 +28,7 @@ export function EquipmentAffordanceHints() {
   return (
     <group>
       {ids.map((id) => {
-        const entry = equipmentRegistry.find((item) => item.id === id)
+        const entry = resolveEquipment(id)
         const position = positions[id]
         if (!entry || !position) return null
         return (

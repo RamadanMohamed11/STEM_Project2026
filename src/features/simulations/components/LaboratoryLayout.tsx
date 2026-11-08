@@ -21,6 +21,7 @@ import { PairInteractionPanel } from './PairInteractionPanel'
 import { MaterialTransferController } from '../three/MaterialTransferController'
 import { ContextualInstruction } from './ContextualInstruction'
 import { LabInventoryPanel } from './LabInventoryPanel'
+import { BenchToolbar } from './BenchToolbar'
 import { ExperimentGuide } from './ExperimentGuide'
 import { ExperimentResults } from './ExperimentResults'
 import { undissolvedSaltG } from '../engine/saltExperiment'
@@ -290,6 +291,7 @@ export function LaboratoryLayout({
           placingId={placement?.id ?? null}
           disabled={transferActive}
           onItemClick={onInventoryClick}
+          onAddToBench={(typeId) => useLabSceneStore.getState().addToBench(typeId)}
           onCollapse={() => setInventoryOpen(false)}
         />
         {!inventoryOpen && (
@@ -407,6 +409,7 @@ export function LaboratoryLayout({
           inventoryOpen={inventoryOpen}
           presentation={presentation}
         />
+        <BenchToolbar />
 
         {guideOpen && (
           <aside

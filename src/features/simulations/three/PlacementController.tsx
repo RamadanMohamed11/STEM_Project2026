@@ -6,7 +6,7 @@ import { useLabSceneStore } from '@/features/simulations/state/useLabSceneStore'
 import { useSaltSimulationStore } from '@/features/simulations/state/useSaltSimulationStore'
 import { EquipmentModel } from './models'
 import { shouldUpdatePlacementHint } from './placementHintMotion'
-import { BENCH_TOP, equipmentRegistry } from './sceneConfig'
+import { nextInstanceId, isKnownEquipment, resolveEquipment, BENCH_TOP, equipmentRegistry } from './sceneConfig'
 
 const tabletopPlane = new Plane(new Vector3(0, 1, 0), -BENCH_TOP)
 const EQUIPMENT_DRAG_TYPE = 'application/x-stem-lab-equipment'
@@ -145,11 +145,13 @@ export function PlacementController() {
       if (!acceptedDrag(event)) return
       // Drag payload can be read at dragstart and drop, but *not* reliably in
       // dragover. Read it once after inventory's onDragStart populates it.
-      const id = event.dataTransfer?.getData(EQUIPMENT_DRAG_TYPE)
+      // L3: the drag carries a type id; place its next free copy ('beaker', then 'beaker~2'…).
+      const typeId = event.dataTransfer?.getData(EQUIPMENT_DRAG_TYPE)
       const scene = useLabSceneStore.getState()
+      const id = typeId ? nextInstanceId(typeId, scene.placedIds) : null
       if (
         !id ||
-        !equipmentRegistry.some((item) => item.id === id) ||
+        !isKnownEquipment(id) ||
         scene.placedIds.includes(id) ||
         scene.draggingId ||
         scene.pressedId ||
@@ -181,11 +183,13 @@ export function PlacementController() {
       event.preventDefault()
       event.stopPropagation()
       dropReceived = true
-      const id = event.dataTransfer?.getData(EQUIPMENT_DRAG_TYPE)
+      // L3: the drag carries a type id; place its next free copy ('beaker', then 'beaker~2'…).
+      const typeId = event.dataTransfer?.getData(EQUIPMENT_DRAG_TYPE)
       const scene = useLabSceneStore.getState()
+      const id = typeId ? nextInstanceId(typeId, scene.placedIds) : null
       if (
         !id ||
-        !equipmentRegistry.some((item) => item.id === id) ||
+        !isKnownEquipment(id) ||
         scene.placedIds.includes(id) ||
         scene.draggingId ||
         scene.pressedId ||
@@ -234,7 +238,7 @@ export function PlacementController() {
   }, [gl, camera])
 
   if (!placement) return null
-  const entry = equipmentRegistry.find((item) => item.id === placement.id)
+  const entry = resolveEquipment(placement.id)
   if (!entry) return null
   if (!placement.position)
     return (

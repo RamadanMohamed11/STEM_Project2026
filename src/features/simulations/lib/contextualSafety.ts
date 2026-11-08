@@ -6,7 +6,7 @@ import type {
   WorkflowValidation,
 } from '../engine/workflowTypes.ts'
 import { saltExperimentDefinition } from '../data/saltExperimentDefinition.ts'
-import { equipmentRegistry } from '../three/sceneConfig.ts'
+import { resolveEquipment } from '../three/sceneConfig.ts'
 import { getHazards } from '../../safety/data/hazards.ts'
 
 /**
@@ -96,7 +96,7 @@ export interface ContextualSafetyState {
 }
 
 function getEquipmentTitle(id: string): string {
-  return equipmentRegistry.find((item) => item.id === id)?.label.toLowerCase() ?? id
+  return resolveEquipment(id)?.label.toLowerCase() ?? id
 }
 
 const STEP_SAFETY_PRECAUTIONS: Readonly<

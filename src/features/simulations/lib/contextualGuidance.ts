@@ -5,7 +5,7 @@ import { findSpatialAffordance, type SpatialRelationship } from '../engine/spati
 import type { SaltExperimentState } from '../engine/types.ts'
 import type { WorkflowState, WorkflowValidation } from '../engine/workflowTypes.ts'
 import { findGestureTarget } from '../three/equipmentGestures.ts'
-import { equipmentRegistry, type Point2D } from '../three/sceneConfig.ts'
+import { resolveEquipment, type Point2D } from '../three/sceneConfig.ts'
 
 export interface ContextualGuidanceInput {
   workflow: WorkflowState
@@ -55,7 +55,7 @@ const SALT_G = saltExperimentDefinition.measurementRequirements.saltG.exact
 const EPSILON = 0.0001
 
 function equipmentName(id: string): string {
-  return equipmentRegistry.find((entry) => entry.id === id)?.label.toLowerCase() ?? id
+  return resolveEquipment(id)?.label.toLowerCase() ?? id
 }
 
 function quantity(value: number, unit: string): string {
@@ -303,7 +303,7 @@ export function getContextualGuidance(input: ContextualGuidanceInput): Contextua
   } else if (engaged) {
     interactionHint = action.hint || null
     if (action.gesture && actorPlaced && targetId && action.actorId) {
-      const actor = equipmentRegistry.find((equipment) => equipment.id === action.actorId)
+      const actor = resolveEquipment(action.actorId)
       const actorPosition = positions[action.actorId] ?? actor?.defaultPosition
       if (actorPosition) {
         const nearby = findGestureTarget(

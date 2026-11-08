@@ -1,4 +1,5 @@
-import { EQUIPMENT_LIMITS, equipmentRegistry, type Point2D } from './sceneConfig.ts'
+import { WASTE_BIN } from './benchLayout.ts'
+import { resolveEquipment, EQUIPMENT_LIMITS, equipmentRegistry, type Point2D } from './sceneConfig.ts'
 
 export const INITIAL_PLACED_IDS = ['beaker', 'digital-balance'] as const
 export type PlacementProblem = 'unknown-item' | 'out-of-bounds' | 'occupied'
@@ -10,8 +11,10 @@ export function validatePlacement(
   proposed: Point2D,
   positions: Record<string, Point2D>,
   placedIds: readonly string[],
+  /** L3: ids allowed to overlap (snapped holder/children). */
+  overlapAllowed?: ReadonlySet<string>,
 ): PlacementCheck {
-  const item = equipmentRegistry.find((part) => part.id === id)
+  const item = resolveEquipment(id)
   if (!item) return { valid: false, reason: 'unknown-item' }
 
   const radius = item.footprintRadius
@@ -25,9 +28,13 @@ export function validatePlacement(
   )
     return { valid: false, reason: 'out-of-bounds' }
 
+  // L3: keep the waste-bin corner clear so it can always be reached.
+  if (Math.hypot(proposed.x - WASTE_BIN.x, proposed.z - WASTE_BIN.z) < radius + WASTE_BIN.radius)
+    return { valid: false, reason: 'occupied' }
+
   for (const otherId of placedIds) {
-    if (otherId === id) continue
-    const other = equipmentRegistry.find((part) => part.id === otherId)
+    if (otherId === id || overlapAllowed?.has(otherId)) continue
+    const other = resolveEquipment(otherId)
     const position = positions[otherId]
     if (!other || !position) continue
     const dx = proposed.x - position.x
@@ -57,7 +64,7 @@ export function findSuggestedPosition(
   positions: Record<string, Point2D>,
   placedIds: readonly string[],
 ): Point2D | null {
-  const item = equipmentRegistry.find((part) => part.id === id)
+  const item = resolveEquipment(id)
   if (!item) return null
   const candidates: Point2D[] = [item.defaultPosition]
   for (const z of [-0.9, 0, 0.85]) {
@@ -77,7 +84,7 @@ export function placeEquipment(
   return validatePlacement(id, requested, positions, Object.keys(positions)).valid
     ? requested
     : (positions[id] ??
-        equipmentRegistry.find((part) => part.id === id)?.defaultPosition ?? { x: 0, z: 0 })
+        resolveEquipment(id)?.defaultPosition ?? { x: 0, z: 0 })
 }
 
 /**
@@ -91,8 +98,9 @@ export function constrainDragMovement(
   requested: Point2D,
   positions: Record<string, Point2D>,
   placedIds: readonly string[],
+  overlapAllowed?: ReadonlySet<string>,
 ): Point2D {
-  const item = equipmentRegistry.find((entry) => entry.id === id)
+  const item = resolveEquipment(id)
   if (!item || !Number.isFinite(requested.x) || !Number.isFinite(requested.z)) return from
   const radius = item.footprintRadius
   const target = {
@@ -109,7 +117,8 @@ export function constrainDragMovement(
   const dz = target.z - from.z
   const steps = Math.max(1, Math.ceil(Math.hypot(dx, dz) / 0.025))
   let current = from
-  const valid = (point: Point2D) => validatePlacement(id, point, positions, placedIds).valid
+  const valid = (point: Point2D) =>
+    validatePlacement(id, point, positions, placedIds, overlapAllowed).valid
   for (let index = 0; index < steps; index++) {
     const next = { x: current.x + dx / steps, z: current.z + dz / steps }
     if (valid(next)) current = next

@@ -5,6 +5,8 @@ import { LaboratoryCamera } from './LaboratoryCamera'
 import { LaboratoryEnvironment } from './LaboratoryEnvironment'
 import { LaboratoryLighting } from './LaboratoryLighting'
 import { SceneInteractionManager } from './SceneInteractionManager'
+import { WasteBinMarker } from './WasteBinMarker'
+import { AdaptiveRenderQuality } from './AdaptiveRenderQuality'
 import { PlacementController } from './PlacementController'
 import { SimulationSceneEffects } from './SimulationSceneEffects'
 import { LaboratoryPhysics } from './LaboratoryPhysics'
@@ -98,6 +100,7 @@ export default function LaboratoryScene() {
         onCreated={onCreated}
       >
         <Suspense fallback={null}>
+          <AdaptiveRenderQuality />
           <LaboratoryCamera />
           <LaboratoryLighting />
           <LaboratoryEnvironment />
@@ -105,6 +108,7 @@ export default function LaboratoryScene() {
             <SceneInteractionManager />
           </LaboratoryPhysics>
           <PlacementController />
+          <WasteBinMarker />
           <EquipmentAffordanceHints />
           <SimulationSceneEffects />
         </Suspense>

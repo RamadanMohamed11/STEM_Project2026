@@ -6,6 +6,7 @@ import { useSaltSimulationStore } from '../state/useSaltSimulationStore'
 import { handlePhysicalInteraction, inspectFinalSolution } from '../state/directInteractions'
 import { BENCH_TOP, type EquipmentRegistryEntry, type Point2D } from './sceneConfig'
 import { constrainDragMovement, validatePlacement } from './movement'
+import { findSnapTarget, isOverWasteBin, snappedPartners } from './benchLayout'
 import { findGestureTarget, overVesselOpening } from './equipmentGestures'
 import {
   initialCircularGesture,
@@ -109,6 +110,18 @@ export function useEquipmentManipulation(entry: EquipmentRegistryEntry) {
     releaseListeners.current = null
     const scene = useLabSceneStore.getState()
     if (scene.pressedId === entry.id) scene.endPress()
+    // L3 waste bin: releasing a dragged item with the pointer over the bin removes it.
+    if (
+      !cancelled &&
+      !resetting &&
+      session.dragging &&
+      isOverWasteBin(session.last) &&
+      !useSaltSimulationStore.getState().effect &&
+      !useSaltSimulationStore.getState().transfer
+    ) {
+      scene.dropInWasteBin(entry.id)
+      return
+    }
     if (scene.draggingId === entry.id) scene.finishDrag()
     if (resetting) return
     if (cancelled) {
@@ -127,6 +140,12 @@ export function useEquipmentManipulation(entry: EquipmentRegistryEntry) {
       return
     if (entry.id === 'stirring-rod' && session.insideBeaker) return
     const latest = useLabSceneStore.getState()
+    // L3 snap points: lock onto a compatible holder released nearby (rules in benchLayout.ts).
+    const snap = findSnapTarget(entry.id, latest.positions[entry.id] ?? entry.defaultPosition, latest)
+    if (snap) {
+      latest.snapTo(entry.id, snap.holderId, snap.position)
+      return
+    }
     const position = latest.positions[entry.id] ?? entry.defaultPosition
     if (
       entry.id === 'spatula' &&
@@ -297,7 +316,14 @@ export function useEquipmentManipulation(entry: EquipmentRegistryEntry) {
         session.scoopLast = null
         session.scoopTravel = 0
       }
-      const check = validatePlacement(entry.id, requested, latest.positions, latest.placedIds)
+      const partners = snappedPartners(entry.id, latest.relationships)
+      const check = validatePlacement(
+        entry.id,
+        requested,
+        latest.positions,
+        latest.placedIds,
+        partners,
+      )
       setInvalidDrop(!check.valid)
       if (preview.current) {
         preview.current.visible = !inside
@@ -311,6 +337,7 @@ export function useEquipmentManipulation(entry: EquipmentRegistryEntry) {
           requested,
           latest.positions,
           latest.placedIds,
+          partners,
         )
         if (distance(safe, session.lastValid) > 0.002) {
           latest.move(entry.id, safe)

@@ -43,6 +43,8 @@ export interface EquipmentRegistryEntry {
   label: string
   footprintRadius: number
   defaultPosition: Point2D
+  /** L3: how many copies may be on the bench (canonical + extras). Default 1. */
+  maxInstances?: number
 }
 
 export const equipmentRegistry: readonly EquipmentRegistryEntry[] = [
@@ -52,6 +54,7 @@ export const equipmentRegistry: readonly EquipmentRegistryEntry[] = [
     visual: 'digital-balance',
     footprintRadius: 0.48,
     defaultPosition: { x: -2.1, z: 0.18 },
+    maxInstances: 1,
   },
   {
     id: 'water',
@@ -59,6 +62,7 @@ export const equipmentRegistry: readonly EquipmentRegistryEntry[] = [
     visual: 'water',
     footprintRadius: 0.34,
     defaultPosition: { x: -1.18, z: -0.55 },
+    maxInstances: 1,
   },
   {
     id: 'graduated-cylinder',
@@ -66,6 +70,7 @@ export const equipmentRegistry: readonly EquipmentRegistryEntry[] = [
     visual: 'graduated-cylinder',
     footprintRadius: 0.25,
     defaultPosition: { x: -0.42, z: 0.35 },
+    maxInstances: 3,
   },
   {
     id: 'beaker',
@@ -73,6 +78,7 @@ export const equipmentRegistry: readonly EquipmentRegistryEntry[] = [
     visual: 'beaker',
     footprintRadius: 0.46,
     defaultPosition: { x: 0.55, z: 0.08 },
+    maxInstances: 3,
   },
   {
     id: 'stirring-rod',
@@ -80,6 +86,7 @@ export const equipmentRegistry: readonly EquipmentRegistryEntry[] = [
     visual: 'stirring-rod',
     footprintRadius: 0.2,
     defaultPosition: { x: 1.25, z: -0.7 },
+    maxInstances: 2,
   },
   {
     id: 'sodium-chloride',
@@ -87,6 +94,7 @@ export const equipmentRegistry: readonly EquipmentRegistryEntry[] = [
     visual: 'sodium-chloride',
     footprintRadius: 0.34,
     defaultPosition: { x: 2.14, z: 0.25 },
+    maxInstances: 1,
   },
   {
     id: 'spatula',
@@ -94,6 +102,7 @@ export const equipmentRegistry: readonly EquipmentRegistryEntry[] = [
     visual: 'spatula',
     footprintRadius: 0.33,
     defaultPosition: { x: 1.93, z: -0.82 },
+    maxInstances: 2,
   },
   {
     id: 'weighing-boat',
@@ -101,8 +110,79 @@ export const equipmentRegistry: readonly EquipmentRegistryEntry[] = [
     visual: 'weighing-boat',
     footprintRadius: 0.25,
     defaultPosition: { x: -1.37, z: 0.9 },
+    maxInstances: 3,
   },
 ]
 
 export const DEFAULT_CAMERA_POSITION = CAMERA_DESKTOP_POSITION
 export const DEFAULT_CAMERA_TARGET = CAMERA_TARGET
+
+// ---------------------------------------------------------------------------
+// L3 equipment instances
+// ---------------------------------------------------------------------------
+
+/**
+ * The first copy of a type keeps its canonical id (e.g. 'beaker'); that is the copy linked to the
+ * experiment chemistry. Extra copies are 'beaker~2', 'beaker~3': same model and footprint, empty,
+ * and never part of the salt chemistry or workflow.
+ */
+export const INSTANCE_SEPARATOR = '~'
+
+export function instanceTypeId(id: string) {
+  const at = id.indexOf(INSTANCE_SEPARATOR)
+  return at === -1 ? id : id.slice(0, at)
+}
+
+export function instanceNumber(id: string) {
+  const at = id.indexOf(INSTANCE_SEPARATOR)
+  if (at === -1) return 1
+  const n = Number(id.slice(at + 1))
+  return Number.isInteger(n) && n >= 2 ? n : NaN
+}
+
+export function isExtraInstance(id: string) {
+  return id.includes(INSTANCE_SEPARATOR)
+}
+
+export function makeInstanceId(typeId: string, n: number) {
+  return n <= 1 ? typeId : `${typeId}${INSTANCE_SEPARATOR}${n}`
+}
+
+const resolvedCache = new Map<string, EquipmentRegistryEntry>(
+  equipmentRegistry.map((entry) => [entry.id, entry]),
+)
+
+/** Registry entry for a canonical or extra-instance id; undefined for unknown/invalid ids. */
+export function resolveEquipment(id: string): EquipmentRegistryEntry | undefined {
+  const cached = resolvedCache.get(id)
+  if (cached) return cached
+  const base = resolvedCache.get(instanceTypeId(id))
+  const n = instanceNumber(id)
+  if (!base || !Number.isFinite(n) || n > (base.maxInstances ?? 1) || isExtraInstance(base.id))
+    return undefined
+  const entry: EquipmentRegistryEntry = { ...base, id, label: `${base.label} ${n}` }
+  resolvedCache.set(id, entry)
+  return entry
+}
+
+export function isKnownEquipment(id: string) {
+  return resolveEquipment(id) !== undefined
+}
+
+/**
+ * Id to use when adding one more of a type: the canonical id if it is not on the bench, otherwise
+ * the lowest free extra-instance number; null when the type is at its limit or unknown.
+ */
+export function nextInstanceId(typeId: string, placedIds: readonly string[]) {
+  const base = resolvedCache.get(typeId)
+  if (!base || isExtraInstance(typeId)) return null
+  for (let n = 1; n <= (base.maxInstances ?? 1); n++) {
+    const id = makeInstanceId(typeId, n)
+    if (!placedIds.includes(id)) return id
+  }
+  return null
+}
+
+export function instancesOnBench(typeId: string, placedIds: readonly string[]) {
+  return placedIds.filter((id) => instanceTypeId(id) === typeId).length
+}

@@ -1,5 +1,10 @@
 import { saltExperimentDefinition } from '../data/saltExperimentDefinition.ts'
-import { equipmentRegistry } from '../three/sceneConfig.ts'
+import {
+  equipmentRegistry,
+  isExtraInstance,
+  resolveEquipment,
+  type EquipmentRegistryEntry,
+} from '../three/sceneConfig.ts'
 import { useLabSceneStore } from './useLabSceneStore.ts'
 import { useSaltSimulationStore } from './useSaltSimulationStore.ts'
 
@@ -27,7 +32,13 @@ export function getExperimentSessionSnapshot() {
     experimentCompleted: educational.workflow.completed,
     selectedEquipmentId: spatial.selectedId,
     interactionStatus,
-    equipmentInstances: equipmentRegistry.map((item) => ({
+    equipmentInstances: [
+      ...equipmentRegistry,
+      ...spatial.placedIds
+        .filter(isExtraInstance)
+        .map(resolveEquipment)
+        .filter((item): item is EquipmentRegistryEntry => item !== undefined),
+    ].map((item) => ({
       id: item.id,
       equipmentType: item.visual,
       placed: spatial.placedIds.includes(item.id),

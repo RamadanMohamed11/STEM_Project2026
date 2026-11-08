@@ -16,7 +16,14 @@ export type ApparatusId =
   | 'weighing-boat'
 
 export type SpatialRelationKind =
-  'liquid-receiver' | 'solid-receiver' | 'insertion' | 'balance-contact' | 'scoop' | 'solid-deposit'
+  | 'liquid-receiver'
+  | 'solid-receiver'
+  | 'insertion'
+  | 'balance-contact'
+  | 'scoop'
+  | 'solid-deposit'
+  /** L3: locked to a holder's snap point (tripod, clamp stand…); moves with the holder. */
+  | 'snapped'
 
 export interface SpatialRelationship {
   actorId: string

@@ -1,5 +1,5 @@
 import { findSpatialAffordance, type SpatialAffordance } from '../engine/spatialInteractions.ts'
-import { equipmentRegistry, type Point2D } from './sceneConfig.ts'
+import { resolveEquipment, type Point2D } from './sceneConfig.ts'
 
 /** Match the actual gesture target's footprint-based, world-space contact gap. */
 const CONTACT_GAP_METRES = 0.22
@@ -145,8 +145,8 @@ export function resolveAffordanceHint(context: AffordanceHintContext): Affordanc
   if (!candidate || !context.placedIds.includes(candidate.id)) return null
   if (!findSpatialAffordance(context.actorId, candidate.id, candidate.gesture)) return null
 
-  const actor = equipmentRegistry.find((item) => item.id === context.actorId)
-  const target = equipmentRegistry.find((item) => item.id === candidate.id)
+  const actor = resolveEquipment(context.actorId)
+  const target = resolveEquipment(candidate.id)
   if (!actor || !target) return null
 
   const actorPosition = context.positions[actor.id] ?? actor.defaultPosition

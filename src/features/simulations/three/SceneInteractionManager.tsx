@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useSaltSimulationStore } from '../state/useSaltSimulationStore'
 import { useLabSceneStore } from '@/features/simulations/state/useLabSceneStore'
 import { EquipmentRenderer } from './EquipmentRenderer'
-import { equipmentRegistry } from './sceneConfig'
+import { resolveEquipment, type EquipmentRegistryEntry } from './sceneConfig'
 
 export function SceneInteractionManager() {
   useEffect(() => {
@@ -24,8 +24,10 @@ export function SceneInteractionManager() {
 
   return (
     <group>
-      {equipmentRegistry
-        .filter((entry) => placedIds.includes(entry.id))
+      {/* L3: render every placed id, including extra instances such as 'beaker~2'. */}
+      {placedIds
+        .map(resolveEquipment)
+        .filter((entry): entry is EquipmentRegistryEntry => entry !== undefined)
         .map((entry) => (
           <EquipmentRenderer key={entry.id} entry={entry} />
         ))}
