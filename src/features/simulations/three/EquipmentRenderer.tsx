@@ -16,6 +16,8 @@ import { registerVisualAnchor } from './equipmentVisualAnchors'
 import { getTransferEquipmentPose } from './transferMotion'
 import { boatPanOffset, useEquipmentManipulation } from './useEquipmentManipulation'
 import { snapElevation } from './benchLayout'
+import { balanceDisplayG, isPracticeBalance } from '../state/benchInstruments'
+import { useMeasurementLogStore } from '../state/useMeasurementLogStore'
 import type { EquipmentRegistryEntry } from './sceneConfig'
 
 /** Rendering follows quantities and operation poses; native pointer ownership is isolated in a hook. */
@@ -36,6 +38,15 @@ export function EquipmentRenderer({ entry }: { entry: EquipmentRegistryEntry }) 
     state.lab.containers[entry.id] ? benchVolumeMl(state, entry.id) : undefined,
   )
   const benchTint = useBenchLiquidsStore((state) => benchColor(state, entry.id) ?? undefined)
+  // L8: a practice balance shows the tared mass of the vessel on its pan.
+  const practiceBalance = isPracticeBalance(entry.id)
+  const relationships = useLabSceneStore((state) => (practiceBalance ? state.relationships : null))
+  const tare = useMeasurementLogStore((state) => (practiceBalance ? state.tare : null))
+  const balanceReading = useBenchLiquidsStore((state) =>
+    relationships && tare
+      ? balanceDisplayG(entry.id, relationships, state, tare).toFixed(2)
+      : undefined,
+  )
   const remainingSaltG = useSaltSimulationStore((state) =>
     entry.id === 'sodium-chloride' ? state.experiment.saltStockG : undefined,
   )
@@ -169,6 +180,7 @@ export function EquipmentRenderer({ entry }: { entry: EquipmentRegistryEntry }) 
                 waterMl={waterMl ?? benchMl}
                 liquidMl={benchMl}
                 liquidColor={benchTint}
+                balanceReading={balanceReading}
                 remainingSaltG={remainingSaltG}
                 pouring={pouring}
               />

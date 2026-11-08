@@ -4,6 +4,14 @@ import { isBenchLiquidContainer } from '../lib/benchLiquids'
 import { BenchPourPanel } from './BenchPourPanel'
 import { BenchVesselInfo, BurnerPanel } from './BenchHeatingPanel'
 import { isHeatSource } from '../lib/benchHeating'
+import { BalancePanel, InstrumentReadingPanel } from './InstrumentPanels'
+import { isPhPaper, isPracticeBalance, isThermometer } from '../state/benchInstruments'
+
+/** L8: a thermometer or pH paper paired with a bench vessel. */
+const isInstrumentPair = (ids: readonly string[]) =>
+  ids.length === 2 &&
+  ids.some((id) => isThermometer(id) || isPhPaper(id)) &&
+  ids.some(isBenchLiquidContainer)
 import { ArrowRight, ArrowRightLeft, CheckCircle2, Droplets, Package2, X } from 'lucide-react'
 import {
   resolvePairInteractions,
@@ -380,9 +388,11 @@ export function PairInteractionPanel({ inventoryOpen = false }: { inventoryOpen?
           <ArrowRightLeft size={13} aria-hidden="true" />
           {ids.length === 1
             ? 'Selected object'
-            : ids.every(isBenchLiquidContainer)
-              ? 'Practice pour'
-              : 'Smart transfer'}
+            : isInstrumentPair(ids)
+              ? 'Measure'
+              : ids.every(isBenchLiquidContainer)
+                ? 'Practice pour'
+                : 'Smart transfer'}
         </h2>
         <button
           type="button"
@@ -396,7 +406,11 @@ export function PairInteractionPanel({ inventoryOpen = false }: { inventoryOpen?
           <X size={15} aria-hidden="true" />
         </button>
       </header>
-      {ids.length === 1 && isHeatSource(ids[0]) ? (
+      {ids.length === 1 && isPracticeBalance(ids[0]) ? (
+        <BalancePanel id={ids[0]} />
+      ) : !operation && isInstrumentPair(ids) ? (
+        <InstrumentReadingPanel key={contextKey} ids={ids} />
+      ) : ids.length === 1 && isHeatSource(ids[0]) ? (
         <BurnerPanel id={ids[0]} />
       ) : ids.length === 1 && isBenchLiquidContainer(ids[0]) ? (
         <BenchVesselInfo id={ids[0]} />

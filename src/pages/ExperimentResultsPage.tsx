@@ -9,6 +9,7 @@ import { SafetyNotice } from '@/features/simulations/components/SafetyNotice'
 import { getContextualSafetyState } from '@/features/simulations/lib/contextualSafety'
 import { getExperimentResultsSummary } from '@/features/simulations/lib/resultsSummary'
 import { restartExperimentSession } from '@/features/simulations/state/sessionActions'
+import { RecordedMeasurements } from '@/features/simulations/components/MeasurementLog'
 import { sessionLifetimeMessage } from '@/features/simulations/state/simulationSession'
 import { useSimulationSession } from '@/features/simulations/state/useSimulationSession'
 import { usePageTitle } from '@/hooks/usePageTitle'
@@ -138,10 +139,7 @@ export function ExperimentResultsPage() {
                 </div>
                 <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {summary.measurements.map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-xl border border-line bg-canvas/60 p-3.5"
-                    >
+                    <div key={item.id} className="rounded-xl border border-line bg-canvas/60 p-3.5">
                       <span className="text-[11px] font-bold uppercase tracking-wider text-teal-dark">
                         {item.shortLabel}
                       </span>
@@ -272,6 +270,9 @@ export function ExperimentResultsPage() {
         <p className="text-sm text-slate">
           Quiz questions are coming soon. Experiment results and quiz results are separate.
         </p>
+      )}
+      {session.simulation && (
+        <RecordedMeasurements experimentId={session.simulation.definition.experimentId} />
       )}
       <p className="text-sm text-slate">{sessionLifetimeMessage}</p>
     </div>

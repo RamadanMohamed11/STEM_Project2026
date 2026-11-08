@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react'
-import { Redo2, RotateCcw, RotateCw, Trash2, Undo2, LayoutTemplate } from 'lucide-react'
+import {
+  ClipboardList,
+  LayoutTemplate,
+  Redo2,
+  RotateCcw,
+  RotateCw,
+  Trash2,
+  Undo2,
+} from 'lucide-react'
+import { useMeasurementLogStore } from '../state/useMeasurementLogStore'
 import { useLabSceneStore } from '../state/useLabSceneStore'
 import { useSaltSimulationStore } from '../state/useSaltSimulationStore'
 import { useBenchLiquidsStore } from '../state/useBenchLiquidsStore'
@@ -41,6 +50,8 @@ export function BenchToolbar() {
     (state) => !!state.transfer || !!state.effect || !!state.livePour,
   )
   const pouring = useBenchLiquidsStore((state) => !!state.pour)
+  const logOpen = useMeasurementLogStore((state) => state.open)
+  const logCount = useMeasurementLogStore((state) => state.rows.length)
   const busy = saltBusy || pouring
   const [confirmReset, setConfirmReset] = useState(false)
   const locked = busy || interacting
@@ -182,6 +193,16 @@ export function BenchToolbar() {
           <LayoutTemplate size={18} />
         </button>
       )}
+      <button
+        type="button"
+        className={button}
+        aria-pressed={logOpen}
+        onClick={() => useMeasurementLogStore.getState().setOpen(!logOpen)}
+        aria-label={`${logOpen ? 'Close' : 'Open'} data log (${logCount} measurements)`}
+        title="Data log: recorded measurements, stopwatch and chart"
+      >
+        <ClipboardList size={18} />
+      </button>
     </div>
   )
 }

@@ -7,6 +7,7 @@ import { saltExperimentDefinition } from '../data/saltExperimentDefinition.ts'
 import type { LiquidContainerId, TransferDestination } from '../engine/types.ts'
 import { ExperimentExecutionPanel, type ProcedureButtonKind } from './ExperimentExecutionPanel'
 import { SimulationMeasurements } from './SimulationMeasurements'
+import { RecordedMeasurements } from './MeasurementLog'
 
 const controlClass =
   'min-h-11 w-full rounded-lg border border-line-strong bg-white px-3 text-sm text-navy focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-teal'
@@ -263,6 +264,7 @@ export function ExperimentInteractionPanel({ onRestart }: { onRestart: () => voi
         )}
       </div>
       <SimulationMeasurements experiment={experiment} completed={workflow.completed} />
+      <RecordedMeasurements />
     </section>
   )
 }

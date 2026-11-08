@@ -29,6 +29,8 @@ export interface EquipmentModelProps {
   /** L5: practice liquid volume / colour for library vessels. */
   liquidMl?: number
   liquidColor?: string
+  /** L8: display text of a practice balance (overrides the salt reading). */
+  balanceReading?: string
   selected: boolean
   waterMl?: number
   remainingSaltG?: number
@@ -49,6 +51,7 @@ export function EquipmentModel({
   pouring,
   saltOnSpatulaG,
   saltOnBoatG,
+  balanceReading,
 }: EquipmentModelProps) {
   // Optional props support the renderer bridge; live store values keep these tools in sync.
   const spatulaMass = useSaltSimulationStore((state) => state.experiment.saltOnSpatulaG)
@@ -66,7 +69,7 @@ export function EquipmentModel({
     case 'stirring-rod':
       return createElement(StirringRod, { selected })
     case 'digital-balance':
-      return createElement(DigitalBalance, { selected })
+      return createElement(DigitalBalance, { selected, readingOverride: balanceReading })
     case 'water':
       return createElement(WaterContainer, { selected, waterMl, pouring: pouring || liveWaterPour })
     case 'sodium-chloride':

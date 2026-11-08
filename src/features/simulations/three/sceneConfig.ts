@@ -61,7 +61,8 @@ export const equipmentRegistry: readonly EquipmentRegistryEntry[] = [
     visual: 'digital-balance',
     footprintRadius: 0.48,
     defaultPosition: { x: -2.1, z: 0.18 },
-    maxInstances: 1,
+    // L8: a second (practice) balance for bench vessels; the first stays the salt balance.
+    maxInstances: 2,
   },
   {
     id: 'water',

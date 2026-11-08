@@ -19,6 +19,8 @@ import { Link } from 'react-router'
 import { LaboratoryCanvas } from './LaboratoryCanvas'
 import { PairInteractionPanel } from './PairInteractionPanel'
 import { HotTouchWarning } from './BenchHeatingPanel'
+import { MeasurementAutoRecorder, MeasurementLogPanel } from './MeasurementLog'
+import { useMeasurementLogStore } from '../state/useMeasurementLogStore'
 import { MaterialTransferController } from '../three/MaterialTransferController'
 import { BenchLiquidsController } from '../three/BenchLiquidsController'
 import { ContextualInstruction } from './ContextualInstruction'
@@ -80,6 +82,10 @@ export function LaboratoryLayout({
   const validatedSteps = workflow.completed ? definition.steps.length : workflow.stepIndex
   const progress = Math.round((validatedSteps / definition.steps.length) * 100)
   useEffect(() => () => suspendLaboratoryInteractions(), [])
+  // L8: one measurement log per experiment session.
+  useEffect(() => {
+    useMeasurementLogStore.getState().begin(definition.experimentId, Date.now())
+  }, [definition.experimentId])
 
   // Effects are presentation-only. Stopping an animation cannot validate or
   // advance a scientific step: only state-verified semantic events can.
@@ -284,6 +290,8 @@ export function LaboratoryLayout({
         <LaboratoryCanvas />
         <PairInteractionPanel inventoryOpen={inventoryOpen || helpOpen} />
         <HotTouchWarning />
+        <MeasurementLogPanel />
+        <MeasurementAutoRecorder />
 
         {/* Collapsible inventory is overlaid, not stacked under the scene. */}
         <LabInventoryPanel

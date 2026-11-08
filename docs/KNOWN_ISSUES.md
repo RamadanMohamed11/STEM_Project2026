@@ -95,3 +95,13 @@ The reusable hazard catalog is draft guidance requiring academic review. No haza
 - Thermometer readings are shown on vessel tags and in panels; the thermometer as an instrument comes with L8.
 - The guided salt experiment is unchanged and has no heating.
 - See HEATING.md.
+
+## L8 limitations (8 November 2026)
+
+- The balance works only for the practice copy (`digital-balance~2`). The salt experiment's balance keeps its own net-mass display.
+- Empty glassware mass is an estimate from capacity, not a catalogue value.
+- There is no pH meter; pH paper reads whole numbers only.
+- The thermometer and pH paper are used by selecting them with a vessel; they are not placed into the vessel in 3D.
+- The log lives in memory for the session. Refreshing the tab clears it, as it does the simulation.
+- "Copy as CSV" needs clipboard permission in the browser.
+- See MEASUREMENTS.md.

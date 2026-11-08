@@ -3,14 +3,39 @@
  * Snap rules are data: when an item is released close enough to a compatible holder it locks to
  * the holder's snap point, may overlap the holder's footprint, and moves with the holder.
  */
-import { BENCH_TOP, EQUIPMENT_LIMITS, instanceTypeId, type Point2D } from './sceneConfig.ts'
+import {
+  BENCH_TOP,
+  EQUIPMENT_LIMITS,
+  instanceTypeId,
+  isExtraInstance,
+  type Point2D,
+} from './sceneConfig.ts'
 import type { SpatialRelationship } from '../engine/spatialInteractions.ts'
 import {
   CLAMP_JAW_Y,
   CLAMP_REACH,
   GAUZE_THICKNESS,
   TRIPOD_TOP,
+  LIBRARY_MODEL_IDS,
+  getLibraryModel,
 } from './models/library/modelSpecs.ts'
+
+/** L8: pan height and centre of the practice balance (same housing as the salt balance). */
+export const BALANCE_PAN_Y = 0.208
+const BALANCE_PAN_Z = -0.047
+/** Vessels that stand on a stand or tap, not on a balance pan. */
+const NOT_ON_BALANCE = new Set([
+  'burette',
+  'separating-funnel',
+  'spirit-lamp',
+  'trough',
+  'water-bath',
+])
+const BALANCE_ITEMS = [
+  'beaker',
+  'graduated-cylinder',
+  ...LIBRARY_MODEL_IDS.filter((id) => getLibraryModel(id)?.vessel && !NOT_ON_BALANCE.has(id)),
+]
 
 export interface SnapRule {
   id: string
@@ -27,6 +52,8 @@ export interface SnapRule {
   elevation?: number
   /** Per item type override of `elevation`. */
   elevationByType?: Readonly<Record<string, number>>
+  /** L8: only practice copies (`type~2`) of the holder hold items (the salt balance does not). */
+  extraHolderOnly?: boolean
 }
 
 /** Lift for vessels on the tripod (ring top + gauze), from the L4 model dimensions. */
@@ -112,6 +139,16 @@ export const SNAP_RULES: readonly SnapRule[] = [
     label: 'in the rack',
     elevation: 0.025,
   },
+  {
+    id: 'balance-holds-vessel',
+    holderType: 'digital-balance',
+    itemTypes: BALANCE_ITEMS,
+    offset: { x: 0, z: BALANCE_PAN_Z },
+    captureRadius: 0.3,
+    label: 'on the balance pan',
+    elevation: BALANCE_PAN_Y,
+    extraHolderOnly: true,
+  },
 ]
 
 export interface SnapMatch {
@@ -148,6 +185,7 @@ export function findSnapTarget(
     if (!at) continue
     for (const rule of rules) {
       if (rule.holderType !== holderType || !rule.itemTypes.includes(type)) continue
+      if (rule.extraHolderOnly && !isExtraInstance(holderId)) continue
       const occupied = Object.values(state.relationships).some(
         (relation) =>
           relation.kind === 'snapped' &&
@@ -201,7 +239,14 @@ export function snapHolderCandidates(
   for (const holderId of placedIds) {
     if (holderId === id) continue
     const holderType = instanceTypeId(holderId)
-    if (rules.some((rule) => rule.holderType === holderType && rule.itemTypes.includes(type)))
+    if (
+      rules.some(
+        (rule) =>
+          rule.holderType === holderType &&
+          rule.itemTypes.includes(type) &&
+          (!rule.extraHolderOnly || isExtraInstance(holderId)),
+      )
+    )
       holders.add(holderId)
   }
   return holders

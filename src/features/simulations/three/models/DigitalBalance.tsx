@@ -7,6 +7,8 @@ import { SurfaceLabel } from './SurfaceLabel'
 
 interface DigitalBalanceProps {
   selected: boolean
+  /** L8: practice balance reading (the salt balance computes its own). */
+  readingOverride?: string
 }
 
 const panProfile = [
@@ -20,7 +22,7 @@ const panProfile = [
 ].map(([radius, height]) => new Vector2(radius, height))
 
 /** The display is a model-derived, tared salt mass, not a fabricated sensor signal. */
-export function DigitalBalance({ selected }: DigitalBalanceProps) {
+export function DigitalBalance({ selected, readingOverride }: DigitalBalanceProps) {
   const hasBoat = useLabSceneStore(
     (state) =>
       state.placedIds.includes('digital-balance') &&
@@ -30,11 +32,13 @@ export function DigitalBalance({ selected }: DigitalBalanceProps) {
   const saltOnBoatG = useSaltSimulationStore((state) => state.experiment.saltOnBoatG)
   const boatMoving = useSaltSimulationStore((state) => state.transfer?.sourceId === 'weighing-boat')
   const reading =
-    hasBoat && !boatMoving
-      ? `${Math.max(0, Number.isFinite(saltOnBoatG) ? saltOnBoatG : 0)
-          .toFixed(3)
-          .replace(/\.?0+$/, '')}`
-      : '--'
+    readingOverride !== undefined
+      ? readingOverride
+      : hasBoat && !boatMoving
+        ? `${Math.max(0, Number.isFinite(saltOnBoatG) ? saltOnBoatG : 0)
+            .toFixed(3)
+            .replace(/\.?0+$/, '')}`
+        : '--'
   const housing = useMemo(() => {
     // Extruded side elevation: the front console is genuinely sloped, not a decal inside a box.
     const shape = new Shape()
