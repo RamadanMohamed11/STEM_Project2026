@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import {
   ArrowLeft,
   BookOpen,
-  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Droplets,
@@ -21,7 +20,7 @@ import { LaboratoryCanvas } from './LaboratoryCanvas'
 import { PairInteractionPanel } from './PairInteractionPanel'
 import { MaterialTransferController } from '../three/MaterialTransferController'
 import { ContextualInstruction } from './ContextualInstruction'
-import { LaboratoryEquipmentPreview } from './LaboratoryEquipmentPreview'
+import { LabInventoryPanel } from './LabInventoryPanel'
 import { ExperimentGuide } from './ExperimentGuide'
 import { ExperimentResults } from './ExperimentResults'
 import { undissolvedSaltG } from '../engine/saltExperiment'
@@ -282,80 +281,18 @@ export function LaboratoryLayout({
         <PairInteractionPanel inventoryOpen={inventoryOpen || helpOpen} />
 
         {/* Collapsible inventory is overlaid, not stacked under the scene. */}
-        {inventoryOpen ? (
-          <aside
-            aria-label="Lab inventory"
-            className="absolute inset-y-3 left-3 z-20 flex w-[min(250px,calc(100vw-24px))] flex-col overflow-hidden rounded-2xl border border-white/25 bg-white/95 text-[#102b3a] shadow-2xl backdrop-blur-xl sm:inset-y-4 sm:left-4"
-          >
-            <header className="flex shrink-0 items-center justify-between border-b border-[#d9e5e7] px-3 py-3">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#158d86]">
-                  Tools & materials
-                </p>
-                <h2 className="text-sm font-bold">Lab inventory</h2>
-              </div>
-              <button
-                type="button"
-                aria-label="Collapse inventory"
-                title="Collapse inventory"
-                onClick={() => setInventoryOpen(false)}
-                className="rounded-lg p-2 text-[#49616c] hover:bg-[#e5eff0]"
-              >
-                <ChevronLeft size={17} />
-              </button>
-            </header>
-            <p className="shrink-0 px-3 pt-2 text-[11px] leading-relaxed text-[#516671]">
-              Drag a tool onto the 3D bench. Or click an item, then click the bench to place it.
-            </p>
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 py-2">
-              {presentation.inventory.map((item) => {
-                const placed = placedIds.includes(item.id)
-                const selected = selectedId === item.id
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    disabled={transferActive}
-                    draggable={!placed && !transferActive}
-                    onDragStart={(event) => {
-                      if (placed) {
-                        event.preventDefault()
-                        return
-                      }
-                      event.dataTransfer.setData('application/x-stem-lab-equipment', item.id)
-                      event.dataTransfer.setData('text/plain', item.id)
-                      event.dataTransfer.effectAllowed = 'move'
-                    }}
-                    onClick={() => onInventoryClick(item.id)}
-                    aria-pressed={selected}
-                    title={item.description}
-                    className={`mb-1.5 flex w-full items-center gap-2 rounded-xl border p-2 text-left transition-colors ${selected ? 'border-[#16bfa8] bg-[#e4f8f4]' : 'border-[#e1e8ec] bg-white hover:border-[#a6d6cc] hover:bg-[#f2f8f8]'}`}
-                  >
-                    <LaboratoryEquipmentPreview visual={item.visual} className="size-11 shrink-0" />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-xs font-semibold">{item.title}</span>
-                      <span
-                        className={`block text-[10px] ${placed ? 'text-[#147f75]' : 'text-[#5c727d]'}`}
-                      >
-                        {placed
-                          ? 'On workbench · grab to move'
-                          : placement?.id === item.id
-                            ? 'Click bench to place'
-                            : 'Drag to bench'}
-                      </span>
-                    </span>
-                    {placed && <CheckCircle2 size={15} className="shrink-0 text-[#159f8a]" />}
-                  </button>
-                )
-              })}
-            </div>
-            {selectedId && (
-              <p className="shrink-0 border-t border-[#d9e5e7] px-3 py-2 text-[11px] leading-relaxed text-[#516671]">
-                {presentation.inventory.find((item) => item.id === selectedId)?.description}
-              </p>
-            )}
-          </aside>
-        ) : (
+        <LabInventoryPanel
+          open={inventoryOpen}
+          items={presentation.inventory}
+          core={simulation.core}
+          placedIds={placedIds}
+          selectedId={selectedId}
+          placingId={placement?.id ?? null}
+          disabled={transferActive}
+          onItemClick={onInventoryClick}
+          onCollapse={() => setInventoryOpen(false)}
+        />
+        {!inventoryOpen && (
           <button
             type="button"
             onClick={() => setInventoryOpen(true)}
