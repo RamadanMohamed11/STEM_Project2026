@@ -91,6 +91,12 @@ const ExperimentResultsPage = lazy(() =>
 const StudentProgressPage = lazy(() =>
   import('@/pages/StudentProgressPage').then((module) => ({ default: module.StudentProgressPage })),
 )
+// L6: dev-only effects demo; the route (and its chunk) is absent from production builds.
+const DevEffectsPage = import.meta.env.DEV
+  ? lazy(() =>
+      import('@/pages/DevEffectsPage').then((module) => ({ default: module.DevEffectsPage })),
+    )
+  : null
 const VirtualLabPage = lazy(() =>
   import('@/pages/VirtualLabPage').then((module) => ({ default: module.VirtualLabPage })),
 )
@@ -139,6 +145,7 @@ export function AppRoutes() {
               <Route path="quiz/results" element={<QuizResultsPage />} />
             </Route>
           </Route>
+          {DevEffectsPage && <Route path="/dev/effects" element={<DevEffectsPage />} />}
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

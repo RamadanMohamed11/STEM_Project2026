@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useBenchLiquidsStore } from '../state/useBenchLiquidsStore'
 import { useLabSceneStore } from '../state/useLabSceneStore'
+import { useReactionEffectsStore } from '../state/useReactionEffectsStore'
 
 /**
  * L5: keeps the practice-liquid containers in step with the bench and runs the pour clock.
@@ -18,7 +19,9 @@ export function BenchLiquidsController() {
     let last = performance.now()
     const loop = (now: number) => {
       const state = liquids()
-      if (state.pour || state.readout) state.tick(Math.min(100, now - last))
+      const dt = Math.min(100, now - last)
+      if (state.pour || state.readout) state.tick(dt)
+      state.react(dt)
       last = now
       frame = requestAnimationFrame(loop)
     }
@@ -40,6 +43,7 @@ export function BenchLiquidsController() {
       window.removeEventListener('blur', straighten)
       document.removeEventListener('visibilitychange', onVisibility)
       liquids().reset()
+      useReactionEffectsStore.getState().clear()
     }
   }, [])
   return null

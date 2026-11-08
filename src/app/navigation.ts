@@ -86,6 +86,7 @@ export function getPageContext(pathname: string) {
   if (matchPath(routePaths.quizResults, pathname)) return 'Quiz Results'
   if (matchPath(routePaths.experimentQuiz, pathname)) return 'Experiment Quiz'
   if (matchPath(routePaths.experimentDetails, pathname)) return 'Experiment Details'
+  if (import.meta.env?.DEV && pathname === '/dev/effects') return 'Effects demo (dev)'
   const current = getActiveNavigationId(pathname)
   return (
     [...primaryNavigation, ...accountNavigation].find((item) => item.id === current)?.label ??

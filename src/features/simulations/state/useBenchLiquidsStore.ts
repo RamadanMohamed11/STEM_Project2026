@@ -11,6 +11,7 @@ import {
   readColor,
   readPh,
   readVolumeMl,
+  simulateTick,
   type ChemistryDefinition,
   type ContainerState,
   type LabState,
@@ -26,6 +27,7 @@ import {
   steadyPourAngle,
 } from '../lib/benchLiquids.ts'
 import { instanceTypeId, resolveEquipment } from '../three/sceneConfig.ts'
+import { useReactionEffectsStore } from './useReactionEffectsStore.ts'
 
 export interface BenchPour {
   sourceId: string
@@ -78,6 +80,8 @@ interface BenchLiquidsState {
   pourAmount: (sourceId: string, targetId: string, ml: number) => boolean
   straighten: () => void
   tick: (dtMs: number) => void
+  /** L6: runs the engine's processes and reactions; their effect events drive the visuals. */
+  react: (dtMs: number) => void
   fillDropper: (sourceId: string, dropperId: string) => boolean
   addDrop: (dropperId: string, targetId: string) => boolean
   reset: () => void
@@ -316,6 +320,18 @@ export const useBenchLiquidsStore = create<BenchLiquidsState>()((set, get) => ({
           }
         : {}),
     })
+  },
+
+  react: (dtMs) => {
+    const state = get()
+    const { definition } = state
+    if (!definition.reactions.length && !definition.processes.length) return
+    const dt = Math.min(0.25, Math.max(0, Number.isFinite(dtMs) ? dtMs / 1000 : 0))
+    if (dt <= 0 || !Object.keys(state.lab.containers).length) return
+    const result = simulateTick(definition, state.lab, dt)
+    if (!result.ok) return
+    set({ lab: result.state })
+    if (result.events.length) useReactionEffectsStore.getState().ingest(result.events, definition)
   },
 
   fillDropper: (sourceId, dropperId) => {

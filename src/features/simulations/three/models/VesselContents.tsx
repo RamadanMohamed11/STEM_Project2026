@@ -1,5 +1,7 @@
-import { useMemo } from 'react'
-import { Vector2 } from 'three'
+import { useMemo, useRef } from 'react'
+import { useFrame } from '@react-three/fiber'
+import { Color, Vector2, type MeshPhysicalMaterial } from 'three'
+import { COLOR_TRANSITION_S } from '../../lib/reactionEffects'
 import { boundedFraction } from '../effects/effectMath'
 import { glassEdgeOpacity } from './glassMaterial'
 import type { FillModel } from './library/glassware'
@@ -87,6 +89,14 @@ export function VesselContents({
   )
 }
 
+const CLEAR_LIQUID_OPACITY = 0.32
+
+/** Clear liquids stay glassy; strongly coloured solutions (red complex, blue CuSO₄) read clearly. */
+function liquidOpacity(color: Color) {
+  const saturation = Math.max(color.r, color.g, color.b) - Math.min(color.r, color.g, color.b)
+  return Math.min(0.8, CLEAR_LIQUID_OPACITY + 0.9 * Math.max(0, saturation - 0.18))
+}
+
 interface ProfiledVesselContentsProps {
   volumeMl: number
   /** L4a fill model: the liquid follows the vessel's real inner shape. */
@@ -101,6 +111,19 @@ export function ProfiledVesselContents({
   color = '#d5e9e9',
 }: ProfiledVesselContentsProps) {
   const profile = useMemo(() => fill.liquidProfile(volumeMl), [fill, volumeMl])
+  const material = useRef<MeshPhysicalMaterial>(null)
+  const target = useMemo(() => new Color(), [])
+  const shown = useRef<Color | null>(null)
+  // L6: a colour change eases in (~1.5 s) instead of jumping.
+  useFrame((_, dt) => {
+    const mat = material.current
+    if (!mat) return
+    target.set(color)
+    if (!shown.current) shown.current = target.clone()
+    else shown.current.lerp(target, 1 - Math.exp((-3 * Math.min(dt, 0.1)) / COLOR_TRANSITION_S))
+    mat.color.copy(shown.current)
+    mat.opacity = liquidOpacity(shown.current)
+  })
   const points = useMemo(() => profile?.map(([r, y]) => new Vector2(r, y)), [profile])
   if (!profile || !points) return null
   const surfaceY = fill.heightForVolume(volumeMl)
@@ -111,9 +134,9 @@ export function ProfiledVesselContents({
       <mesh name="liquid-volume" renderOrder={3}>
         <latheGeometry args={[points, 36]} />
         <meshPhysicalMaterial
-          color={color}
+          ref={material}
           transparent
-          opacity={0.32}
+          opacity={CLEAR_LIQUID_OPACITY}
           depthWrite={false}
           roughness={0.13}
           metalness={0}

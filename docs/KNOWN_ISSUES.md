@@ -75,3 +75,14 @@ The reusable hazard catalog is draft guidance requiring academic review. No haza
 - The catalogue liquids are colourless, so mixtures look clear; pH is the visible result for now.
 - Tilting uses a tilt control and buttons in the panel, not a 3D grab-and-tip gesture.
 - See LIQUIDS_POURING.md.
+
+## L6 limitations (8 November 2026)
+
+- The effects pipeline is live in the lab, but the bench's practice liquids (water, dilute HCl) have no reactions yet, so no effect appears there until L11 adds reacting chemicals. All eight effects can be seen on the dev-only page `/dev/effects`.
+- The engine blends colour by amount × opacity, not by concentration. A clear solvent needs a low `opacity` in the substance data, or it swamps a strongly coloured product (see the demo's water).
+- Heat shimmer is a translucent overlay, not true screen-space refraction.
+- Precipitate grains settle visually and then slowly fade. The solid stays in the engine's contents but has no permanent mesh of its own.
+- The explosion is a teaching "pop" (a flash, sparks and a short shake), not a destructive simulation. Reduced motion disables the shake and cuts the particles.
+- With the Claude browser pane hidden, frames are throttled. Effects then advance slowly, so check them with the pane visible.
+- drei `Html` labels sometimes log "synchronously unmount a root" errors in development (React 19 StrictMode). In the demo, the first of eight labels went missing, so the demo shows its readouts as plain DOM text instead.
+- See REACTION_EFFECTS.md.
