@@ -540,6 +540,7 @@ export const flameTestsToolsAndMaterials: ExperimentToolsAndMaterialsData = {
   materials: [
     {
       id: 'conc-hcl',
+      hazards: ['corrosive'],
       name: 'Concentrated Hydrochloric Acid',
       formula: 'HCl',
       visual: 'water',
@@ -668,6 +669,7 @@ export const halogenDisplacementToolsAndMaterials: ExperimentToolsAndMaterialsDa
   materials: [
     {
       id: 'chlorine-water',
+      hazards: ['toxic-gas'],
       name: 'Chlorine Water',
       formula: 'Cl₂ (aq)',
       visual: 'water',
@@ -692,6 +694,7 @@ export const halogenDisplacementToolsAndMaterials: ExperimentToolsAndMaterialsDa
     },
     {
       id: 'cyclohexane',
+      hazards: ['flammable'],
       name: 'Cyclohexane (Extraction Solvent)',
       formula: 'C₆H₁₂',
       visual: 'water',

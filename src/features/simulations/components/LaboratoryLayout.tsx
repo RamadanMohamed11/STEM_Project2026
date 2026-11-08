@@ -32,6 +32,7 @@ import { sessionLifetimeMessage } from '../state/simulationSession'
 import type { SimulationRegistration } from '../lib/simulationRegistry'
 import { getExperimentPaths } from '@/app/paths'
 import type { Experiment } from '@/types/experiment'
+import { LaboratoryHazards } from '@/features/safety/components/LaboratoryHazards'
 
 export function LaboratoryLayout({
   experiment,
@@ -123,6 +124,7 @@ export function LaboratoryLayout({
       className="relative flex h-dvh w-full flex-col overflow-hidden bg-[#071d29] text-white"
       aria-label="Immersive laboratory workspace"
     >
+      <LaboratoryHazards experiment={experiment} workflow={workflow} />
       <header className="relative z-30 flex h-[60px] shrink-0 items-center justify-between gap-2 border-b border-white/10 bg-[#071d29] px-3 sm:px-5">
         <div className="flex min-w-0 items-center gap-2.5">
           <Link

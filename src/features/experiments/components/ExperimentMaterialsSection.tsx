@@ -1,5 +1,6 @@
 import type { ExperimentMaterialItem } from '../types/toolsAndMaterials'
 import { ToolAndMaterialVisual } from './ToolAndMaterialVisual'
+import { HazardAlert } from '@/features/safety/components/HazardAlert'
 
 interface ExperimentMaterialsSectionProps {
   materials: readonly ExperimentMaterialItem[] | undefined
@@ -65,6 +66,7 @@ export function ExperimentMaterialsSection({
                   aria-labelledby={`material-title-${material.id}`}
                 >
                 <div className="space-y-4">
+                  <HazardAlert hazardIds={material.hazards ?? []} />
                   {/* Header: Visual + Name & Formula + Role */}
                   <div className="flex items-start gap-4">
                     <div className="transition-transform duration-300 group-hover:scale-105">

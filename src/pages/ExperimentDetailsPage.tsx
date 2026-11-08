@@ -13,6 +13,8 @@ import { getReviewedExperimentLessons } from '@/features/experiments/lib/experim
 import { useStudentExperimentCatalog } from '@/features/experiments/state/useStudentExperimentCatalog'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import type { Experiment } from '@/types/experiment'
+import { HazardAlert } from '@/features/safety/components/HazardAlert'
+import { getExperimentHazardIds } from '@/features/safety/lib/experimentHazards'
 
 export function ExperimentDetailsPage() {
   const experiment = useOutletContext<Experiment>()
@@ -35,6 +37,7 @@ export function ExperimentDetailsPage() {
         experiment={experiment}
         category={catalog.categories.find((item) => item.id === experiment.categoryId)}
       />
+      <HazardAlert hazardIds={getExperimentHazardIds(experiment, toolsAndMaterials?.materials)} />
       <ExperimentLearningSections content={experiment.learning} />
       <ExperimentToolsSection tools={toolsAndMaterials?.tools} />
       <ExperimentMaterialsSection

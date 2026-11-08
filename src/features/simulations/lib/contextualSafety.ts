@@ -7,6 +7,7 @@ import type {
 } from '../engine/workflowTypes.ts'
 import { saltExperimentDefinition } from '../data/saltExperimentDefinition.ts'
 import { equipmentRegistry } from '../three/sceneConfig.ts'
+import { getHazards } from '../../safety/data/hazards.ts'
 
 /**
  * Four reusable contextual safety & operational warning levels for T24:
@@ -73,7 +74,7 @@ export interface SafetyRuleStatus {
 }
 
 export interface ContextualSafetyInput {
-  experiment?: Pick<Experiment, 'id' | 'title' | 'safety' | 'status'>
+  experiment?: Pick<Experiment, 'id' | 'title' | 'safety' | 'status' | 'hazards' | 'hazardSteps'>
   definition?: ExperimentWorkflowDefinition
   workflow?: WorkflowState
   validation?: WorkflowValidation | null
@@ -481,6 +482,20 @@ export function getContextualSafetyState(
       actionGuidance: config.actionGuidance,
       stepId: currentStepId,
       dismissible: config.level !== 'warning',
+    }
+  }
+
+  const stepHazards = getHazards(experiment?.hazardSteps?.filter(step => step.stepId === currentStepId).flatMap(step => step.hazards))
+  if (!workflow.completed && stepHazards.length > 0) {
+    stepPrecaution = {
+      id: `hazards-${experiment?.id}-${currentStepId}`,
+      level: 'warning',
+      badgeLabel: SAFETY_WARNING_LEVEL_META.warning.badgeLabel,
+      title: stepHazards.map(hazard => hazard.label).join(' · '),
+      message: stepHazards.map(hazard => hazard.description).join(' '),
+      actionGuidance: stepHazards.flatMap(hazard => hazard.precautions).join(' '),
+      stepId: currentStepId,
+      dismissible: false,
     }
   }
 

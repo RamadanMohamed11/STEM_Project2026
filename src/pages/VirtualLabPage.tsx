@@ -2,7 +2,8 @@ import { ArrowLeft, Clock3, SearchX } from 'lucide-react'
 import { Link, useParams } from 'react-router'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { StatusPill } from '@/components/ui/StatusPill'
-import { demoCatalog } from '@/features/experiments/data/mockExperiments'
+import { useStudentExperimentCatalog } from '@/features/experiments/state/useStudentExperimentCatalog'
+import { ExperimentHazardGate } from '@/features/safety/components/ExperimentHazardGate'
 import { findExperimentById } from '@/features/experiments/lib/catalogSelectors'
 import { LaboratoryLayout } from '@/features/simulations/components/LaboratoryLayout'
 import { getExperimentPaths } from '@/app/paths'
@@ -15,12 +16,13 @@ import { usePageTitle } from '@/hooks/usePageTitle'
 
 export function VirtualLabPage() {
   const { experimentId } = useParams<'experimentId'>()
+  const { catalog } = useStudentExperimentCatalog()
   // Retain the old preview URL, but serve the actual 3D demo in both entry points.
   const isIntroduction = experimentId === 'preview'
   const experiment = isIntroduction
-    ? findExperimentById(demoCatalog.experiments, previewExperimentId)
+    ? findExperimentById(catalog.experiments, previewExperimentId)
     : experimentId
-      ? findExperimentById(demoCatalog.experiments, experimentId)
+      ? findExperimentById(catalog.experiments, experimentId)
       : undefined
   const session = useSimulationSession(experiment)
   usePageTitle(experiment?.title ?? 'Experiment Not Found')
@@ -100,11 +102,13 @@ export function VirtualLabPage() {
     )
   if (experiment && session.simulation) {
     return (
-      <LaboratoryLayout
-        key={experiment.id}
-        experiment={experiment}
-        simulation={session.simulation}
-      />
+      <ExperimentHazardGate key={experiment.id} experiment={experiment}>
+        <LaboratoryLayout
+          key={experiment.id}
+          experiment={experiment}
+          simulation={session.simulation}
+        />
+      </ExperimentHazardGate>
     )
   }
 

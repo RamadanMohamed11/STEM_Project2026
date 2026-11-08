@@ -1,5 +1,6 @@
 /** Stable identifiers are independent of display names, slugs, and curriculum placement. */
 export type EntityId = string
+import type { HazardId } from '../features/safety/data/hazards.ts'
 
 export interface Semester {
   id: EntityId
@@ -36,6 +37,7 @@ export type ExperimentStatus = 'demo' | 'planned'
 export type ExperimentDifficulty = 'beginner' | 'intermediate' | 'advanced'
 
 export interface SafetyMetadata {
+  hazards?: readonly HazardId[]
   level: 'none' | 'low' | 'moderate' | 'medium' | 'high'
   requiresSupervision: boolean
   note?: string
@@ -60,6 +62,9 @@ export interface ExperimentLearningContent {
 }
 
 export interface Experiment {
+  hazards?: readonly HazardId[]
+  /** Explicit reviewed associations only; never infer hazards from step names. */
+  hazardSteps?: readonly { stepId: string; hazards: readonly HazardId[] }[]
   id: EntityId
   slug: string
   title: string

@@ -1,4 +1,5 @@
 import type { EquipmentVisual } from '@/types/laboratory'
+import type { HazardId } from '../../safety/data/hazards'
 
 export type ToolVisualKey = EquipmentVisual | 'weighing-boat'
 
@@ -20,6 +21,7 @@ export interface MaterialQuantity {
 }
 
 export interface ExperimentMaterialItem {
+  readonly hazards?: readonly HazardId[]
   readonly id: string
   readonly name: string
   readonly formula?: string

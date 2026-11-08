@@ -46,3 +46,7 @@ The real Egyptian Ministry of Education secondary chemistry curriculum (Grades 1
 
 The Experiments Library page (`src/features/curriculum/components/CurriculumExperimentsLibrary.tsx`) renders the curriculum hierarchically matching the reference layout: Grade title (h1) → Term pill badge → Unit headings → one rounded card per unit containing lessons with thin dividers → bulleted list of experiments with playable ones linked to Experiment Details and draft ones labeled "Coming soon". When visiting `/experiments` without grade/term parameters, it defaults to the flat searchable catalog (`ExperimentCatalog`). All 22 new experiments from T38 display "Coming soon" badges and remain unclickable until their details and simulations are implemented in subsequent tasks.
 
+
+## T41 limitations (8 November 2026)
+
+The reusable hazard catalog is draft guidance requiring academic review. No hazardous experiment was invented or published for demonstration: the acknowledgement interaction used an isolated ignored QA fixture, while the existing planned halogen experiment was visually reviewed with its actual T40 material data. Future real hazardous content needs explicit reviewed associations and end-to-end validation with its supported simulation and catalog loading/fallback behavior. The acknowledgement is in-memory frontend learning UX, not verified training, account persistence, scientific completion or server authorization. Fume hoods are engineering controls; PPE and glove selection remain activity-specific. See HAZARD_WARNINGS.md.
