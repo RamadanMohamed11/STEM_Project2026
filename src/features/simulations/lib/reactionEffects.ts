@@ -129,7 +129,18 @@ export function ingestEffectEvents(
   definition?: ChemistryDefinition,
 ): EffectsState {
   let effects: Record<string, ActiveEffect> | null = null
-  for (const event of events) {
+  for (const raw of events) {
+    // L7: a boiling liquid (engine 'evaporated' event) shows rising bubbles and steam.
+    const event: LabEvent =
+      raw.type === 'evaporated'
+        ? {
+            type: 'effect',
+            containerId: raw.containerId,
+            effect: 'gas',
+            intensity: 1,
+            sourceId: 'boiling',
+          }
+        : raw
     if (event.type !== 'effect') continue
     effects ??= { ...state.effects }
     const key = effectKey(event.containerId, event.effect)

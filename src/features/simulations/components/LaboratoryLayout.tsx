@@ -18,6 +18,7 @@ import {
 import { Link } from 'react-router'
 import { LaboratoryCanvas } from './LaboratoryCanvas'
 import { PairInteractionPanel } from './PairInteractionPanel'
+import { HotTouchWarning } from './BenchHeatingPanel'
 import { MaterialTransferController } from '../three/MaterialTransferController'
 import { BenchLiquidsController } from '../three/BenchLiquidsController'
 import { ContextualInstruction } from './ContextualInstruction'
@@ -282,6 +283,7 @@ export function LaboratoryLayout({
         <BenchLiquidsController />
         <LaboratoryCanvas />
         <PairInteractionPanel inventoryOpen={inventoryOpen || helpOpen} />
+        <HotTouchWarning />
 
         {/* Collapsible inventory is overlaid, not stacked under the scene. */}
         <LabInventoryPanel

@@ -39,6 +39,7 @@ export const BENCH_SUBSTANCES: readonly SubstanceDefinition[] = [
     color: '#d5e9e9',
     opacity: 0.15,
     densityGPerMl: 1,
+    boilingPointC: 100,
   },
   {
     id: 'hydrochloric-acid',
@@ -49,6 +50,8 @@ export const BENCH_SUBSTANCES: readonly SubstanceDefinition[] = [
     opacity: 0.15,
     densityGPerMl: 1.02,
     molarMassGPerMol: 1020,
+    // Dilute acid boils just above water (teaching value).
+    boilingPointC: 100.5,
     acidBase: { type: 'acid', equivalentsPerMol: 1 },
     hazards: ['corrosive'],
   },
@@ -157,10 +160,27 @@ export function buildBenchDefinition(ids: readonly string[]): ChemistryDefinitio
     containers: ids
       .map(benchContainerDefinition)
       .filter((container): container is ContainerDefinition => container !== null),
-    processes: [],
+    processes: BENCH_PROCESSES,
     reactions: [],
   }
 }
+
+/** L7: heated liquids at their boiling point boil away (mL/s, teaching speed). */
+export const BOIL_OFF_ML_PER_S = 0.25
+const BENCH_PROCESSES: ChemistryDefinition['processes'] = [
+  {
+    kind: 'evaporation',
+    id: 'water-boils',
+    substanceId: 'water',
+    rateMlPerSecond: BOIL_OFF_ML_PER_S,
+  },
+  {
+    kind: 'evaporation',
+    id: 'acid-boils',
+    substanceId: 'hydrochloric-acid',
+    rateMlPerSecond: BOIL_OFF_ML_PER_S,
+  },
+]
 
 // ---------------------------------------------------------------------------
 // Tilt → flow

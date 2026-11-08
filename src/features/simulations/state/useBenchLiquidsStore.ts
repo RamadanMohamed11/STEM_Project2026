@@ -27,6 +27,8 @@ import {
   steadyPourAngle,
 } from '../lib/benchLiquids.ts'
 import { instanceTypeId, resolveEquipment } from '../three/sceneConfig.ts'
+import type { SpatialRelationship } from '../engine/spatialInteractions.ts'
+import { heatingConditions, hotTouchReason, isHeatSource } from '../lib/benchHeating.ts'
 import { useReactionEffectsStore } from './useReactionEffectsStore.ts'
 
 export interface BenchPour {
@@ -72,6 +74,10 @@ interface BenchLiquidsState {
   spilledTotalMl: number
   message: string | null
   clockS: number
+  /** L7: burners that are lit (ids on the bench). */
+  lit: readonly string[]
+  /** L7: last hot-surface warning (the student tried to handle a hot item). */
+  hotTouch: { itemId: string; message: string; seq: number } | null
 
   sync: (placedIds: readonly string[]) => void
   /** Tilt the source over the target (0 straightens it). */
@@ -80,8 +86,16 @@ interface BenchLiquidsState {
   pourAmount: (sourceId: string, targetId: string, ml: number) => boolean
   straighten: () => void
   tick: (dtMs: number) => void
-  /** L6: runs the engine's processes and reactions; their effect events drive the visuals. */
-  react: (dtMs: number) => void
+  /** L6/L7: runs the engine (heating, boiling, reactions); effect events drive the visuals. */
+  react: (dtMs: number, relationships?: Readonly<Record<string, SpatialRelationship>>) => void
+  /** L7: light or put out a burner on the bench. */
+  setLit: (burnerId: string, lit: boolean) => boolean
+  /** L7: returns true (and raises a hot-surface warning) when an item is too hot to handle. */
+  checkHotTouch: (
+    itemId: string,
+    relationships: Readonly<Record<string, SpatialRelationship>>,
+  ) => boolean
+  dismissHotTouch: () => void
   fillDropper: (sourceId: string, dropperId: string) => boolean
   addDrop: (dropperId: string, targetId: string) => boolean
   reset: () => void
@@ -101,7 +115,12 @@ const emptyState = () => ({
   spilledTotalMl: 0,
   message: null,
   clockS: 0,
+  lit: [] as readonly string[],
+  hotTouch: null,
 })
+
+/** Below this gap to room temperature (and with no heating) the engine has nothing to do. */
+const SETTLED_C = 0.05
 
 const labelOf = (id: string) => resolveEquipment(id)?.label ?? id
 
@@ -115,6 +134,13 @@ export function benchVolumeMl(state: Pick<BenchLiquidsState, 'definition' | 'lab
 
 export function benchColor(state: Pick<BenchLiquidsState, 'definition' | 'lab'>, id: string) {
   return state.lab.containers[id] ? readColor(state.definition, state.lab, id) : null
+}
+
+export function benchTemperatureC(
+  state: Pick<BenchLiquidsState, 'lab'>,
+  id: string,
+): number | null {
+  return state.lab.containers[id]?.temperatureC ?? null
 }
 
 export function benchPh(state: Pick<BenchLiquidsState, 'definition' | 'lab'>, id: string) {
@@ -154,6 +180,8 @@ export const useBenchLiquidsStore = create<BenchLiquidsState>()((set, get) => ({
 
   sync: (placedIds) => {
     const state = get()
+    const lit = state.lit.filter((id) => placedIds.includes(id))
+    if (lit.length !== state.lit.length) set({ lit })
     const ids = placedIds.filter(isBenchLiquidContainer)
     if (ids.length === state.ids.length && ids.every((id, i) => id === state.ids[i])) return
     const definition = buildBenchDefinition(ids)
@@ -322,17 +350,50 @@ export const useBenchLiquidsStore = create<BenchLiquidsState>()((set, get) => ({
     })
   },
 
-  react: (dtMs) => {
+  react: (dtMs, relationships = {}) => {
     const state = get()
-    const { definition } = state
-    if (!definition.reactions.length && !definition.processes.length) return
+    const { definition, lab } = state
     const dt = Math.min(0.25, Math.max(0, Number.isFinite(dtMs) ? dtMs / 1000 : 0))
-    if (dt <= 0 || !Object.keys(state.lab.containers).length) return
-    const result = simulateTick(definition, state.lab, dt)
+    if (dt <= 0 || !state.ids.length) return
+    const heating = heatingConditions(state.ids, relationships, state.lit, (id) =>
+      benchVolumeMl(state, id),
+    )
+    const settled =
+      !definition.reactions.length &&
+      !Object.keys(heating).length &&
+      Object.values(lab.containers).every(
+        (container) =>
+          Math.abs(container.temperatureC - definition.ambientTemperatureC) < SETTLED_C,
+      )
+    if (settled) return
+    const result = simulateTick(definition, lab, dt, { heatingCPerSecond: heating })
     if (!result.ok) return
     set({ lab: result.state })
     if (result.events.length) useReactionEffectsStore.getState().ingest(result.events, definition)
   },
+
+  setLit: (burnerId, lit) => {
+    if (!isHeatSource(burnerId)) return false
+    const state = get()
+    const next = state.lit.filter((id) => id !== burnerId)
+    set({
+      lit: lit ? [...next, burnerId] : next,
+      message: `${labelOf(burnerId)} ${lit ? 'lit' : 'turned off'}.`,
+    })
+    return true
+  },
+
+  checkHotTouch: (itemId, relationships) => {
+    const state = get()
+    const reason = hotTouchReason(itemId, relationships, state.lit, (id) =>
+      state.lab.containers[id] ? state.lab.containers[id].temperatureC : null,
+    )
+    if (!reason) return false
+    set({ hotTouch: { itemId, message: reason, seq: (state.hotTouch?.seq ?? 0) + 1 } })
+    return true
+  },
+
+  dismissHotTouch: () => set({ hotTouch: null }),
 
   fillDropper: (sourceId, dropperId) => {
     const state = get()

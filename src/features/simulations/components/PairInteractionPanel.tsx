@@ -2,6 +2,8 @@ import { useId, useRef, useState, type FormEvent } from 'react'
 import { resolveEquipment } from '../three/sceneConfig'
 import { isBenchLiquidContainer } from '../lib/benchLiquids'
 import { BenchPourPanel } from './BenchPourPanel'
+import { BenchVesselInfo, BurnerPanel } from './BenchHeatingPanel'
+import { isHeatSource } from '../lib/benchHeating'
 import { ArrowRight, ArrowRightLeft, CheckCircle2, Droplets, Package2, X } from 'lucide-react'
 import {
   resolvePairInteractions,
@@ -394,7 +396,11 @@ export function PairInteractionPanel({ inventoryOpen = false }: { inventoryOpen?
           <X size={15} aria-hidden="true" />
         </button>
       </header>
-      {ids.length === 1 ? (
+      {ids.length === 1 && isHeatSource(ids[0]) ? (
+        <BurnerPanel id={ids[0]} />
+      ) : ids.length === 1 && isBenchLiquidContainer(ids[0]) ? (
+        <BenchVesselInfo id={ids[0]} />
+      ) : ids.length === 1 ? (
         <SingleObjectInfo id={ids[0]} chemistry={chemistry} />
       ) : ids.length === 2 && !operation && ids.every(isBenchLiquidContainer) ? (
         <BenchPourPanel key={contextKey} ids={ids} />

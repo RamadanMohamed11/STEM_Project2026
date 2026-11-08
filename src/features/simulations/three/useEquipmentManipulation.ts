@@ -221,6 +221,20 @@ export function useEquipmentManipulation(entry: EquipmentRegistryEntry) {
       useBenchLiquidsStore.getState().pour
     )
       return
+    // L7: hot items (lit burner, tripod over a flame, vessel ≥ 50 °C) cannot be picked up.
+    if (useBenchLiquidsStore.getState().checkHotTouch(entry.id, scene.relationships)) {
+      event.stopPropagation()
+      // Hold the press so the camera does not orbit while the hand is "burnt" off the item.
+      scene.beginPress(entry.id)
+      const release = () => {
+        useLabSceneStore.getState().endPress()
+        window.removeEventListener('pointerup', release)
+        window.removeEventListener('pointercancel', release)
+      }
+      window.addEventListener('pointerup', release)
+      window.addEventListener('pointercancel', release)
+      return
+    }
     event.stopPropagation()
     // touchAction:none replaces preventDefault in R3F's passive native pointer listener.
     const point = project(event.clientX, event.clientY)

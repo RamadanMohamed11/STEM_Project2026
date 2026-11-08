@@ -1,7 +1,12 @@
 import { useId, useState } from 'react'
 import { ArrowLeftRight, Droplet, Droplets, RotateCcw } from 'lucide-react'
 import { benchContainerType, canPourFrom, DROP_ML, formatMl } from '../lib/benchLiquids'
-import { benchPh, benchVolumeMl, useBenchLiquidsStore } from '../state/useBenchLiquidsStore'
+import {
+  benchPh,
+  benchTemperatureC,
+  benchVolumeMl,
+  useBenchLiquidsStore,
+} from '../state/useBenchLiquidsStore'
 import { useSaltSimulationStore } from '../state/useSaltSimulationStore'
 import { instanceTypeId, resolveEquipment } from '../three/sceneConfig'
 
@@ -26,6 +31,10 @@ function defaultSource(ids: readonly string[]) {
 function VesselLine({ id, role }: { id: string; role: string }) {
   const ml = useBenchLiquidsStore((state) => benchVolumeMl(state, id))
   const ph = useBenchLiquidsStore((state) => benchPh(state, id))
+  const temperature = useBenchLiquidsStore((state) => {
+    const value = benchTemperatureC(state, id)
+    return value === null ? null : Math.round(value)
+  })
   const capacity = benchContainerType(instanceTypeId(id))?.capacityMl ?? 0
   return (
     <div className="flex items-center justify-between gap-2">
@@ -36,6 +45,9 @@ function VesselLine({ id, role }: { id: string; role: string }) {
       <dd className="shrink-0 tabular-nums">
         {formatMl(ml)} / {capacity} mL
         {ph !== null && ph < 6.5 && <span className="ml-1 text-amber-200">pH {ph.toFixed(1)}</span>}
+        {temperature !== null && temperature >= 30 && (
+          <span className="ml-1 text-orange-200">{temperature} °C</span>
+        )}
       </dd>
     </div>
   )

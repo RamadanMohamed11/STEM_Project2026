@@ -33,6 +33,7 @@ import {
 } from '../../../lib/reactionEffects'
 import { useReactionEffectsStore } from '../../../state/useReactionEffectsStore'
 import type { EffectAnchor, EffectAnchorResolver } from './effectAnchors'
+import { FLAME_FRAGMENT, FLAME_VERTEX } from './flameShader'
 import { usePrefersReducedMotion } from './usePrefersReducedMotion'
 
 const TAU = Math.PI * 2
@@ -357,33 +358,6 @@ function GasEffect(props: EffectViewProps) {
 // ---------------------------------------------------------------------------
 // flame — shader flame at the mouth with a flickering light
 // ---------------------------------------------------------------------------
-
-const FLAME_VERTEX = /* glsl */ `
-  varying vec2 vUv;
-  void main() {
-    vUv = uv;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`
-const FLAME_FRAGMENT = /* glsl */ `
-  uniform float uTime;
-  uniform vec3 uColor;
-  uniform float uIntensity;
-  varying vec2 vUv;
-  void main() {
-    float y = vUv.y;
-    float x = (vUv.x - 0.5) * 2.0;
-    x += 0.14 * sin(y * 9.0 - uTime * 11.0) * sin(uTime * 5.3 + y * 3.0) * y;
-    float width = mix(0.9, 0.02, pow(y, 0.75)) * (1.0 - 0.12 * sin(uTime * 13.0 + y * 8.0));
-    float body = 1.0 - smoothstep(width * 0.55, width, abs(x));
-    body *= smoothstep(0.0, 0.06, y) * (1.0 - smoothstep(0.7, 1.0, y));
-    float core = (1.0 - smoothstep(0.0, width * 0.5, abs(x))) * (1.0 - smoothstep(0.05, 0.5, y));
-    vec3 col = mix(uColor, vec3(1.0, 0.97, 0.86), core * 0.85);
-    float a = body * uIntensity;
-    if (a < 0.004) discard;
-    gl_FragColor = vec4(col * a, a);
-  }
-`
 
 function FlameEffect({ effectKey, resolve, motion }: EffectViewProps) {
   const group = useRef<Group>(null)

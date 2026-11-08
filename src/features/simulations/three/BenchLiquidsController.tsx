@@ -21,7 +21,7 @@ export function BenchLiquidsController() {
       const state = liquids()
       const dt = Math.min(100, now - last)
       if (state.pour || state.readout) state.tick(dt)
-      state.react(dt)
+      state.react(dt, useLabSceneStore.getState().relationships)
       last = now
       frame = requestAnimationFrame(loop)
     }

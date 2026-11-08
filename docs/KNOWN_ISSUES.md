@@ -86,3 +86,12 @@ The reusable hazard catalog is draft guidance requiring academic review. No haza
 - With the Claude browser pane hidden, frames are throttled. Effects then advance slowly, so check them with the pane visible.
 - drei `Html` labels sometimes log "synchronously unmount a root" errors in development (React 19 StrictMode). In the demo, the first of eight labels went missing, so the demo shows its readouts as plain DOM text instead.
 - See REACTION_EFFECTS.md.
+
+## L7 limitations (8 November 2026)
+
+- Heating works only through a tripod (burner under it, vessel on it). There is no heating over a flame with tongs or in a clamp, and no water bath.
+- Heating and boiling run at teaching speed. Water boils away at 0.25 mL/s, and there is no tongs tool yet for moving hot glassware.
+- Undo and redo can still move a hot item; they restore layout only.
+- Thermometer readings are shown on vessel tags and in panels; the thermometer as an instrument comes with L8.
+- The guided salt experiment is unchanged and has no heating.
+- See HEATING.md.

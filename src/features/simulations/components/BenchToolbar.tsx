@@ -21,6 +21,13 @@ function isTyping(target: EventTarget | null) {
  * and reset the bench layout. Keyboard: Ctrl/⌘+Z, Ctrl/⌘+Shift+Z or Ctrl+Y, Delete, [ and ].
  * Disabled while a material transfer or effect is running.
  */
+/** L7: hot items cannot be moved, rotated or binned (raises the hot-surface warning). */
+function canHandle(id: string) {
+  return !useBenchLiquidsStore
+    .getState()
+    .checkHotTouch(id, useLabSceneStore.getState().relationships)
+}
+
 export function BenchToolbar() {
   const pastLabel = useLabSceneStore((state) => state.past.at(-1)?.label ?? null)
   const futureLabel = useLabSceneStore((state) => state.future.at(-1)?.label ?? null)
@@ -56,11 +63,11 @@ export function BenchToolbar() {
         const id = scene.selectedIds.length === 1 ? scene.selectedIds[0] : null
         if (id && !scene.placement && !scene.draggingId) {
           event.preventDefault()
-          scene.removeFromBench(id)
+          if (canHandle(id)) scene.removeFromBench(id)
         }
       } else if (!mod && (event.key === '[' || event.key === ']')) {
         const id = scene.selectedIds.length === 1 ? scene.selectedIds[0] : null
-        if (id) scene.rotate(id, event.key === ']' ? 1 : -1)
+        if (id && canHandle(id)) scene.rotate(id, event.key === ']' ? 1 : -1)
       }
     }
     window.addEventListener('keydown', onKey)
@@ -101,7 +108,9 @@ export function BenchToolbar() {
         type="button"
         className={button}
         disabled={locked || !selectedId}
-        onClick={() => selectedId && useLabSceneStore.getState().rotate(selectedId, -1)}
+        onClick={() =>
+          selectedId && canHandle(selectedId) && useLabSceneStore.getState().rotate(selectedId, -1)
+        }
         aria-label={selectedLabel ? `Rotate ${selectedLabel} left` : 'Rotate left'}
         title="Rotate left 22.5° ([)"
       >
@@ -111,7 +120,9 @@ export function BenchToolbar() {
         type="button"
         className={button}
         disabled={locked || !selectedId}
-        onClick={() => selectedId && useLabSceneStore.getState().rotate(selectedId, 1)}
+        onClick={() =>
+          selectedId && canHandle(selectedId) && useLabSceneStore.getState().rotate(selectedId, 1)
+        }
         aria-label={selectedLabel ? `Rotate ${selectedLabel} right` : 'Rotate right'}
         title="Rotate right 22.5° (])"
       >
@@ -121,7 +132,11 @@ export function BenchToolbar() {
         type="button"
         className={button}
         disabled={locked || !selectedId}
-        onClick={() => selectedId && useLabSceneStore.getState().removeFromBench(selectedId)}
+        onClick={() =>
+          selectedId &&
+          canHandle(selectedId) &&
+          useLabSceneStore.getState().removeFromBench(selectedId)
+        }
         aria-label={
           selectedLabel
             ? selectedId && isExtraInstance(selectedId)

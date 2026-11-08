@@ -8,6 +8,7 @@ import { SceneInteractionManager } from './SceneInteractionManager'
 import { WasteBinMarker } from './WasteBinMarker'
 import { AdaptiveRenderQuality } from './AdaptiveRenderQuality'
 import { BenchPourEffects } from './BenchPourEffects'
+import { BenchHeatingEffects } from './BenchHeatingEffects'
 import { benchEffectAnchor } from './benchEffectAnchors'
 import { ReactionEffectsLayer } from './effects/reaction/ReactionEffects'
 import { PlacementController } from './PlacementController'
@@ -113,6 +114,7 @@ export default function LaboratoryScene() {
           <PlacementController />
           <WasteBinMarker />
           <BenchPourEffects />
+          <BenchHeatingEffects />
           <ReactionEffectsLayer resolve={benchEffectAnchor} />
           <EquipmentAffordanceHints />
           <SimulationSceneEffects />
