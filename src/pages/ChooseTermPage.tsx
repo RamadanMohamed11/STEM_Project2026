@@ -7,7 +7,7 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
-import { getCurriculumPath, routePaths } from '@/app/paths'
+import { routePaths } from '@/app/paths'
 import { Button } from '@/components/ui/Button'
 import { StatusPill } from '@/components/ui/StatusPill'
 import { TermSelectionGrid } from '@/features/curriculum/components/TermSelectionGrid'
@@ -80,7 +80,12 @@ export function ChooseTermPage() {
     } catch {
       /* The next route carries the term. */
     }
-    navigate(getCurriculumPath(activeGrade.id, selectedTermId))
+    navigate(
+      `${routePaths.experiments}?${new URLSearchParams({
+        grade: activeGrade.id,
+        term: selectedTermId,
+      })}`,
+    )
   }
 
   return (
@@ -125,7 +130,11 @@ export function ChooseTermPage() {
             to={routePaths.grades}
             className="group/btn inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-teal/30 bg-white px-3.5 py-1.5 text-xs font-semibold text-teal-dark shadow-xs transition-all duration-150 hover:bg-teal-soft hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-teal"
           >
-            <ArrowLeft size={14} aria-hidden="true" className="transition-transform duration-200 group-hover/btn:-translate-x-0.5" />
+            <ArrowLeft
+              size={14}
+              aria-hidden="true"
+              className="transition-transform duration-200 group-hover/btn:-translate-x-0.5"
+            />
             <span>Change Grade</span>
           </Link>
         </div>

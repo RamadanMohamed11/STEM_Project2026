@@ -8,6 +8,7 @@ import {
   resolveCurriculumContext,
 } from '@/features/curriculum/lib/curriculumBrowser'
 import { UnitBrowser } from '@/features/curriculum/components/UnitBrowser'
+import { CurriculumExperimentsLibrary } from '@/features/curriculum/components/CurriculumExperimentsLibrary'
 import { getStoredGradeId } from '@/features/curriculum/state/gradeSelection'
 import { getStoredTermId } from '@/features/curriculum/state/termSelection'
 import { useStudentCurriculumData } from '@/features/curriculum/state/useStudentCurriculumData'
@@ -65,16 +66,20 @@ export function CurriculumPage({ curriculumData }: CurriculumPageProps = {}) {
       />
       {source === 'sample' ? (
         <p className="rounded-xl border border-line bg-teal-soft p-4 text-sm leading-relaxed text-ink">
-          <strong>Demonstration data.</strong> These examples are not the official Egyptian chemistry
-          curriculum. The official units, lessons and experiment links are still under review.
+          <strong>Demonstration data.</strong> These examples are not the official Egyptian
+          chemistry curriculum. The official units, lessons and experiment links are still under
+          review.
         </p>
       ) : (
         <p className="rounded-xl border border-line bg-emerald-50/80 p-4 text-sm leading-relaxed text-ink">
-          <strong>Published curriculum.</strong> Showing published units and lessons for the selected
-          academic grade and term.
+          <strong>Published curriculum.</strong> Showing published units and lessons for the
+          selected academic grade and term.
         </p>
       )}
-      <section aria-label="Grade and term" className="grid gap-5 sm:grid-cols-2 animate-section-enter">
+      <section
+        aria-label="Grade and term"
+        className="grid gap-5 sm:grid-cols-2 animate-section-enter"
+      >
         <div>
           <label htmlFor="curriculum-grade" className="text-sm font-semibold text-navy">
             Selected Grade
@@ -148,11 +153,19 @@ export function CurriculumPage({ curriculumData }: CurriculumPageProps = {}) {
         </p>
       )}
       {grade && term && !invalidUrl ? (
-        <UnitBrowser
-          key={`${term.id}-${unitId ?? ''}`}
-          units={selectedUnit ? units.filter((item) => item.unit.id === selectedUnit.id) : units}
-          openUnitId={selectedUnit?.id}
-        />
+        params.get('view') === 'library' ? (
+          <CurriculumExperimentsLibrary
+            grade={grade}
+            term={term}
+            curriculumData={activeCurriculum}
+          />
+        ) : (
+          <UnitBrowser
+            key={`${term.id}-${unitId ?? ''}`}
+            units={selectedUnit ? units.filter((item) => item.unit.id === selectedUnit.id) : units}
+            openUnitId={selectedUnit?.id}
+          />
+        )
       ) : (
         <p role="status" className="rounded-xl border border-line bg-white p-6 text-slate">
           Choose a grade and term to see your units and lessons.

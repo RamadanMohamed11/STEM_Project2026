@@ -41,3 +41,8 @@ Route pages are now lazy and the main entry is smaller, but the T36 baseline has
 ## T38 follow-up (8 November 2026)
 
 The real Egyptian Ministry of Education secondary chemistry curriculum (Grades 1, 2, and 3 Secondary; 2 terms each; 11 units; 22 lessons with practical experiments; 23 total experiments) is defined in `src/features/curriculum/data/egyptianCurriculum.ts` and seeded via `supabase/migrations/202611080001_curriculum_seed.sql`. All 22 new experiments are marked `draft` (publication status) and `planned` (simulation status); only the salt dissolution experiment (`exp-salt-water-001`) is playable (`demo`). The migration was not applied to production (owner will apply it). Scientific accuracy review checklist is documented in `docs/CURRICULUM_SOURCES.md`.
+
+## T39 follow-up (8 November 2026)
+
+The Experiments Library page (`src/features/curriculum/components/CurriculumExperimentsLibrary.tsx`) renders the curriculum hierarchically matching the reference layout: Grade title (h1) → Term pill badge → Unit headings → one rounded card per unit containing lessons with thin dividers → bulleted list of experiments with playable ones linked to Experiment Details and draft ones labeled "Coming soon". When visiting `/experiments` without grade/term parameters, it defaults to the flat searchable catalog (`ExperimentCatalog`). All 22 new experiments from T38 display "Coming soon" badges and remain unclickable until their details and simulations are implemented in subsequent tasks.
+
