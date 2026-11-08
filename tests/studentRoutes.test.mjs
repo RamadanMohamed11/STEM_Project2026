@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 import { getExperimentPaths } from '../src/app/paths.ts'
 import { getActiveNavigationId, getPageContext } from '../src/app/navigation.ts'
 
@@ -11,8 +11,8 @@ test('student journey pages support direct entry without accounts, selections or
   const vite = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
   try {
     const { AppRoutes } = await vite.ssrLoadModule('/src/app/routes.tsx')
-    const render = (path) =>
-      renderToStaticMarkup(
+    const render = async (path) =>
+      await renderToStaticMarkup(
         React.createElement(
           MemoryRouter,
           { initialEntries: [path] },
@@ -30,7 +30,7 @@ test('student journey pages support direct entry without accounts, selections or
       [paths.quiz, 'Experiment Quiz', paths.results],
       [paths.results, 'Quiz Results', paths.quiz],
     ]) {
-      const markup = render(path)
+      const markup = await render(path)
       assert.ok(markup.includes(heading), path)
       assert.ok(markup.includes(`href="${nextPath}"`), `${path} next link`)
       if (path === '/terms') assert.match(markup, /Demonstration curriculum/)
@@ -49,28 +49,28 @@ test('student journey pages support direct entry without accounts, selections or
       }
       assert.doesNotMatch(markup, /Page not found|404 \/ PAGE NOT FOUND/)
     }
-    assert.match(render('/signup'), /cannot create an account yet/)
-    assert.match(render('/login'), /without an account/)
-    assert.match(render(paths.results), /No quiz results yet/)
-    assert.match(render(paths.results), /no score to show/)
-    assert.match(render('/safety'), /href="\/grades"/)
-    assert.match(render('/'), /href="\/signup"/)
-    const catalog = render('/experiments')
+    assert.match(await render('/signup'), /cannot create an account yet/)
+    assert.match(await render('/login'), /without an account/)
+    assert.match(await render(paths.results), /No quiz results yet/)
+    assert.match(await render(paths.results), /no score to show/)
+    assert.match(await render('/safety'), /href="\/grades"/)
+    assert.match(await render('/'), /href="\/signup"/)
+    const catalog = await render('/experiments')
     for (const experimentId of [id, 'exp-volume-002', 'exp-ph-003']) {
       assert.ok(catalog.includes(`href="${getExperimentPaths(experimentId).details}"`))
     }
     assert.ok(catalog.includes(`href="${paths.laboratory}"`), 'existing direct lab link remains')
-    const planned = render('/experiments/exp-volume-002')
+    const planned = await render('/experiments/exp-volume-002')
     assert.match(planned, /This experiment is planned/)
     assert.doesNotMatch(planned, />Start (?:3D )?Experiment</)
     for (const suffix of ['', '/quiz', '/quiz/results']) {
-      const unknown = render('/experiments/unknown-id' + suffix)
+      const unknown = await render('/experiments/unknown-id' + suffix)
       assert.match(unknown, /Experiment Not Found/)
       assert.match(unknown, /Not found/)
       assert.doesNotMatch(unknown, /Coming soon|>Quiz Results<\/h1>|>Start Experiment</)
     }
-    assert.match(render('/grades/not-a-grade'), /404 \/ PAGE NOT FOUND/)
-    assert.match(render(paths.quiz + '/not-a-page'), /404 \/ PAGE NOT FOUND/)
+    assert.match(await render('/grades/not-a-grade'), /404 \/ PAGE NOT FOUND/)
+    assert.match(await render(paths.quiz + '/not-a-page'), /404 \/ PAGE NOT FOUND/)
   } finally {
     await vite.close()
   }

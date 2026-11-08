@@ -2,9 +2,9 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 import { sampleGrades } from '../src/features/curriculum/data/sampleCurriculum.ts'
 
 test('profile migration uses owner RLS and column privileges, with grade IDs matching the shared model', () => {
@@ -34,8 +34,8 @@ test('only account route is guarded; existing laboratory stays public; configure
       '/src/features/auth/authService.ts',
     )
     const auth = createAuthService(null, '')
-    const render = (path, state) =>
-      renderToStaticMarkup(
+    const render = async (path, state) =>
+      await renderToStaticMarkup(
         React.createElement(
           AuthContext.Provider,
           { value: { auth, state } },
@@ -47,22 +47,22 @@ test('only account route is guarded; existing laboratory stays public; configure
         ),
       )
     const anonymous = { ...unavailableAuth, status: 'anonymous' }
-    assert.doesNotMatch(render('/account', anonymous), /<h1[^>]*>Your Profile/)
-    assert.match(render('/account', unavailableAuth), /not configured/)
+    assert.doesNotMatch(await render('/account', anonymous), /<h1[^>]*>Your Profile/)
+    assert.match(await render('/account', unavailableAuth), /not configured/)
     const authenticated = {
       ...anonymous,
       status: 'authenticated',
       user: { id: 'unit-user' },
       profile: { user_id: 'unit-user', full_name: 'Unit Student', grade: sampleGrades[2].id },
     }
-    assert.match(render('/account', authenticated), /Third Secondary Grade/)
+    assert.match(await render('/account', authenticated), /Third Secondary Grade/)
     for (const path of ['/experiments/preview/lab', '/experiments/exp-salt-water-001/lab'])
-      assert.match(render(path, anonymous), /Immersive laboratory workspace/)
-    assert.match(render('/signup', anonymous), /Create your student account/)
-    assert.doesNotMatch(render('/signup', anonymous), /cannot create an account yet/)
-    assert.match(render('/login', anonymous), /Log in with your email and password/)
+      assert.match(await render(path, anonymous), /Immersive laboratory workspace/)
+    assert.match(await render('/signup', anonymous), /Create your student account/)
+    assert.doesNotMatch(await render('/signup', anonymous), /cannot create an account yet/)
+    assert.match(await render('/login', anonymous), /Log in with your email and password/)
     assert.match(
-      render('/auth/callback', { ...anonymous, status: 'loading' }),
+      await render('/auth/callback', { ...anonymous, status: 'loading' }),
       /Checking your email confirmation/,
     )
   } finally {

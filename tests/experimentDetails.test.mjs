@@ -2,8 +2,8 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
 import { MemoryRouter } from 'react-router'
-import { renderToStaticMarkup } from 'react-dom/server'
-import { createServer } from 'vite'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
+import { createServer } from './helpers/routeTestServer.mjs'
 import { demoCatalog } from '../src/features/experiments/data/mockExperiments.ts'
 import { sampleCurriculum } from '../src/features/curriculum/data/sampleCurriculum.ts'
 import { getReviewedExperimentLessons } from '../src/features/experiments/lib/experimentDetailsSelectors.ts'
@@ -69,10 +69,10 @@ test('direct details routes render structured introductions/objectives, honest a
     const { ExperimentOverview } = await vite.ssrLoadModule(
       '/src/features/experiments/components/ExperimentOverview.tsx',
     )
-    const render = (path, element = React.createElement(AppRoutes)) =>
-      renderToStaticMarkup(React.createElement(MemoryRouter, { initialEntries: [path] }, element))
+    const render = async (path, element = React.createElement(AppRoutes)) =>
+      await renderToStaticMarkup(React.createElement(MemoryRouter, { initialEntries: [path] }, element))
     const salt = demoCatalog.experiments[0]
-    const html = render(`/experiments/${salt.id}`)
+    const html = await render(`/experiments/${salt.id}`)
     assert.match(html, /<h1[^>]*>Dissolving Salt in Water/)
     for (const text of [
       'About This Experiment',
@@ -110,7 +110,7 @@ test('direct details routes render structured introductions/objectives, honest a
     ])
       assert.doesNotMatch(html, new RegExp(`<h2[^>]*>${title}</h2>`))
     for (const experiment of demoCatalog.experiments.slice(1)) {
-      const planned = render(`/experiments/${experiment.id}`)
+      const planned = await render(`/experiments/${experiment.id}`)
       assert.ok(planned.includes(experiment.title))
       assert.match(planned, /Coming Soon/)
       assert.match(planned, /This experiment is planned/)
@@ -120,17 +120,17 @@ test('direct details routes render structured introductions/objectives, honest a
       assert.doesNotMatch(planned, />Start 3D Experiment<|Related Lessons/)
       assert.ok(!planned.includes(`href="/experiments/${experiment.id}/lab"`))
     }
-    const missing = render('/experiments/unknown-id')
+    const missing = await render('/experiments/unknown-id')
     assert.match(missing, /Experiment Not Found/)
     assert.doesNotMatch(missing, /What You Will Learn|Start 3D Experiment/)
-    const returns = render(
+    const returns = await render(
       `/experiments/${salt.id}?${new URLSearchParams({ returnTo: '/experiments?q=salt' })}`,
     )
     assert.match(returns, /Back to Search Results/)
     assert.ok(returns.includes('href="/experiments?q=salt"'))
-    assert.match(render('/experiments/exp-salt-water-001/lab'), /Immersive laboratory workspace/)
-    assert.match(render('/experiments/preview/lab'), /Immersive laboratory workspace/)
-    const custom = render(
+    assert.match(await render('/experiments/exp-salt-water-001/lab'), /Immersive laboratory workspace/)
+    assert.match(await render('/experiments/preview/lab'), /Immersive laboratory workspace/)
+    const custom = await render(
       '/experiments',
       React.createElement(ExperimentLearningSections, {
         content: {
@@ -143,10 +143,10 @@ test('direct details routes render structured introductions/objectives, honest a
     assert.match(custom, /Teacher-reviewed example text/)
     assert.match(custom, /Example learning goal/)
     assert.doesNotMatch(custom, /Demonstration learning objectives|salt dissolves/)
-    const empty = render('/experiments', React.createElement(ExperimentLearningSections, {}))
+    const empty = await render('/experiments', React.createElement(ExperimentLearningSections, {}))
     assert.match(empty, /Learning objectives are still being reviewed/)
     assert.doesNotMatch(empty, /<li/)
-    const unsupported = render(
+    const unsupported = await render(
       '/experiments',
       React.createElement(ExperimentOverview, { experiment: { ...salt, id: 'unsupported' } }),
     )

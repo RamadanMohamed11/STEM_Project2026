@@ -2,8 +2,8 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
 import { MemoryRouter } from 'react-router'
-import { renderToStaticMarkup } from 'react-dom/server'
-import { createServer } from 'vite'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
+import { createServer } from './helpers/routeTestServer.mjs'
 import { demoCatalog } from '../src/features/experiments/data/mockExperiments.ts'
 import {
   resolveSimulation,
@@ -99,8 +99,8 @@ test('routes share authoritative state across details/lab/results, with completi
     )
     actions.restartExperimentSession()
     const base = `/experiments/${previewExperimentId}`
-    const render = (path) =>
-      renderToStaticMarkup(
+    const render = async (path) =>
+      await renderToStaticMarkup(
         React.createElement(
           MemoryRouter,
           { initialEntries: [path] },
@@ -108,16 +108,16 @@ test('routes share authoritative state across details/lab/results, with completi
         ),
       )
     const initialWorkflow = simulation.getState().workflow
-    assert.match(render(base), /Start 3D Experiment/)
-    assert.match(render(`${base}/results`), /No Experiment Results Yet/)
-    assert.match(render(`${base}/lab`), /Immersive laboratory workspace/)
-    assert.match(render('/experiments/preview/lab'), /Immersive laboratory workspace/)
+    assert.match(await render(base), /Start 3D Experiment/)
+    assert.match(await render(`${base}/results`), /No Experiment Results Yet/)
+    assert.match(await render(`${base}/lab`), /Immersive laboratory workspace/)
+    assert.match(await render('/experiments/preview/lab'), /Immersive laboratory workspace/)
     assert.equal(simulation.getState().workflow, initialWorkflow)
     assert.equal(simulation.getState().workflow.completed, false)
     assert.equal(simulation.getState().dispatch({ kind: 'validate-step' }), false)
     assert.equal(acknowledgeLabSafety(), true)
-    assert.match(render(base), /Continue Experiment/)
-    assert.doesNotMatch(render(base), />View Results</)
+    assert.match(await render(base), /Continue Experiment/)
+    assert.doesNotMatch(await render(base), />View Results</)
     for (const id of [
       'water',
       'graduated-cylinder',
@@ -150,9 +150,9 @@ test('routes share authoritative state across details/lab/results, with completi
     const positions = structuredClone(lab.getState().positions)
     actions.suspendLaboratoryInteractions()
     const workflow = simulation.getState().workflow
-    render(base)
-    render(`${base}/results`)
-    render(`${base}/lab`)
+    await render(base)
+    await render(`${base}/results`)
+    await render(`${base}/lab`)
     assert.equal(simulation.getState().workflow, workflow)
     assert.equal(simulation.getState().workflow.measurements.waterMl, water)
     assert.deepEqual(lab.getState().positions, positions)
@@ -162,7 +162,7 @@ test('routes share authoritative state across details/lab/results, with completi
       '/experiments/exp-volume-002/lab',
       '/experiments/exp-volume-002/results',
     ]) {
-      const html = render(path)
+      const html = await render(path)
       assert.doesNotMatch(html, /Immersive laboratory workspace|Experiment completed — Results/)
       assert.equal(simulation.getState().workflow, workflow)
     }
@@ -187,13 +187,13 @@ test('routes share authoritative state across details/lab/results, with completi
       if (effect) simulation.getState().stopEffect(effect.id)
     }
     assert.equal(simulation.getState().workflow.completed, false)
-    assert.match(render(`${base}/results`), /No Experiment Results Yet/)
+    assert.match(await render(`${base}/results`), /No Experiment Results Yet/)
     assert.equal(simulation.getState().emit({ type: 'REVIEW_INSPECTED' }), true)
     assert.equal(simulation.getState().workflow.completed, true)
     assert.equal(simulation.getState().workflow.validation.code, 'EXPERIMENT_COMPLETED')
     const completed = simulation.getState().workflow
-    assert.match(render(base), />View Results</)
-    const results = render(`${base}/results`)
+    assert.match(await render(base), />View Results</)
+    const results = await render(`${base}/results`)
     for (const text of [
       'Experiment completed — Results',
       'Recorded water volume',
@@ -205,13 +205,13 @@ test('routes share authoritative state across details/lab/results, with completi
       assert.ok(results.toLowerCase().includes(text.toLowerCase()), text)
     // The existing scene uses Zustand's initial server snapshot; client mounts
     // subscribe to the retained current state. Server rendering must not reset it.
-    assert.match(render(`${base}/lab`), /Back to Details/)
-    assert.match(render(`${base}/quiz`), /Quiz questions are coming soon/)
-    assert.match(render(`${base}/quiz/results`), /No quiz results yet/)
+    assert.match(await render(`${base}/lab`), /Back to Details/)
+    assert.match(await render(`${base}/quiz`), /Quiz questions are coming soon/)
+    assert.match(await render(`${base}/quiz/results`), /No quiz results yet/)
     assert.equal(simulation.getState().workflow, completed)
     simulation.setState({ definitionVersion: 'incompatible-version' })
-    assert.match(render(`${base}/lab`), /Restart This Experiment/)
-    assert.doesNotMatch(render(`${base}/results`), /Experiment completed — Results/)
+    assert.match(await render(`${base}/lab`), /Restart This Experiment/)
+    assert.doesNotMatch(await render(`${base}/results`), /Experiment completed — Results/)
     assert.equal(simulation.getState().workflow, completed)
     const revision = simulation.getState().resetRevision
     actions.restartExperimentSession()
@@ -219,8 +219,8 @@ test('routes share authoritative state across details/lab/results, with completi
     assert.equal(simulation.getState().workflow.completed, false)
     assert.equal(simulation.getState().experiment.waterMl.beaker, 0)
     assert.deepEqual(lab.getState().placedIds, ['beaker', 'digital-balance'])
-    assert.match(render(base), /Start 3D Experiment/)
-    assert.match(render(`${base}/results`), /No Experiment Results Yet/)
+    assert.match(await render(base), /Start 3D Experiment/)
+    assert.match(await render(`${base}/results`), /No Experiment Results Yet/)
   } finally {
     await vite.close()
   }

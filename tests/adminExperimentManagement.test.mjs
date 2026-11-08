@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 import { getPermissionsForRole } from '../src/features/auth/permissions.ts'
 import {
   buildPublishedExperimentCatalog,
@@ -467,7 +467,7 @@ test('AdminExperimentsPage (/admin/experiments), ExperimentCatalog, and Experime
     const repo = createInMemoryExperimentRepository(managedState)
 
     // 1. Render AdminExperimentsPage and verify all required English labels
-    const adminHtml = renderToStaticMarkup(
+    const adminHtml = await renderToStaticMarkup(
       React.createElement(
         AuthContext.Provider,
         { value: { auth, state: adminState } },
@@ -507,8 +507,8 @@ test('AdminExperimentsPage (/admin/experiments), ExperimentCatalog, and Experime
     try {
       ssrSetExperimentState(managedState)
 
-      const renderPublic = (path) =>
-        renderToStaticMarkup(
+      const renderPublic = async (path) =>
+        await renderToStaticMarkup(
           React.createElement(
             AuthContext.Provider,
             { value: { auth, state: unavailableAuth } },
@@ -520,16 +520,16 @@ test('AdminExperimentsPage (/admin/experiments), ExperimentCatalog, and Experime
           ),
         )
 
-      const catalogHtml = renderPublic('/experiments')
+      const catalogHtml = await renderPublic('/experiments')
       assert.match(catalogHtml, /Dissolving Salt in Water/)
       assert.match(catalogHtml, /Published Thermal Changes Overview/)
       assert.doesNotMatch(catalogHtml, /Secret Draft Electrolysis Experiment/)
 
-      const draftDetailsHtml = renderPublic('/experiments/exp-custom-draft-004')
+      const draftDetailsHtml = await renderPublic('/experiments/exp-custom-draft-004')
       assert.match(draftDetailsHtml, /Experiment Not Found/)
       assert.doesNotMatch(draftDetailsHtml, /Secret Draft Electrolysis Experiment/)
 
-      const publishedPlannedDetailsHtml = renderPublic('/experiments/exp-custom-published-005')
+      const publishedPlannedDetailsHtml = await renderPublic('/experiments/exp-custom-published-005')
       assert.match(publishedPlannedDetailsHtml, /Published Thermal Changes Overview/)
       assert.match(
         publishedPlannedDetailsHtml,
@@ -537,12 +537,12 @@ test('AdminExperimentsPage (/admin/experiments), ExperimentCatalog, and Experime
       )
       assert.doesNotMatch(publishedPlannedDetailsHtml, />Start 3D Experiment</)
 
-      const saltDetailsHtml = renderPublic('/experiments/exp-salt-water-001')
+      const saltDetailsHtml = await renderPublic('/experiments/exp-salt-water-001')
       assert.match(saltDetailsHtml, /Dissolving Salt in Water/)
       assert.match(saltDetailsHtml, />Start 3D Experiment</)
       assert.ok(saltDetailsHtml.includes('href="/experiments/exp-salt-water-001/lab"'))
 
-      const saltLabHtml = renderPublic('/experiments/exp-salt-water-001/lab')
+      const saltLabHtml = await renderPublic('/experiments/exp-salt-water-001/lab')
       assert.match(saltLabHtml, /Immersive laboratory workspace/)
     } finally {
       ssrSetExperimentState(null)

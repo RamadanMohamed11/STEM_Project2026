@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 import { validateRecovery, recoveryRequestAcceptedMessage } from '../src/features/auth/recovery.ts'
 
 const values = {
@@ -40,16 +40,16 @@ test('recovery routes render independently of tokens and login sessions; feedbac
   })
   try {
     const { AppRoutes } = await vite.ssrLoadModule('/src/app/routes.tsx')
-    const renderRoute = (path) =>
-      renderToStaticMarkup(
+    const renderRoute = async (path) =>
+      await renderToStaticMarkup(
         React.createElement(
           MemoryRouter,
           { initialEntries: [path] },
           React.createElement(AppRoutes),
         ),
       )
-    const forgot = renderRoute('/forgot-password')
-    const reset = renderRoute('/reset-password')
+    const forgot = await renderRoute('/forgot-password')
+    const reset = await renderRoute('/reset-password')
     assert.match(forgot, /Forgot Your Password\?/)
     assert.match(forgot, /No reset email will be sent/)
     assert.match(forgot, /type="email"/)
@@ -65,10 +65,10 @@ test('recovery routes render independently of tokens and login sessions; feedbac
         /If an account uses this email|Password changed successfully|Immersive laboratory workspace/,
       )
     }
-    assert.match(renderRoute('/login'), /href="\/forgot-password"/)
-    assert.match(renderRoute('/reset-password?token=untrusted'), /No password will be changed/)
+    assert.match(await renderRoute('/login'), /href="\/forgot-password"/)
+    assert.match(await renderRoute('/reset-password?token=untrusted'), /No password will be changed/)
     const { RecoveryForm } = await vite.ssrLoadModule('/src/features/auth/RecoveryForm.tsx')
-    const checking = renderToStaticMarkup(
+    const checking = await renderToStaticMarkup(
       React.createElement(
         MemoryRouter,
         null,
@@ -82,16 +82,16 @@ test('recovery routes render independently of tokens and login sessions; feedbac
       '/src/features/auth/components/AuthFeedback.tsx',
     )
     assert.match(
-      renderToStaticMarkup(React.createElement(AuthFeedback, { kind: 'error' }, 'Unavailable')),
+      await renderToStaticMarkup(React.createElement(AuthFeedback, { kind: 'error' }, 'Unavailable')),
       /role="alert"/,
     )
     assert.match(
-      renderToStaticMarkup(
+      await renderToStaticMarkup(
         React.createElement(AuthFeedback, { kind: 'success' }, 'Confirmed provider response'),
       ),
       /role="status"/,
     )
-    assert.equal(renderToStaticMarkup(React.createElement(AuthFieldError, { id: 'error' })), '')
+    assert.equal(await renderToStaticMarkup(React.createElement(AuthFieldError, { id: 'error' })), '')
   } finally {
     await vite.close()
   }

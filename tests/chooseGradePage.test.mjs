@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 import { sampleGrades } from '../src/features/curriculum/data/sampleCurriculum.ts'
 import {
   clearStoredGradeId,
@@ -43,7 +43,7 @@ test('choose grade page renders all three secondary grades with accessible selec
   const vite = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
   try {
     const { AppRoutes } = await vite.ssrLoadModule('/src/app/routes.tsx')
-    const markup = renderToStaticMarkup(
+    const markup = await renderToStaticMarkup(
       React.createElement(
         MemoryRouter,
         { initialEntries: ['/grades'] },

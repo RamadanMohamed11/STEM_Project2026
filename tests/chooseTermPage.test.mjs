@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 import { sampleTerms } from '../src/features/curriculum/data/sampleCurriculum.ts'
 import {
   clearStoredGradeId,
@@ -63,7 +63,7 @@ test('choose term page renders both term options when grade is selected', async 
     viteSetStoredGradeId('grade-secondary-1')
 
     const { AppRoutes } = await vite.ssrLoadModule('/src/app/routes.tsx')
-    const markup = renderToStaticMarkup(
+    const markup = await renderToStaticMarkup(
       React.createElement(
         MemoryRouter,
         { initialEntries: ['/terms'] },
@@ -123,7 +123,7 @@ test('choose term page handles direct access without selected grade gracefully',
     viteClearStoredGradeId()
 
     const { AppRoutes } = await vite.ssrLoadModule('/src/app/routes.tsx')
-    const markup = renderToStaticMarkup(
+    const markup = await renderToStaticMarkup(
       React.createElement(
         MemoryRouter,
         { initialEntries: ['/terms'] },

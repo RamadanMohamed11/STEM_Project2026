@@ -1,17 +1,17 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 
 test('catalog and lab routes render honest available, planned, and invalid states', async () => {
   const vite = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
 
   try {
     const { AppRoutes } = await vite.ssrLoadModule('/src/app/routes.tsx')
-    const renderRoute = (path) =>
-      renderToStaticMarkup(
+    const renderRoute = async (path) =>
+      await renderToStaticMarkup(
         React.createElement(
           MemoryRouter,
           { initialEntries: [path] },
@@ -19,7 +19,7 @@ test('catalog and lab routes render honest available, planned, and invalid state
         ),
       )
 
-    const catalog = renderRoute('/experiments')
+    const catalog = await renderRoute('/experiments')
     assert.match(catalog, /Dissolving Salt in Water/)
     assert.match(catalog, /Measuring Liquid Volume/)
     assert.match(catalog, /Exploring pH Indicators/)
@@ -29,7 +29,7 @@ test('catalog and lab routes render honest available, planned, and invalid state
     assert.match(catalog, /All Grades/)
     assert.doesNotMatch(catalog, /id="experiment-semester"/)
 
-    const demo = renderRoute('/experiments/exp-salt-water-001/lab')
+    const demo = await renderRoute('/experiments/exp-salt-water-001/lab')
     assert.match(demo, /Dissolving Salt in Water/)
     assert.match(demo, /Interactive 3D laboratory/)
     assert.match(demo, /Toggle equipment inventory/)
@@ -76,8 +76,8 @@ test('catalog and lab routes render honest available, planned, and invalid state
       experiment: initialChemistry,
       onRestart: () => {},
     }
-    assert.equal(renderToStaticMarkup(React.createElement(ExperimentResults, props)), '')
-    const resultsMarkup = renderToStaticMarkup(
+    assert.equal(await renderToStaticMarkup(React.createElement(ExperimentResults, props)), '')
+    const resultsMarkup = await renderToStaticMarkup(
       React.createElement(ExperimentResults, {
         ...props,
         workflow: {
@@ -105,19 +105,19 @@ test('catalog and lab routes render honest available, planned, and invalid state
     assert.match(resultsMarkup, /Retry experiment/)
     assert.doesNotMatch(demo, /Experiment not found/)
 
-    const preview = renderRoute('/experiments/preview/lab')
+    const preview = await renderRoute('/experiments/preview/lab')
     assert.match(preview, /Interactive 3D laboratory/)
 
-    const planned = renderRoute('/experiments/exp-volume-002/lab')
+    const planned = await renderRoute('/experiments/exp-volume-002/lab')
     assert.match(planned, /This lab is not available yet/)
     assert.doesNotMatch(planned, /Interactive 3D laboratory/)
 
-    const invalid = renderRoute('/experiments/unknown-id/lab')
+    const invalid = await renderRoute('/experiments/unknown-id/lab')
     assert.match(invalid, /Experiment not found/)
     assert.doesNotMatch(invalid, /Interactive 3D laboratory/)
 
-    assert.match(renderRoute('/safety'), /Laboratory safety/)
-    assert.match(renderRoute('/not-a-page'), /404 \/ PAGE NOT FOUND/)
+    assert.match(await renderRoute('/safety'), /Laboratory safety/)
+    assert.match(await renderRoute('/not-a-page'), /404 \/ PAGE NOT FOUND/)
   } finally {
     await vite.close()
   }

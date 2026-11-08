@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 import { getActiveNavigationId, getPageContext } from '../src/app/navigation.ts'
 import { routePaths } from '../src/app/paths.ts'
 import {
@@ -147,8 +147,8 @@ test('AdminLayout, Dashboard Overview, and all 6 admin routes enforce authorizat
     ])
 
     const auth = createAuthService(null, '')
-    const renderRoute = (path, state) =>
-      renderToStaticMarkup(
+    const renderRoute = async (path, state) =>
+      await renderToStaticMarkup(
         React.createElement(
           AuthContext.Provider,
           { value: { auth, state } },
@@ -179,7 +179,7 @@ test('AdminLayout, Dashboard Overview, and all 6 admin routes enforce authorizat
     }
 
     // 1. Verify /admin dashboard overview for authorized admin
-    const dashboardHtml = renderRoute('/admin', adminState)
+    const dashboardHtml = await renderRoute('/admin', adminState)
     for (const requiredLabel of [
       'Dashboard',
       'Curriculum',
@@ -206,7 +206,7 @@ test('AdminLayout, Dashboard Overview, and all 6 admin routes enforce authorizat
     assert.match(dashboardHtml, /aria-label="Breadcrumb"/)
 
     // 2. Verify populated Total Students when authorized count is available
-    const populatedOverviewHtml = renderToStaticMarkup(
+    const populatedOverviewHtml = await renderToStaticMarkup(
       React.createElement(
         AuthContext.Provider,
         { value: { auth, state: adminState } },
@@ -234,7 +234,7 @@ test('AdminLayout, Dashboard Overview, and all 6 admin routes enforce authorizat
       [routePaths.adminStudents, 'Students Management Workspace', true],
       [routePaths.adminReports, 'Reports Management Workspace', true],
     ]) {
-      const adminSubMarkup = renderRoute(subPath, adminState)
+      const adminSubMarkup = await renderRoute(subPath, adminState)
       assert.ok(adminSubMarkup.includes(sectionHeading), `Admin should see ${sectionHeading}`)
       if (isPlaceholder) {
         assert.match(adminSubMarkup, /Scheduled Module/)
@@ -242,7 +242,7 @@ test('AdminLayout, Dashboard Overview, and all 6 admin routes enforce authorizat
       assert.match(adminSubMarkup, /aria-label="Admin sidebar"/)
 
       // Student cannot access any admin subroute
-      const deniedStudentMarkup = renderRoute(subPath, studentState)
+      const deniedStudentMarkup = await renderRoute(subPath, studentState)
       assert.match(deniedStudentMarkup, /Access Denied/)
       assert.match(deniedStudentMarkup, /You Do Not Have Permission/)
       assert.doesNotMatch(deniedStudentMarkup, new RegExp(sectionHeading))

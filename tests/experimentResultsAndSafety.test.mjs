@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 
 let vite
 let AppRoutes
@@ -78,9 +78,9 @@ function syncStoreSnapshots() {
   Object.assign(useSaltSimulationStore.getInitialState(), useSaltSimulationStore.getState())
 }
 
-function renderRoute(initialEntry) {
+async function renderRoute(initialEntry) {
   syncStoreSnapshots()
-  return renderToStaticMarkup(
+  return await renderToStaticMarkup(
     React.createElement(
       MemoryRouter,
       { initialEntries: [initialEntry] },
@@ -148,7 +148,7 @@ function completeSaltExperimentInStore() {
   assert.equal(useSaltSimulationStore.getState().workflow.completed, true)
 }
 
-test('results before starting show Not Started state, no fake measurements, and safety rules', () => {
+test('results before starting show Not Started state, no fake measurements, and safety rules', async () => {
   restartExperimentSession()
   const saltExp = mockExperiments.find((item) => item.id === 'exp-salt-water-001')
   const summary = getExperimentResultsSummary({
@@ -168,7 +168,7 @@ test('results before starting show Not Started state, no fake measurements, and 
   assert.equal(summary.quantities.saltAddedG, null)
   assert.deepEqual(summary.finalConclusions, [])
 
-  const html = renderRoute('/experiments/exp-salt-water-001/results')
+  const html = await renderRoute('/experiments/exp-salt-water-001/results')
   assert.match(html, /Not Started/)
   assert.match(html, /No Experiment Results Yet/)
   assert.match(html, /0 of 9 steps validated/)
@@ -181,7 +181,7 @@ test('results before starting show Not Started state, no fake measurements, and 
   assert.doesNotMatch(html, /[\u0600-\u06FF]/)
 })
 
-test('results during execution show In Progress state, partial measurements, and completed vs pending student actions without claiming completion', () => {
+test('results during execution show In Progress state, partial measurements, and completed vs pending student actions without claiming completion', async () => {
   restartExperimentSession()
   const lab = useLabSceneStore.getState()
 
@@ -209,7 +209,7 @@ test('results during execution show In Progress state, partial measurements, and
   assert.equal(summary.quantities.saltAddedG, null)
   assert.deepEqual(summary.finalConclusions, [])
 
-  const html = renderRoute('/experiments/exp-salt-water-001/results')
+  const html = await renderRoute('/experiments/exp-salt-water-001/results')
   assert.match(html, /In Progress/)
   assert.match(html, /No Experiment Results Yet/)
   assert.match(html, /3 of 9 steps validated/)
@@ -223,7 +223,7 @@ test('results during execution show In Progress state, partial measurements, and
   assert.doesNotMatch(html, /[\u0600-\u06FF]/)
 })
 
-test('results after completion display verified measurements, student actions, observations, physical dissolution explanation, model assumptions, and conclusions', () => {
+test('results after completion display verified measurements, student actions, observations, physical dissolution explanation, model assumptions, and conclusions', async () => {
   completeSaltExperimentInStore()
 
   const saltExp = mockExperiments.find((item) => item.id === 'exp-salt-water-001')
@@ -249,7 +249,7 @@ test('results after completion display verified measurements, student actions, o
   assert.ok(summary.finalConclusions.length >= 3)
   assert.ok(summary.modelAssumptions.length >= 3)
 
-  const html = renderRoute('/experiments/exp-salt-water-001/results')
+  const html = await renderRoute('/experiments/exp-salt-water-001/results')
   for (const expected of [
     'Experiment completed — Results',
     'Completed',
@@ -282,15 +282,15 @@ test('results after completion display verified measurements, student actions, o
   assert.doesNotMatch(html, /[\u0600-\u06FF]/)
 })
 
-test('experiment reset clears completed results and returns the results page to Not Started', () => {
+test('experiment reset clears completed results and returns the results page to Not Started', async () => {
   completeSaltExperimentInStore()
   assert.match(
-    renderRoute('/experiments/exp-salt-water-001/results'),
+    await renderRoute('/experiments/exp-salt-water-001/results'),
     /Experiment completed — Results/,
   )
 
   restartExperimentSession()
-  const resetHtml = renderRoute('/experiments/exp-salt-water-001/results')
+  const resetHtml = await renderRoute('/experiments/exp-salt-water-001/results')
   assert.match(resetHtml, /No Experiment Results Yet/)
   assert.match(resetHtml, /Not Started/)
   assert.doesNotMatch(resetHtml, /Experiment completed — Results/)
@@ -301,15 +301,15 @@ test('experiment reset clears completed results and returns the results page to 
   })
 })
 
-test('missing or unsupported result data (planned experiments and incompatible session versions) render safe fallbacks', () => {
+test('missing or unsupported result data (planned experiments and incompatible session versions) render safe fallbacks', async () => {
   restartExperimentSession()
-  const plannedHtml = renderRoute('/experiments/exp-volume-002/results')
+  const plannedHtml = await renderRoute('/experiments/exp-volume-002/results')
   assert.match(plannedHtml, /Results Unavailable/)
   assert.match(plannedHtml, /does not have an available 3D lab/)
   assert.doesNotMatch(plannedHtml, /Experiment completed — Results/)
 
   useSaltSimulationStore.setState({ definitionVersion: '9.9.9-incompatible' })
-  const incompatibleHtml = renderRoute('/experiments/exp-salt-water-001/results')
+  const incompatibleHtml = await renderRoute('/experiments/exp-salt-water-001/results')
   assert.match(incompatibleHtml, /No Experiment Results Yet/)
   assert.match(incompatibleHtml, /Session Out of Sync/)
   assert.match(incompatibleHtml, /different experiment or version/)
@@ -413,7 +413,7 @@ test('contextual safety system supports all 4 warning levels (info, caution, war
   assert.deepEqual(baseChemistry, chemistrySnapshot)
 })
 
-test('ContextualSafetyAlert, SafetyNotice, ExperimentGuide, and ContextualInstruction render accessible safety warnings', () => {
+test('ContextualSafetyAlert, SafetyNotice, ExperimentGuide, and ContextualInstruction render accessible safety warnings', async () => {
   restartExperimentSession()
   const sim = useSaltSimulationStore.getState()
   // Trigger a blocked action (attempting to validate step 0 before acknowledging safety)
@@ -429,7 +429,7 @@ test('ContextualSafetyAlert, SafetyNotice, ExperimentGuide, and ContextualInstru
   })
   assert.equal(safetyState.primaryNotice?.level, 'blocked')
 
-  const alertHtml = renderToStaticMarkup(
+  const alertHtml = await renderToStaticMarkup(
     React.createElement(ContextualSafetyAlert, { notice: safetyState.primaryNotice }),
   )
   assert.match(alertHtml, /role="alert"/)
@@ -437,7 +437,7 @@ test('ContextualSafetyAlert, SafetyNotice, ExperimentGuide, and ContextualInstru
   assert.match(alertHtml, /This Action Is Not Allowed/)
   assert.match(alertHtml, /Acknowledge the safety rules first/)
 
-  const noticeHtml = renderToStaticMarkup(
+  const noticeHtml = await renderToStaticMarkup(
     React.createElement(SafetyNotice, {
       safety: mockExperiments[0].safety,
       contextualNotice: safetyState.primaryNotice,
@@ -448,7 +448,7 @@ test('ContextualSafetyAlert, SafetyNotice, ExperimentGuide, and ContextualInstru
   assert.match(noticeHtml, /This Action Is Not Allowed/)
   assert.match(noticeHtml, /Experiment Safety Rules/)
 
-  const guideHtml = renderToStaticMarkup(
+  const guideHtml = await renderToStaticMarkup(
     React.createElement(ExperimentGuide, {
       definition: saltExperimentDefinition,
       workflow: useSaltSimulationStore.getState().workflow,
@@ -462,7 +462,7 @@ test('ContextualSafetyAlert, SafetyNotice, ExperimentGuide, and ContextualInstru
   assert.match(guideHtml, /This Action Is Not Allowed/)
   assert.match(guideHtml, /Laboratory safety rules/)
 
-  const hudHtml = renderToStaticMarkup(
+  const hudHtml = await renderToStaticMarkup(
     React.createElement(ContextualInstruction, {
       inventoryOpen: false,
       presentation: { inventory: [], stages: [] },

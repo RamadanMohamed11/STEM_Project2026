@@ -2,8 +2,8 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
 import { MemoryRouter } from 'react-router'
-import { renderToStaticMarkup } from 'react-dom/server'
-import { createServer } from 'vite'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
+import { createServer } from './helpers/routeTestServer.mjs'
 import {
   getExperimentLearningStages,
   getLearningStageNavigationState,
@@ -142,7 +142,7 @@ test('experiment details route renders five educational stages, navigation contr
     const beforeChemistry = structuredClone(ssrSimStore.getState().experiment)
     const beforePlaced = [...ssrSceneStore.getState().placedIds]
 
-    const detailsMarkup = renderToStaticMarkup(
+    const detailsMarkup = await renderToStaticMarkup(
       React.createElement(
         MemoryRouter,
         { initialEntries: ['/experiments/exp-salt-water-001'] },
@@ -172,7 +172,7 @@ test('experiment details route renders five educational stages, navigation contr
 
     // Render each stage (0..4) and verify stage-specific content and zero simulation mutation
     for (let idx = 0; idx < 5; idx++) {
-      const stageMarkup = renderToStaticMarkup(
+      const stageMarkup = await renderToStaticMarkup(
         React.createElement(ExperimentLearningStageViewer, {
           data: saltDissolutionLearningStages,
           initialStageIndex: idx,
@@ -197,7 +197,7 @@ test('experiment details route renders five educational stages, navigation contr
     assert.equal(useSaltSimulationStore.getState().workflow.stepIndex, 0)
 
     // Planned experiment renders honest empty state for learning stages
-    const plannedMarkup = renderToStaticMarkup(
+    const plannedMarkup = await renderToStaticMarkup(
       React.createElement(
         MemoryRouter,
         { initialEntries: ['/experiments/exp-volume-002'] },
@@ -225,7 +225,7 @@ test('educational video player supports native HTML5 playback, poster image, and
     )
 
     // 1. Missing / Coming-soon video state
-    const comingSoonMarkup = renderToStaticMarkup(
+    const comingSoonMarkup = await renderToStaticMarkup(
       React.createElement(EducationalVideoPlayer, {
         stageTitle: 'Experimental Procedures',
         video: {
@@ -241,7 +241,7 @@ test('educational video player supports native HTML5 playback, poster image, and
     assert.doesNotMatch(comingSoonMarkup, /<video/)
 
     // 2. Available video with poster and WebVTT captions track
-    const availableMarkup = renderToStaticMarkup(
+    const availableMarkup = await renderToStaticMarkup(
       React.createElement(EducationalVideoPlayer, {
         stageTitle: 'Experimental Procedures',
         video: {

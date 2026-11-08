@@ -2,8 +2,8 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
 import { MemoryRouter } from 'react-router'
-import { renderToStaticMarkup } from 'react-dom/server'
-import { createServer } from 'vite'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
+import { createServer } from './helpers/routeTestServer.mjs'
 import { demoCatalog } from '../src/features/experiments/data/mockExperiments.ts'
 import { sampleCurriculum } from '../src/features/curriculum/data/sampleCurriculum.ts'
 import {
@@ -124,8 +124,8 @@ test('direct discovery routes render accurate breadcrumbs, scoped search, empty 
   })
   try {
     const { AppRoutes } = await vite.ssrLoadModule('/src/app/routes.tsx')
-    const render = (path) =>
-      renderToStaticMarkup(
+    const render = async (path) =>
+      await renderToStaticMarkup(
         React.createElement(
           MemoryRouter,
           { initialEntries: [path] },
@@ -133,7 +133,7 @@ test('direct discovery routes render accurate breadcrumbs, scoped search, empty 
         ),
       )
     const query = catalogSearchParams({ ...scope, search: 'pH', status: 'planned' }).toString()
-    const html = render(`/experiments?${query}`)
+    const html = await render(`/experiments?${query}`)
     assert.match(html, /aria-label="Breadcrumb"/)
     assert.match(html, /aria-current="page">Experiments/)
     assert.match(html, /First Secondary Grade/)
@@ -148,42 +148,42 @@ test('direct discovery routes render accurate breadcrumbs, scoped search, empty 
     assert.doesNotMatch(html, /Measuring Liquid Volume/)
     assert.match(html, /Coming Soon/)
     assert.match(html, /returnTo=/)
-    const invalid = render('/experiments?grade=grade-secondary-2&term=term-secondary-1-1')
+    const invalid = await render('/experiments?grade=grade-secondary-2&term=term-secondary-1-1')
     assert.match(invalid, /role="alert"/)
     assert.match(invalid, /No Results Found/)
     assert.doesNotMatch(invalid, /<article /)
-    assert.match(render('/experiments?q=no-such-result'), /No Results Found/)
+    assert.match(await render('/experiments?q=no-such-result'), /No Results Found/)
     assert.match(
-      render('/experiments?grade=grade-secondary-1&term=term-secondary-1-2'),
+      await render('/experiments?grade=grade-secondary-1&term=term-secondary-1-2'),
       /No Units Available/,
     )
-    const gradeOnly = render('/experiments?grade=grade-secondary-1')
+    const gradeOnly = await render('/experiments?grade=grade-secondary-1')
     assert.match(gradeOnly, /All Terms/)
     assert.doesNotMatch(gradeOnly, /id="experiment-unitId"|id="experiment-lessonId"/)
-    const lesson = render('/curriculum/lessons/sample-lesson-1-1?q=pH&status=planned')
+    const lesson = await render('/curriculum/lessons/sample-lesson-1-1?q=pH&status=planned')
     assert.equal((lesson.match(/<article /g) ?? []).length, 1)
     assert.doesNotMatch(lesson, /id="experiment-gradeId"/)
     assert.match(lesson, /aria-label="Breadcrumb"/)
-    assert.match(render('/curriculum/lessons/sample-lesson-1-1?q=absent'), /No Results Found/)
-    const unit = render(
+    assert.match(await render('/curriculum/lessons/sample-lesson-1-1?q=absent'), /No Results Found/)
+    const unit = await render(
       '/curriculum?grade=grade-secondary-1&term=term-secondary-1-1&unit=sample-unit-1',
     )
     assert.equal((unit.match(/<details/g) ?? []).length, 1)
     assert.match(unit, /<details[^>]*open=""/)
     assert.doesNotMatch(
-      render('/curriculum?grade=grade-secondary-1&term=term-secondary-1-2&unit=sample-unit-1'),
+      await render('/curriculum?grade=grade-secondary-1&term=term-secondary-1-2&unit=sample-unit-1'),
       /<details/,
     )
-    assert.doesNotMatch(render('/curriculum?unit=sample-unit-1'), /<details/)
+    assert.doesNotMatch(await render('/curriculum?unit=sample-unit-1'), /<details/)
     const returnTo = `/experiments?${query}`
-    const details = render(`/experiments/exp-ph-003?${new URLSearchParams({ returnTo })}`)
+    const details = await render(`/experiments/exp-ph-003?${new URLSearchParams({ returnTo })}`)
     assert.match(details, /Back to Search Results/)
     assert.match(details, /About This Experiment/)
     assert.doesNotMatch(
-      render('/experiments/exp-ph-003?returnTo=https://example.com'),
+      await render('/experiments/exp-ph-003?returnTo=https://example.com'),
       /Back to Search Results/,
     )
-    assert.match(render('/experiments/exp-salt-water-001/lab'), /Immersive laboratory workspace/)
+    assert.match(await render('/experiments/exp-salt-water-001/lab'), /Immersive laboratory workspace/)
   } finally {
     await vite.close()
   }

@@ -1,15 +1,15 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 
 test('home page renders all four complete educational sections with accessible landmarks, clear English, and valid routes', async () => {
   const vite = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
   try {
     const { AppRoutes } = await vite.ssrLoadModule('/src/app/routes.tsx')
-    const markup = renderToStaticMarkup(
+    const markup = await renderToStaticMarkup(
       React.createElement(MemoryRouter, { initialEntries: ['/'] }, React.createElement(AppRoutes)),
     )
 

@@ -4,9 +4,9 @@ import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 
 import { getPermissionsForRole } from '../src/features/auth/permissions.ts'
 import { gradeAssessment } from '../src/features/assessments/lib/assessmentGrading.ts'
@@ -574,8 +574,8 @@ test('SSR rendering of /admin/questions and student ExperimentQuizPage compatibi
     ])
 
     const auth = createAuthService(null, '')
-    const renderRoute = (urlPath, state) =>
-      renderToStaticMarkup(
+    const renderRoute = async (urlPath, state) =>
+      await renderToStaticMarkup(
         React.createElement(
           AuthContext.Provider,
           { value: { auth, state } },
@@ -606,7 +606,7 @@ test('SSR rendering of /admin/questions and student ExperimentQuizPage compatibi
     }
 
     // 1. Authorized admin renders /admin/questions with all required English labels
-    const adminQuestionsHtml = renderRoute('/admin/questions', adminState)
+    const adminQuestionsHtml = await renderRoute('/admin/questions', adminState)
     for (const requiredLabel of [
       'Question Bank',
       'Add Question',
@@ -625,12 +625,12 @@ test('SSR rendering of /admin/questions and student ExperimentQuizPage compatibi
     }
 
     // 2. Student cannot access /admin/questions
-    const deniedHtml = renderRoute('/admin/questions', studentState)
+    const deniedHtml = await renderRoute('/admin/questions', studentState)
     assert.match(deniedHtml, /Access Denied/)
     assert.doesNotMatch(deniedHtml, /Questions in Assessment/)
 
     // 3. Student quiz page renders published assessment questions
-    const studentSaltQuizHtml = renderRoute(
+    const studentSaltQuizHtml = await renderRoute(
       '/experiments/exp-salt-water-001/quiz',
       studentState,
     )
@@ -641,7 +641,7 @@ test('SSR rendering of /admin/questions and student ExperimentQuizPage compatibi
     )
 
     // 4. Draft assessment (exp-volume-002) shows QuizUnavailable on student route
-    const studentVolumeQuizHtml = renderRoute(
+    const studentVolumeQuizHtml = await renderRoute(
       '/experiments/exp-volume-002/quiz',
       studentState,
     )

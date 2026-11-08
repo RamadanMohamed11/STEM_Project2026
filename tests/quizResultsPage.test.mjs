@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 import {
   saltDissolutionAssessment,
   saltDissolutionQuestions,
@@ -63,8 +63,8 @@ test.beforeEach(() => {
   clearAllAssessmentResults()
 })
 
-function renderRoute(path, state = null) {
-  return renderToStaticMarkup(
+async function renderRoute(path, state = null) {
+  return await renderToStaticMarkup(
     React.createElement(
       MemoryRouter,
       { initialEntries: [{ pathname: path, state }] },
@@ -73,12 +73,12 @@ function renderRoute(path, state = null) {
   )
 }
 
-function renderWithRouter(element) {
-  return renderToStaticMarkup(React.createElement(MemoryRouter, null, element))
+async function renderWithRouter(element) {
+  return await renderToStaticMarkup(React.createElement(MemoryRouter, null, element))
 }
 
-test('QuizResultsPage renders honest empty state when visited without a submitted attempt', () => {
-  const html = renderRoute('/experiments/exp-salt-water-001/quiz/results')
+test('QuizResultsPage renders honest empty state when visited without a submitted attempt', async () => {
+  const html = await renderRoute('/experiments/exp-salt-water-001/quiz/results')
 
   assert.match(html, /Quiz Results/)
   assert.match(html, /No quiz results yet/)
@@ -90,7 +90,7 @@ test('QuizResultsPage renders honest empty state when visited without a submitte
   assert.doesNotMatch(html, /Excellent Work|Great Job|Final Score:\s*\d/i)
 })
 
-test('QuizResultsPage renders submitted assessment result with score, metrics, and navigation', () => {
+test('QuizResultsPage renders submitted assessment result with score, metrics, and navigation', async () => {
   const answers = {}
   for (const q of saltDissolutionQuestions) {
     answers[q.id] = q.correctOptionId
@@ -104,7 +104,7 @@ test('QuizResultsPage renders submitted assessment result with score, metrics, a
 
   // Set in store and render route
   storeSetLatest('exp-salt-water-001', outcome.result)
-  const html = renderRoute('/experiments/exp-salt-water-001/quiz/results')
+  const html = await renderRoute('/experiments/exp-salt-water-001/quiz/results')
 
   // Score summary
   assert.match(html, /Quiz Results/)
@@ -130,7 +130,7 @@ test('QuizResultsPage renders submitted assessment result with score, metrics, a
   assert.match(html, /Practice Assessment Notice/)
 
   // Also verify passing result via React Router location state
-  const htmlFromState = renderRoute('/experiments/exp-salt-water-001/quiz/results', {
+  const htmlFromState = await renderRoute('/experiments/exp-salt-water-001/quiz/results', {
     result: outcome.result,
   })
   assert.match(htmlFromState, /Excellent Work!/)
@@ -164,8 +164,8 @@ test('Performance feedback helper maps score ranges to appropriate encouraging m
   assert.equal(getPerformanceFeedback(80).tier, 'excellent')
 })
 
-test('ScoreRingMeter renders accessible progressbar with clamped percentage and numerals', () => {
-  const html = renderWithRouter(
+test('ScoreRingMeter renders accessible progressbar with clamped percentage and numerals', async () => {
+  const html = await renderWithRouter(
     React.createElement(ScoreRingMeter, {
       score: 5,
       maxScore: 6,
@@ -181,25 +181,25 @@ test('ScoreRingMeter renders accessible progressbar with clamped percentage and 
   assert.match(html, /5 \/ 6/)
 })
 
-test('AchievementIllustration and CelebrationEffect render cleanly without audio or large assets', () => {
-  const perfectHtml = renderWithRouter(
+test('AchievementIllustration and CelebrationEffect render cleanly without audio or large assets', async () => {
+  const perfectHtml = await renderWithRouter(
     React.createElement(AchievementIllustration, { tier: 'perfect' }),
   )
   assert.match(perfectHtml, /<svg/)
   assert.match(perfectHtml, /aria-hidden="true"/)
 
-  const goodHtml = renderWithRouter(
+  const goodHtml = await renderWithRouter(
     React.createElement(AchievementIllustration, { tier: 'good' }),
   )
   assert.match(goodHtml, /<svg/)
 
-  const celebrationInactive = renderWithRouter(
+  const celebrationInactive = await renderWithRouter(
     React.createElement(CelebrationEffect, { active: false }),
   )
   assert.equal(celebrationInactive, '')
 })
 
-test('QuizResultsAnswerReview renders each question, student choice, correct answer, and filter tabs', () => {
+test('QuizResultsAnswerReview renders each question, student choice, correct answer, and filter tabs', async () => {
   const q = saltDissolutionQuestions
   const wrongQ1 = q[1].options.find((o) => o.id !== q[1].correctOptionId).id
 
@@ -211,7 +211,7 @@ test('QuizResultsAnswerReview renders each question, student choice, correct ans
   assert.equal(outcome.ok, true)
   if (!outcome.ok) return
 
-  const html = renderWithRouter(
+  const html = await renderWithRouter(
     React.createElement(QuizResultsAnswerReview, {
       feedbackItems: outcome.result.questionFeedback,
     }),
@@ -250,8 +250,8 @@ test('assessmentResultsStore manages session results cleanly across experiments'
   assert.equal(getLatestAssessmentResult('exp-salt-water-001'), null)
 })
 
-test('invalid experiment ID returns 404 Experiment Not Found on results route', () => {
-  const html = renderRoute('/experiments/unknown-fake-id/quiz/results')
+test('invalid experiment ID returns 404 Experiment Not Found on results route', async () => {
+  const html = await renderRoute('/experiments/unknown-fake-id/quiz/results')
   assert.match(html, /Experiment Not Found/)
   assert.match(html, /Not found/)
 })

@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 import {
   safetyChecklist,
   getChecklistProgress,
@@ -46,15 +46,15 @@ test('safety checklist is unchecked, accessible and linked to lessons; lab and g
   })
   try {
     const { AppRoutes } = await vite.ssrLoadModule('/src/app/routes.tsx')
-    const render = (path) =>
-      renderToStaticMarkup(
+    const render = async (path) =>
+      await renderToStaticMarkup(
         React.createElement(
           MemoryRouter,
           { initialEntries: [path] },
           React.createElement(AppRoutes),
         ),
       )
-    const html = render('/safety')
+    const html = await render('/safety')
     const checkboxes = html.match(/<input[^>]*type="checkbox"[^>]*>/g) ?? []
     assert.equal(checkboxes.length, safetyChecklist.length)
     for (const checkbox of checkboxes) assert.doesNotMatch(checkbox, /checked=|disabled=/)
@@ -68,9 +68,9 @@ test('safety checklist is unchecked, accessible and linked to lessons; lab and g
       assert.ok(html.includes(`href="#${item.reviewSection}"`))
       assert.ok(html.includes(`id="${item.reviewSection}"`))
     }
-    assert.match(render('/grades'), /<h1[^>]*>Choose Your Grade/)
-    assert.match(render('/experiments/preview/lab'), /Immersive laboratory workspace/)
-    assert.match(render('/experiments/exp-salt-water-001/lab'), /Immersive laboratory workspace/)
+    assert.match(await render('/grades'), /<h1[^>]*>Choose Your Grade/)
+    assert.match(await render('/experiments/preview/lab'), /Immersive laboratory workspace/)
+    assert.match(await render('/experiments/exp-salt-water-001/lab'), /Immersive laboratory workspace/)
   } finally {
     await vite.close()
   }

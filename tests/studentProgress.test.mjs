@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 import { getActiveNavigationId, getPageContext } from '../src/app/navigation.ts'
 import { routePaths } from '../src/app/paths.ts'
 import { saltDissolutionAssessment } from '../src/features/assessments/data/saltDissolutionAssessment.ts'
@@ -506,8 +506,8 @@ test('StudentProgressPage renders required labels, honest resume actions, and na
       vite.ssrLoadModule('/src/features/simulations/state/useSaltSimulationStore.ts'),
     ])
 
-    const renderProgress = () =>
-      renderToStaticMarkup(
+    const renderProgress = async () =>
+      await renderToStaticMarkup(
         React.createElement(
           MemoryRouter,
           { initialEntries: ['/progress'] },
@@ -521,7 +521,7 @@ test('StudentProgressPage renders required labels, honest resume actions, and na
     progressStoreModule.configureStudentProgressRepository(repo)
 
     // 1. Empty progress state
-    const emptyMarkup = renderProgress()
+    const emptyMarkup = await renderProgress()
     assert.match(emptyMarkup, /My Progress/)
     assert.match(emptyMarkup, /Continue Learning/)
     assert.match(emptyMarkup, /Completed Experiments/)
@@ -542,7 +542,7 @@ test('StudentProgressPage renders required labels, honest resume actions, and na
       completed: false,
       occurredAt: '2026-03-01T15:00:00.000Z',
     })
-    const savedProgressMarkup = renderProgress()
+    const savedProgressMarkup = await renderProgress()
     assert.match(savedProgressMarkup, /Validated steps: 2 \/ 9/)
     assert.match(savedProgressMarkup, /Restart Experiment/)
 
@@ -551,7 +551,7 @@ test('StudentProgressPage renders required labels, honest resume actions, and na
       type: 'SAFETY_ACKNOWLEDGED',
       ppeIds: ['safety-goggles', 'lab-coat', 'nitrile-gloves'],
     })
-    const liveSessionMarkup = renderProgress()
+    const liveSessionMarkup = await renderProgress()
     assert.match(liveSessionMarkup, />Continue</)
 
     // 4. Completed experiment + quiz result -> shows "Try Again" and quiz score
@@ -585,7 +585,7 @@ test('StudentProgressPage renders required labels, honest resume actions, and na
     })
     progressStoreModule.recordQuizResultProgress(quizResult)
 
-    const completedMarkup = renderProgress()
+    const completedMarkup = await renderProgress()
     assert.match(completedMarkup, />Try Again</)
     assert.match(completedMarkup, /100% \(6 \/ 6 Correct\)/)
     assert.match(completedMarkup, /Clear Local Progress/)

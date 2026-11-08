@@ -2,8 +2,8 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
 import { MemoryRouter } from 'react-router'
-import { renderToStaticMarkup } from 'react-dom/server'
-import { createServer } from 'vite'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
+import { createServer } from './helpers/routeTestServer.mjs'
 import {
   getExperimentToolsAndMaterials,
   saltDissolutionToolsAndMaterials,
@@ -87,7 +87,7 @@ test('experiment details route renders laboratory tools and chemical materials w
   })
   try {
     const { AppRoutes } = await vite.ssrLoadModule('/src/app/routes.tsx')
-    const markup = renderToStaticMarkup(
+    const markup = await renderToStaticMarkup(
       React.createElement(
         MemoryRouter,
         { initialEntries: ['/experiments/exp-salt-water-001'] },
@@ -159,7 +159,7 @@ test('planned experiments render honest empty states without fabricated requirem
   })
   try {
     const { AppRoutes } = await vite.ssrLoadModule('/src/app/routes.tsx')
-    const markup = renderToStaticMarkup(
+    const markup = await renderToStaticMarkup(
       React.createElement(
         MemoryRouter,
         { initialEntries: ['/experiments/exp-volume-002'] },
@@ -203,12 +203,12 @@ test('individual tools and materials section components handle undefined gracefu
       '/src/features/experiments/components/ExperimentMaterialsSection.tsx',
     )
 
-    const toolsMarkup = renderToStaticMarkup(
+    const toolsMarkup = await renderToStaticMarkup(
       React.createElement(ExperimentToolsSection, { tools: undefined }),
     )
     assert.ok(toolsMarkup.includes('have not been finalized yet'))
 
-    const materialsMarkup = renderToStaticMarkup(
+    const materialsMarkup = await renderToStaticMarkup(
       React.createElement(ExperimentMaterialsSection, {
         materials: undefined,
         measurementDisclaimer: undefined,

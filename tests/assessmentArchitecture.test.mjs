@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 import { demoCatalog } from '../src/features/experiments/data/mockExperiments.ts'
 import {
   SALT_DISSOLUTION_ASSESSMENT_ID,
@@ -309,8 +309,8 @@ test('existing quiz and quiz results routes remain operational with honest place
   const vite = await createServer({ server: { middlewareMode: true, hmr: false }, appType: 'custom' })
   try {
     const { AppRoutes } = await vite.ssrLoadModule('/src/app/routes.tsx')
-    const render = (path) =>
-      renderToStaticMarkup(
+    const render = async (path) =>
+      await renderToStaticMarkup(
         React.createElement(
           MemoryRouter,
           { initialEntries: [path] },
@@ -318,14 +318,14 @@ test('existing quiz and quiz results routes remain operational with honest place
         ),
       )
 
-    const quizHtml = render('/experiments/exp-salt-water-001/quiz')
+    const quizHtml = await render('/experiments/exp-salt-water-001/quiz')
     assert.match(quizHtml, /Experiment Quiz/)
     assert.match(quizHtml, /Quiz questions are coming soon/)
     assert.match(quizHtml, /6 demonstration review questions/)
     assert.match(quizHtml, /type="radio"/)
     assert.doesNotMatch(quizHtml, /<form|Score:/i)
 
-    const quizResultsHtml = render('/experiments/exp-salt-water-001/quiz/results')
+    const quizResultsHtml = await render('/experiments/exp-salt-water-001/quiz/results')
     assert.match(quizResultsHtml, /Quiz Results/)
     assert.match(quizResultsHtml, /No quiz results yet/)
     assert.match(quizResultsHtml, /no score to show/)

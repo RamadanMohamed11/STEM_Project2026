@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 import { validateProfile, getOwnStudentProfile } from '../src/features/profile/profile.ts'
 import { sampleGrades } from '../src/features/curriculum/data/sampleCurriculum.ts'
 import { unavailableAuth } from '../src/features/auth/authService.ts'
@@ -59,8 +59,8 @@ test('both profile URLs remain protected and real profile fields are accessible 
       user: { id: 'owner', email: 'unit@example.invalid' },
       profile: { user_id: 'owner', full_name: 'Profile Test Student', grade: sampleGrades[1].id },
     }
-    const render = (path, snapshot, page = React.createElement(AppRoutes)) =>
-      renderToStaticMarkup(
+    const render = async (path, snapshot, page = React.createElement(AppRoutes)) =>
+      await renderToStaticMarkup(
         React.createElement(
           AuthContext.Provider,
           { value: { state: snapshot, auth: {} } },
@@ -68,7 +68,7 @@ test('both profile URLs remain protected and real profile fields are accessible 
         ),
       )
     for (const path of ['/profile', '/account']) {
-      const html = render(path, state)
+      const html = await render(path, state)
       assert.match(html, /Profile Test Student/)
       assert.match(html, /unit@example.invalid/)
       assert.match(html, /Account Information/)
@@ -76,11 +76,11 @@ test('both profile URLs remain protected and real profile fields are accessible 
       assert.match(html, /Save Changes/)
       assert.doesNotMatch(html, /name="email"|name="user_id"|type="password"/)
       for (const status of ['anonymous', 'unavailable', 'error', 'loading']) {
-        const restricted = render(path, { ...state, status })
+        const restricted = await render(path, { ...state, status })
         assert.doesNotMatch(restricted, /Profile Test Student|unit@example.invalid/)
       }
     }
-    const mismatch = render(
+    const mismatch = await render(
       '/profile',
       { ...state, user: { id: 'other' } },
       React.createElement(StudentProfilePage),

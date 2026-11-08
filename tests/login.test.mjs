@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 import { validateLogin } from '../src/features/auth/validation.ts'
 
 const validCredentials = {
@@ -70,7 +70,7 @@ test('student login page renders accessible form with show/hide control, clear l
   const vite = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
   try {
     const { AppRoutes } = await vite.ssrLoadModule('/src/app/routes.tsx')
-    const markup = renderToStaticMarkup(
+    const markup = await renderToStaticMarkup(
       React.createElement(
         MemoryRouter,
         { initialEntries: ['/login'] },

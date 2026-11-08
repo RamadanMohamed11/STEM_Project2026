@@ -2,9 +2,9 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 import { getActiveNavigationId, getPageContext } from '../src/app/navigation.ts'
 import { routePaths } from '../src/app/paths.ts'
 import { createAuthService, unavailableAuth } from '../src/features/auth/authService.ts'
@@ -400,8 +400,8 @@ test('frontend /admin route boundary and navigation enforce roles and required E
     )
 
     const auth = createSsrAuthService(null, '')
-    const renderAt = (path, state) =>
-      renderToStaticMarkup(
+    const renderAt = async (path, state) =>
+      await renderToStaticMarkup(
         React.createElement(
           AuthContext.Provider,
           { value: { auth, state } },
@@ -414,7 +414,7 @@ test('frontend /admin route boundary and navigation enforce roles and required E
       )
 
     // 1. Anonymous user changing browser URL to /admin -> Access Denied + Sign In + Back to Home
-    const anonMarkup = renderAt('/admin', { ...ssrUnavailable, status: 'anonymous' })
+    const anonMarkup = await renderAt('/admin', { ...ssrUnavailable, status: 'anonymous' })
     assert.match(anonMarkup, /Access Denied/)
     assert.match(anonMarkup, /You Do Not Have Permission/)
     assert.match(anonMarkup, />Sign In</)
@@ -422,7 +422,7 @@ test('frontend /admin route boundary and navigation enforce roles and required E
     assert.doesNotMatch(anonMarkup, /Verified Administrator Session/)
 
     // 2. Loading state on /admin -> Checking your permissions
-    const loadingMarkup = renderAt('/admin', {
+    const loadingMarkup = await renderAt('/admin', {
       ...ssrUnavailable,
       status: 'authenticated',
       user: { id: 'u1', email: 'u1@school.example' },
@@ -440,7 +440,7 @@ test('frontend /admin route boundary and navigation enforce roles and required E
       roleStatus: 'verified',
       permissions: ssrGetPermissions('student'),
     }
-    const studentMarkup = renderAt('/admin', studentState)
+    const studentMarkup = await renderAt('/admin', studentState)
     assert.match(studentMarkup, /Access Denied/)
     assert.match(studentMarkup, /You Do Not Have Permission/)
     assert.match(studentMarkup, />Back to Home</)
@@ -456,7 +456,7 @@ test('frontend /admin route boundary and navigation enforce roles and required E
       roleStatus: 'verified',
       permissions: ssrGetPermissions('instructor'),
     }
-    const instructorMarkup = renderAt('/admin', instructorState)
+    const instructorMarkup = await renderAt('/admin', instructorState)
     assert.match(instructorMarkup, /Access Denied/)
     assert.match(instructorMarkup, /You Do Not Have Permission/)
     assert.doesNotMatch(instructorMarkup, /Verified Administrator Session/)
@@ -471,7 +471,7 @@ test('frontend /admin route boundary and navigation enforce roles and required E
       roleStatus: 'verified',
       permissions: ssrGetPermissions('admin'),
     }
-    const adminMarkup = renderAt('/admin', adminState)
+    const adminMarkup = await renderAt('/admin', adminState)
     assert.match(adminMarkup, /<h1[^>]*>Admin<\/h1>/)
     assert.match(adminMarkup, /Verified Administrator Session/)
     assert.match(adminMarkup, /admin:access_portal/)

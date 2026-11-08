@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 import {
   safetySources,
   safetyIntroduction,
@@ -39,7 +39,7 @@ test('public safety route renders guidance, grade navigation and the local revie
   })
   try {
     const { AppRoutes } = await vite.ssrLoadModule('/src/app/routes.tsx')
-    const html = renderToStaticMarkup(
+    const html = await renderToStaticMarkup(
       React.createElement(
         MemoryRouter,
         { initialEntries: ['/safety'] },

@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 import {
   saltDissolutionAssessment,
   saltDissolutionQuestions,
@@ -37,8 +37,8 @@ test.after(async () => {
   await vite?.close()
 })
 
-function renderRoute(path) {
-  return renderToStaticMarkup(
+async function renderRoute(path) {
+  return await renderToStaticMarkup(
     React.createElement(
       MemoryRouter,
       { initialEntries: [path] },
@@ -47,14 +47,14 @@ function renderRoute(path) {
   )
 }
 
-function renderWithRouter(element) {
-  return renderToStaticMarkup(
+async function renderWithRouter(element) {
+  return await renderToStaticMarkup(
     React.createElement(MemoryRouter, null, element),
   )
 }
 
-test('ExperimentQuizPage renders the interactive quiz interface with question prompt, options, and progress', () => {
-  const html = renderRoute('/experiments/exp-salt-water-001/quiz')
+test('ExperimentQuizPage renders the interactive quiz interface with question prompt, options, and progress', async () => {
+  const html = await renderRoute('/experiments/exp-salt-water-001/quiz')
 
   // Header & Breadcrumbs
   assert.match(html, /Experiment Quiz/)
@@ -90,11 +90,11 @@ test('ExperimentQuizPage renders the interactive quiz interface with question pr
   assert.doesNotMatch(html, /[\u0600-\u06FF]/)
 })
 
-test('QuizQuestionCard renders accessible fieldset, radio inputs, selection states, and navigation', () => {
+test('QuizQuestionCard renders accessible fieldset, radio inputs, selection states, and navigation', async () => {
   const q = saltDissolutionQuestions[0]
 
   // Unanswered state on first question
-  const unansweredHtml = renderWithRouter(
+  const unansweredHtml = await renderWithRouter(
     React.createElement(QuizQuestionCard, {
       question: q,
       questionIndex: 0,
@@ -116,7 +116,7 @@ test('QuizQuestionCard renders accessible fieldset, radio inputs, selection stat
   assert.match(unansweredHtml, />Next</)
 
   // Answered state on last question
-  const answeredHtml = renderWithRouter(
+  const answeredHtml = await renderWithRouter(
     React.createElement(QuizQuestionCard, {
       question: q,
       questionIndex: 5,
@@ -140,14 +140,14 @@ test('QuizQuestionCard renders accessible fieldset, radio inputs, selection stat
   assert.doesNotMatch(answeredHtml, /disabled=""/) // Previous button is not disabled
 })
 
-test('QuizProgressBar displays accurate progress, question count, and interactive step jump buttons', () => {
+test('QuizProgressBar displays accurate progress, question count, and interactive step jump buttons', async () => {
   const questions = saltDissolutionQuestions
   const answers = {
     [questions[0].id]: questions[0].options[0].id,
     [questions[1].id]: questions[1].options[1].id,
   }
 
-  const html = renderWithRouter(
+  const html = await renderWithRouter(
     React.createElement(QuizProgressBar, {
       questions,
       currentIndex: 1,
@@ -168,7 +168,7 @@ test('QuizProgressBar displays accurate progress, question count, and interactiv
   assert.match(html, /aria-label="Question 3: Unanswered"/)
 })
 
-test('QuizReviewScreen renders complete summary, answered vs unanswered items, and future submission notice without fake scores', () => {
+test('QuizReviewScreen renders complete summary, answered vs unanswered items, and future submission notice without fake scores', async () => {
   const questions = saltDissolutionQuestions
   const answers = {
     [questions[0].id]: questions[0].options[0].id,
@@ -176,7 +176,7 @@ test('QuizReviewScreen renders complete summary, answered vs unanswered items, a
     [questions[2].id]: questions[2].options[2].id,
   }
 
-  const html = renderWithRouter(
+  const html = await renderWithRouter(
     React.createElement(QuizReviewScreen, {
       questions,
       answers,
@@ -211,8 +211,8 @@ test('QuizReviewScreen renders complete summary, answered vs unanswered items, a
   assert.doesNotMatch(html, /Score:|Final Score|Grade:|You scored|\d+% correct/i)
 })
 
-test('QuizUnavailable renders honest unavailable state when experiment has no assessment', () => {
-  const html = renderWithRouter(
+test('QuizUnavailable renders honest unavailable state when experiment has no assessment', async () => {
+  const html = await renderWithRouter(
     React.createElement(QuizUnavailable, {
       experimentTitle: 'Measuring Liquid Volume',
       detailsPath: '/experiments/exp-volume-002',
@@ -227,20 +227,20 @@ test('QuizUnavailable renders honest unavailable state when experiment has no as
   assert.doesNotMatch(html, /type="radio"/)
 })
 
-test('planned experiments render QuizUnavailable through route without generating fake questions', () => {
-  const volumeHtml = renderRoute('/experiments/exp-volume-002/quiz')
+test('planned experiments render QuizUnavailable through route without generating fake questions', async () => {
+  const volumeHtml = await renderRoute('/experiments/exp-volume-002/quiz')
   assert.match(volumeHtml, /Quiz questions are coming soon/)
   assert.match(volumeHtml, /Measuring Liquid Volume/)
   assert.doesNotMatch(volumeHtml, /type="radio"/)
 
-  const phHtml = renderRoute('/experiments/exp-ph-003/quiz')
+  const phHtml = await renderRoute('/experiments/exp-ph-003/quiz')
   assert.match(phHtml, /Quiz questions are coming soon/)
   assert.match(phHtml, /Exploring pH Indicators/)
   assert.doesNotMatch(phHtml, /type="radio"/)
 })
 
-test('invalid experiment ID returns clean 404 Experiment Not Found on quiz route', () => {
-  const html = renderRoute('/experiments/invalid-unknown-id/quiz')
+test('invalid experiment ID returns clean 404 Experiment Not Found on quiz route', async () => {
+  const html = await renderRoute('/experiments/invalid-unknown-id/quiz')
   assert.match(html, /Experiment Not Found/)
   assert.doesNotMatch(html, /Choose one answer/)
 })

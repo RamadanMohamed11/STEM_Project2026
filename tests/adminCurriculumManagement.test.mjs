@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 import { getPermissionsForRole } from '../src/features/auth/permissions.ts'
 import {
   buildPublishedStudentCurriculum,
@@ -603,7 +603,7 @@ test('AdminCurriculumPage (/admin/curriculum) and student CurriculumPage render 
     })
 
     const repo = createInMemoryCurriculumRepository(seededState)
-    const adminHtml = renderToStaticMarkup(
+    const adminHtml = await renderToStaticMarkup(
       React.createElement(
         AuthContext.Provider,
         { value: { auth, state: adminState } },
@@ -644,7 +644,7 @@ test('AdminCurriculumPage (/admin/curriculum) and student CurriculumPage render 
     // Verify Student CurriculumPage shows ONLY published units/lessons when managed state is active
     try {
       ssrSetManagedState(seededState)
-      const studentHtml = renderToStaticMarkup(
+      const studentHtml = await renderToStaticMarkup(
         React.createElement(
           AuthContext.Provider,
           { value: { auth, state: unavailableAuth } },

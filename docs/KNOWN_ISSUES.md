@@ -33,3 +33,7 @@ T35, 7 November 2026. Priority reflects actual impact; advisory counts are not p
 The three authenticated SECURITY DEFINER helper advisories were reviewed: role lookup is scoped to `auth.uid()`, permission checks use authoritative role assignments, role mutation checks `admin:assign_roles`, and functions have fixed empty search paths. Revoking these helpers would break legitimate authorization. Their advisory presence is documented, not hidden.
 
 References: [minimatch maintainer advisory](https://github.com/isaacs/minimatch/security/advisories/GHSA-g3hv-75wg-m249), [Supabase password security](https://supabase.com/docs/guides/auth/password-security), [RLS guidance](https://supabase.com/docs/guides/database/postgres/row-level-security), [ACS dissolving and recovery of salt](https://www.acs.org/education/resources/k-8/inquiryinaction/fifth-grade/chapter-1-investigating-matter-at-the-particle-level/lesson-1-3--dissolving-and-back-again.html), [W3C contrast guidance](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html).
+
+## T37 follow-up (8 November 2026)
+
+Route pages are now lazy and the main entry is smaller, but the T36 baseline has manual Three.js chunk groups in vite.config.ts again. These existing groups still preload heavy 3D libraries on Home. They were not changed in T37; the measured total initial gzip reduction is 9.3%, versus 87.3% for the main entry alone. See ROUTE_CODE_SPLITTING.md for reproducible before/after figures and browser verification limits.

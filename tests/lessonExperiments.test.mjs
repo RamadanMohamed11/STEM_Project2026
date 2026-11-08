@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToResolvedMarkup as renderToStaticMarkup } from './helpers/renderResolved.mjs'
 import { MemoryRouter } from 'react-router'
-import { createServer } from 'vite'
+import { createServer } from './helpers/routeTestServer.mjs'
 
 test('lesson listings reuse catalog cards and honor associations, availability and direct routes', async () => {
   const vite = await createServer({
@@ -22,10 +22,10 @@ test('lesson listings reuse catalog cards and honor associations, availability a
       '/src/features/curriculum/data/sampleCurriculum.ts',
     )
     const before = JSON.stringify(data)
-    const render = (path, element = React.createElement(AppRoutes)) =>
-      renderToStaticMarkup(React.createElement(MemoryRouter, { initialEntries: [path] }, element))
+    const render = async (path, element = React.createElement(AppRoutes)) =>
+      await renderToStaticMarkup(React.createElement(MemoryRouter, { initialEntries: [path] }, element))
     const path = '/curriculum/lessons/sample-lesson-1-1'
-    const multiple = render(path)
+    const multiple = await render(path)
     assert.match(multiple, /Experiments in This Lesson/)
     assert.match(multiple, /First Secondary Grade/)
     assert.match(multiple, /First Term/)
@@ -51,24 +51,24 @@ test('lesson listings reuse catalog cards and honor associations, availability a
       multiple,
       /href="\/experiments\/exp-[^\"]*\/lab"|>Start Experiment<|Dissolving Salt in Water/,
     )
-    const single = render('/curriculum/lessons/sample-lesson-1-2')
+    const single = await render('/curriculum/lessons/sample-lesson-1-2')
     assert.match(single, /1 experiment assigned/)
     assert.equal((single.match(/<article /g) ?? []).length, 1)
     assert.doesNotMatch(single, /Exploring pH Indicators/)
-    assert.match(render('/curriculum/lessons/unknown'), /Lesson Not Found/)
+    assert.match(await render('/curriculum/lessons/unknown'), /Lesson Not Found/)
 
-    const renderData = (snapshot) =>
-      render(
+    const renderData = async (snapshot) =>
+      await render(
         path,
         React.createElement(LessonExperiments, { data: snapshot, lessonId: 'sample-lesson-1-1' }),
       )
-    const empty = renderData({ ...data, lessonExperiments: [] })
+    const empty = await renderData({ ...data, lessonExperiments: [] })
     assert.match(empty, /No Experiments Available/)
     assert.match(empty, /0 experiments assigned/)
     assert.doesNotMatch(empty, /<article /)
-    const broken = renderData({ ...data, units: [] })
+    const broken = await renderData({ ...data, units: [] })
     assert.match(broken, /Lesson Not Found/)
-    const defensive = renderData({
+    const defensive = await renderData({
       ...data,
       lessonExperiments: [
         ...data.lessonExperiments,
@@ -79,7 +79,7 @@ test('lesson listings reuse catalog cards and honor associations, availability a
     assert.equal((defensive.match(/<article /g) ?? []).length, 2)
 
     // Test-only mapping verifies future playable lessons. Production mappings are untouched.
-    const available = renderData({
+    const available = await renderData({
       ...data,
       lessonExperiments: [
         { lessonId: 'sample-lesson-1-1', experimentId: 'exp-salt-water-001', order: 1 },
@@ -88,10 +88,10 @@ test('lesson listings reuse catalog cards and honor associations, availability a
     assert.match(available, /Dissolving Salt in Water/)
     assert.match(available, />Start Experiment</)
     assert.ok(available.includes('href="/experiments/exp-salt-water-001/lab"'))
-    assert.match(render('/experiments/exp-salt-water-001'), /Dissolving Salt in Water/)
-    assert.match(render('/experiments/exp-salt-water-001/lab'), /Immersive laboratory workspace/)
-    assert.match(render('/experiments/exp-volume-002'), /This experiment is planned/)
-    const unsupported = render(
+    assert.match(await render('/experiments/exp-salt-water-001'), /Dissolving Salt in Water/)
+    assert.match(await render('/experiments/exp-salt-water-001/lab'), /Immersive laboratory workspace/)
+    assert.match(await render('/experiments/exp-volume-002'), /This experiment is planned/)
+    const unsupported = await render(
       path,
       React.createElement(ExperimentCard, {
         experiment: { ...data.experiments[0], id: 'unsupported-demo' },
@@ -100,7 +100,7 @@ test('lesson listings reuse catalog cards and honor associations, availability a
     )
     assert.match(unsupported, /Lab Unavailable/)
     assert.doesNotMatch(unsupported, />Start Experiment<|href="[^\"]*\/lab"/)
-    const planned = render(
+    const planned = await render(
       path,
       React.createElement(ExperimentCard, {
         experiment: { ...data.experiments[0], status: 'planned' },
