@@ -1,3 +1,22 @@
+/**
+ * Salt-dissolution adapter on top of the L1 generic engine (engine/core).
+ *
+ * The 3D lab, workflow and results UI still consume `SaltExperimentState`. That state is now a
+ * projection of the core `LabState`: each command validates its legacy preconditions (keeping
+ * the exact student-facing messages), runs the material change through the core engine
+ * (`transferMaterial` / `simulateTick`), and projects the resulting engine events back onto the
+ * salt state. All quantities and limits come from `data/saltCoreDefinition.ts`.
+ */
+import { saltCoreExperiment, saltDissolutionProcess } from '../data/saltCoreDefinition.ts'
+import {
+  amountOf,
+  getContainerDefinition,
+  saturationLimitG,
+  simulateTick,
+  transferMaterial,
+  type LabEvent,
+  type LabState,
+} from './core/index.ts'
 import type {
   LiquidContainerId,
   SaltExperimentState,
@@ -7,21 +26,37 @@ import type {
   TransitionResult,
 } from './types.ts'
 
-export const CAPACITIES_ML: Record<LiquidContainerId, number> = {
-  water: 500,
-  'graduated-cylinder': 100,
-  beaker: 250,
+const chemistry = saltCoreExperiment.chemistry
+
+function capacityOf(containerId: string) {
+  const container = getContainerDefinition(chemistry, containerId)
+  if (!container) throw new Error(`Salt core definition is missing container "${containerId}".`)
+  return container.capacity.value
 }
 
-export const INITIAL_WATER_ML = 400
-export const INITIAL_SALT_STOCK_G = 100
+function initialAmount(containerId: string, substanceId: string) {
+  return (
+    getContainerDefinition(chemistry, containerId)?.initialContents?.find(
+      (entry) => entry.substanceId === substanceId,
+    )?.amount ?? 0
+  )
+}
+
+export const CAPACITIES_ML: Record<LiquidContainerId, number> = {
+  water: capacityOf('water'),
+  'graduated-cylinder': capacityOf('graduated-cylinder'),
+  beaker: capacityOf('beaker'),
+}
+
+export const INITIAL_WATER_ML = initialAmount('water', 'water')
+export const INITIAL_SALT_STOCK_G = initialAmount('sodium-chloride', 'sodium-chloride')
 /** Illustrative approximate NaCl solubility near 20°C, not calibrated to a measured experiment. */
-export const SOLUBILITY_G_PER_100ML = 35.9
-/** Deliberately simplified teaching rate, not measured NaCl kinetics. */
-export const STIR_DISSOLUTION_G_PER_ACTION = 4
+export const SOLUBILITY_G_PER_100ML = saltDissolutionProcess.solubilityGPer100Ml
 export const STIR_ACTION_DURATION_MS = 1500
-export const STIR_DISSOLUTION_G_PER_SECOND =
-  (STIR_DISSOLUTION_G_PER_ACTION * 1000) / STIR_ACTION_DURATION_MS
+export const STIR_DISSOLUTION_G_PER_SECOND = saltDissolutionProcess.rateGPerSecondStirred
+/** Deliberately simplified teaching rate, not measured NaCl kinetics. */
+export const STIR_DISSOLUTION_G_PER_ACTION =
+  (STIR_DISSOLUTION_G_PER_SECOND * STIR_ACTION_DURATION_MS) / 1000
 
 export const DEMO_ACTION_RULES: Readonly<
   Record<
@@ -92,6 +127,121 @@ export const DEMO_ACTION_RULES: Readonly<
   },
 }
 
+/** Idealized capacity of the demonstration spatula (g). */
+export const SPATULA_CAPACITY_G = capacityOf('spatula')
+export const WEIGHING_BOAT_CAPACITY_G = capacityOf('weighing-boat')
+
+// ---------------------------------------------------------------------------
+// Projection between the core LabState and the legacy SaltExperimentState
+// ---------------------------------------------------------------------------
+
+type SolidField = 'saltStockG' | 'saltOnSpatulaG' | 'saltOnBoatG' | 'saltInBeakerG'
+const SOLID_FIELDS: Readonly<Record<string, SolidField>> = {
+  'sodium-chloride': 'saltStockG',
+  spatula: 'saltOnSpatulaG',
+  'weighing-boat': 'saltOnBoatG',
+  beaker: 'saltInBeakerG',
+}
+
+/** Builds the core state equivalent to a salt state (solid NaCl in the beaker = undissolved). */
+export function saltStateToLabState(state: SaltExperimentState): LabState {
+  const contents = (entries: [string, number][]) =>
+    Object.fromEntries(entries.filter(([, amount]) => amount > 0))
+  const temperatureC = chemistry.ambientTemperatureC
+  return {
+    timeS: 0,
+    containers: {
+      water: { contents: contents([['water', state.waterMl.water]]), temperatureC },
+      'graduated-cylinder': {
+        contents: contents([['water', state.waterMl['graduated-cylinder']]]),
+        temperatureC,
+      },
+      beaker: {
+        contents: contents([
+          ['water', state.waterMl.beaker],
+          ['sodium-chloride', undissolvedSaltG(state)],
+          ['sodium-chloride-aq', state.dissolvedSaltG],
+        ]),
+        temperatureC,
+      },
+      'sodium-chloride': {
+        contents: contents([['sodium-chloride', state.saltStockG]]),
+        temperatureC,
+      },
+      spatula: { contents: contents([['sodium-chloride', state.saltOnSpatulaG]]), temperatureC },
+      'weighing-boat': {
+        contents: contents([['sodium-chloride', state.saltOnBoatG]]),
+        temperatureC,
+      },
+    },
+  }
+}
+
+/** Reads a salt state back from a core state (counters are not part of the chemistry model). */
+export function labStateToSaltState(
+  lab: LabState,
+  counters: Pick<SaltExperimentState, 'operations' | 'stirCount'>,
+): SaltExperimentState {
+  const dissolved = amountOf(lab, 'beaker', 'sodium-chloride-aq')
+  return {
+    waterMl: {
+      water: amountOf(lab, 'water', 'water'),
+      'graduated-cylinder': amountOf(lab, 'graduated-cylinder', 'water'),
+      beaker: amountOf(lab, 'beaker', 'water'),
+    },
+    saltStockG: amountOf(lab, 'sodium-chloride', 'sodium-chloride'),
+    saltOnSpatulaG: amountOf(lab, 'spatula', 'sodium-chloride'),
+    saltOnBoatG: amountOf(lab, 'weighing-boat', 'sodium-chloride'),
+    saltInBeakerG: amountOf(lab, 'beaker', 'sodium-chloride') + dissolved,
+    dissolvedSaltG: dissolved,
+    operations: counters.operations,
+    stirCount: counters.stirCount,
+  }
+}
+
+/**
+ * Applies core transfer events to a salt state. Deltas are applied to the previous values (not
+ * re-summed from the core state) so whole-number quantities stay exactly whole.
+ */
+function projectTransfers(state: SaltExperimentState, events: readonly LabEvent[]) {
+  const next: SaltExperimentState = { ...state, waterMl: { ...state.waterMl } }
+  for (const event of events) {
+    if (event.type !== 'transferred') continue
+    if (event.substanceId === 'water') {
+      next.waterMl[event.from as LiquidContainerId] -= event.amount
+      next.waterMl[event.to as LiquidContainerId] += event.amount
+    } else if (event.substanceId === 'sodium-chloride') {
+      next[SOLID_FIELDS[event.from]] -= event.amount
+      next[SOLID_FIELDS[event.to]] += event.amount
+    }
+  }
+  return next
+}
+
+function runTransfer(
+  state: SaltExperimentState,
+  from: string,
+  to: string,
+  substanceId: 'water' | 'sodium-chloride',
+  amount: number,
+): { ok: true; state: SaltExperimentState } | { ok: false; message: string } {
+  const result = transferMaterial(chemistry, saltStateToLabState(state), {
+    from,
+    to,
+    substanceId,
+    amount,
+  })
+  if (!result.ok) return { ok: false, message: result.message }
+  return {
+    ok: true,
+    state: { ...projectTransfers(state, result.events), operations: state.operations + 1 },
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Salt state helpers (unchanged public API)
+// ---------------------------------------------------------------------------
+
 const reject = (state: SaltExperimentState, message: string): TransitionResult => ({
   ok: false,
   state,
@@ -116,8 +266,14 @@ export function undissolvedSaltG(state: SaltExperimentState) {
   return Math.max(0, state.saltInBeakerG - state.dissolvedSaltG)
 }
 
+/** Saturation limit from the core dissolution process (solvent volume × solubility). */
 export function maximumDissolvedSaltG(state: SaltExperimentState) {
-  return (state.waterMl.beaker * SOLUBILITY_G_PER_100ML) / 100
+  const temperatureC = chemistry.ambientTemperatureC
+  const lab: LabState = {
+    timeS: 0,
+    containers: { beaker: { contents: { water: state.waterMl.beaker }, temperatureC } },
+  }
+  return saturationLimitG(saltDissolutionProcess, lab, 'beaker')
 }
 
 export function isDemonstrationComplete(state: SaltExperimentState) {
@@ -206,10 +362,6 @@ export function executeSaltCommand(
   return reject(state, 'Unsupported scientific command.')
 }
 
-/** 5 g is the idealized capacity of this demonstration spatula. */
-export const SPATULA_CAPACITY_G = 5
-export const WEIGHING_BOAT_CAPACITY_G = 25
-
 function scoopSalt(
   state: SaltExperimentState,
   massG: number,
@@ -221,14 +373,11 @@ function scoopSalt(
     return reject(state, 'The demonstration spatula holds a maximum 5 g whole-number portion.')
   if (state.saltOnSpatulaG + massG > SPATULA_CAPACITY_G || state.saltStockG < massG)
     return reject(state, 'Spatula full or insufficient salt stock.')
+  const result = runTransfer(state, 'sodium-chloride', 'spatula', 'sodium-chloride', massG)
+  if (!result.ok) return reject(state, result.message)
   return {
     ok: true,
-    state: {
-      ...state,
-      saltStockG: state.saltStockG - massG,
-      saltOnSpatulaG: state.saltOnSpatulaG + massG,
-      operations: state.operations + 1,
-    },
+    state: result.state,
     message: `Scooped ${massG} g of modelled solid NaCl onto the spatula.`,
   }
 }
@@ -244,14 +393,11 @@ function depositSalt(
     return reject(state, 'The spatula cannot deposit a mass that it does not contain.')
   if (state.saltOnBoatG + massG > WEIGHING_BOAT_CAPACITY_G)
     return reject(state, 'The weighing boat would exceed its modelled capacity.')
+  const result = runTransfer(state, 'spatula', 'weighing-boat', 'sodium-chloride', massG)
+  if (!result.ok) return reject(state, result.message)
   return {
     ok: true,
-    state: {
-      ...state,
-      saltOnSpatulaG: state.saltOnSpatulaG - massG,
-      saltOnBoatG: state.saltOnBoatG + massG,
-      operations: state.operations + 1,
-    },
+    state: result.state,
     message: `Deposited ${massG} g NaCl in the weighing boat.`,
   }
 }
@@ -280,18 +426,11 @@ function pourWater(
       state,
       `${target} capacity is ${CAPACITIES_ML[target]} mL; reduce the transfer amount.`,
     )
-  const result: SaltExperimentState = {
-    ...state,
-    waterMl: {
-      ...state.waterMl,
-      [source]: state.waterMl[source] - amountMl,
-      [target]: state.waterMl[target] + amountMl,
-    },
-    operations: state.operations + 1,
-  }
+  const result = runTransfer(state, source, target, 'water', amountMl)
+  if (!result.ok) return reject(state, result.message)
   return {
     ok: true,
-    state: result,
+    state: result.state,
     message: `Transferred ${amountMl} mL of water from ${source} to ${target}.`,
     effect: {
       kind: 'liquid-transfer',
@@ -318,15 +457,11 @@ function addSalt(
   const available = source === 'weighing-boat' ? state.saltOnBoatG : state.saltStockG
   if (massG > available)
     return reject(state, `Only ${available} g remains in the selected salt source.`)
+  const result = runTransfer(state, source, 'beaker', 'sodium-chloride', massG)
+  if (!result.ok) return reject(state, result.message)
   return {
     ok: true,
-    state: {
-      ...state,
-      saltStockG: state.saltStockG - (source === 'sodium-chloride' ? massG : 0),
-      saltOnBoatG: state.saltOnBoatG - (source === 'weighing-boat' ? massG : 0),
-      saltInBeakerG: state.saltInBeakerG + massG,
-      operations: state.operations + 1,
-    },
+    state: result.state,
     message: `Added ${massG} g NaCl to the beaker; stir to model dissolution.`,
     effect: {
       kind: 'salt-addition',
@@ -348,13 +483,16 @@ function stir(
   if (!onBench(placedIds, 'stirring-rod') || !onBench(placedIds, 'beaker'))
     return reject(state, 'Place the stirring rod and beaker on the bench first.')
   if (state.waterMl.beaker <= 0) return reject(state, 'The beaker must contain water to stir salt.')
-  const undissolved = undissolvedSaltG(state)
-  if (undissolved <= 0) return reject(state, 'No undissolved salt remains to disperse.')
-  const room = Math.max(0, maximumDissolvedSaltG(state) - state.dissolvedSaltG)
-  const dissolvedNow = Math.min(
-    room,
-    undissolved,
-    (STIR_DISSOLUTION_G_PER_SECOND * elapsedMs) / 1000,
+  if (undissolvedSaltG(state) <= 0) return reject(state, 'No undissolved salt remains to disperse.')
+
+  // The core engine decides how much dissolves (rate × time, solubility room, available solid).
+  const tick = simulateTick(chemistry, saltStateToLabState(state), elapsedMs / 1000, {
+    stirring: ['beaker'],
+  })
+  const dissolvedNow = tick.events.reduce(
+    (sum, event) =>
+      event.type === 'dissolved' && event.containerId === 'beaker' ? sum + event.amount : sum,
+    0,
   )
   if (dissolvedNow <= 0)
     return reject(
