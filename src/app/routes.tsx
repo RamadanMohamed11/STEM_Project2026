@@ -26,10 +26,11 @@ const AdminFoundationPage = lazy(() =>
 const AdminQuestionsPage = lazy(() =>
   import('@/pages/AdminQuestionsPage').then((module) => ({ default: module.AdminQuestionsPage })),
 )
-const AdminSectionPlaceholderPage = lazy(() =>
-  import('@/pages/AdminSectionPlaceholderPage').then((module) => ({
-    default: module.AdminSectionPlaceholderPage,
-  })),
+const AdminStudentsPage = lazy(() =>
+  import('@/pages/AdminStudentsPage').then((module) => ({ default: module.AdminStudentsPage })),
+)
+const AdminReportsPage = lazy(() =>
+  import('@/pages/AdminReportsPage').then((module) => ({ default: module.AdminReportsPage })),
 )
 const StudentProfilePage = lazy(() =>
   import('@/pages/StudentProfilePage').then((module) => ({ default: module.StudentProfilePage })),
@@ -104,8 +105,8 @@ export function AppRoutes() {
             <Route path="curriculum" element={<AdminCurriculumPage />} />
             <Route path="experiments" element={<AdminExperimentsPage />} />
             <Route path="questions" element={<AdminQuestionsPage />} />
-            <Route path="students" element={<AdminSectionPlaceholderPage sectionId="students" />} />
-            <Route path="reports" element={<AdminSectionPlaceholderPage sectionId="reports" />} />
+            <Route path="students" element={<AdminStudentsPage />} />
+            <Route path="reports" element={<AdminReportsPage />} />
           </Route>
         </Route>
         <Route element={<AppShell />}>

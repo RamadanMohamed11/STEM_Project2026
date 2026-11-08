@@ -104,14 +104,14 @@ export const adminNavigationItems: readonly AdminNavigationItem[] = [
     eyebrow: 'Directory & Roles',
     to: routePaths.adminStudents,
     icon: Users,
-    status: 'planned',
-    plannedTask: 'T35',
+    status: 'active',
+    plannedTask: 'T49',
     description:
-      'View authorized student directory summaries and manage audited role assignments under Row Level Security.',
+      'View authorized student directory summaries and track laboratory completion under Row Level Security.',
     plannedCapabilities: [
-      'View authorized account role assignments with full audit trail visibility',
-      'Assign or revoke instructor and administrator roles through audited database procedures',
-      'Respect strict student privacy boundaries enforced by PostgreSQL Row Level Security',
+      'Inspect student account directory with grade, email, and academic performance',
+      'Track 3D laboratory experiment completion and step-by-step progress',
+      'Review student practice quiz attempt history and evaluated scores',
     ],
   },
   {
@@ -121,14 +121,14 @@ export const adminNavigationItems: readonly AdminNavigationItem[] = [
     eyebrow: 'Educational Insights',
     to: routePaths.adminReports,
     icon: BarChart3,
-    status: 'planned',
-    plannedTask: 'T35',
+    status: 'active',
+    plannedTask: 'T49',
     description:
-      'Review aggregated experiment completion trends, assessment readiness, and role governance audit logs.',
+      'Review aggregated experiment completion trends, assessment scores, and question difficulty rates.',
     plannedCapabilities: [
       'Inspect aggregated experiment completion and practice quiz performance summaries',
-      'Review immutable administrative role change audit logs (admin_role_audit_log)',
-      'Export curriculum and assessment readiness summaries for academic review',
+      'Identify most-missed assessment questions and difficult learning objectives',
+      'Review curriculum-wide student attempt telemetry and average scores',
     ],
   },
 ] as const

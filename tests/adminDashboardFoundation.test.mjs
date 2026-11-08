@@ -231,8 +231,8 @@ test('AdminLayout, Dashboard Overview, and all 6 admin routes enforce authorizat
       [routePaths.adminCurriculum, 'Curriculum Management Workspace', false],
       [routePaths.adminExperiments, 'Experiments Management Workspace', false],
       [routePaths.adminQuestions, 'Questions Management Workspace', false],
-      [routePaths.adminStudents, 'Students Management Workspace', true],
-      [routePaths.adminReports, 'Reports Management Workspace', true],
+      [routePaths.adminStudents, 'Students Management Workspace', false],
+      [routePaths.adminReports, 'Reports Management Workspace', false],
     ]) {
       const adminSubMarkup = await renderRoute(subPath, adminState)
       assert.ok(adminSubMarkup.includes(sectionHeading), `Admin should see ${sectionHeading}`)
