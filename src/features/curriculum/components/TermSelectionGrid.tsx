@@ -39,13 +39,14 @@ export function TermSelectionGrid({
       onKeyDown={handleKeyDown}
       className="grid gap-5 md:grid-cols-2 lg:gap-6"
     >
-      {terms.map((term) => (
+      {terms.map((term, index) => (
         <TermOptionCard
           key={term.id}
           term={term}
           detail={termDetailsBySlug[term.slug]}
           isSelected={selectedTermId === term.id}
           onSelect={onSelectTerm}
+          index={index}
         />
       ))}
     </div>

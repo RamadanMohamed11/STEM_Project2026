@@ -85,7 +85,7 @@ const journeySteps: JourneyStep[] = [
 
 export function HowItWorks() {
   return (
-    <section aria-labelledby="how-it-works-heading">
+    <section aria-labelledby="how-it-works-heading" className="animate-section-enter">
       <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
         <div>
           <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-teal">
@@ -105,11 +105,13 @@ export function HowItWorks() {
       </div>
 
       <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {journeySteps.map((step) => (
-          <li
-            key={step.step}
-            className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-line bg-white p-5 shadow-card transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-teal/40 hover:shadow-lg sm:p-6"
-          >
+        {journeySteps.map((step, index) => {
+          const staggerClass = `stagger-${(index % 6) + 1}`
+          return (
+            <li
+              key={step.step}
+              className={`group relative flex flex-col justify-between overflow-hidden rounded-xl border border-line bg-white p-5 shadow-card transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-teal/40 hover:shadow-lg sm:p-6 animate-card-reveal ${staggerClass}`}
+            >
             {/* Subtle top accent gradient line on hover */}
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-teal-light via-teal to-teal-dark opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
@@ -144,7 +146,8 @@ export function HowItWorks() {
               </Link>
             </div>
           </li>
-        ))}
+          )
+        })}
       </ol>
     </section>
   )

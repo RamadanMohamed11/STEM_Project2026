@@ -57,7 +57,7 @@ export function WhyExperimentsMatter() {
   return (
     <section
       aria-labelledby="why-experiments-heading"
-      className="overflow-hidden rounded-2xl border border-line bg-white p-6 shadow-card sm:p-8 lg:p-10"
+      className="overflow-hidden rounded-2xl border border-line bg-white p-6 shadow-card sm:p-8 lg:p-10 animate-section-enter"
     >
       <div className="flex flex-col justify-between gap-4 border-b border-line pb-6 sm:flex-row sm:items-end sm:pb-8">
         <div>
@@ -79,12 +79,13 @@ export function WhyExperimentsMatter() {
       </div>
 
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:gap-8">
-        {benefits.map((item) => {
+        {benefits.map((item, index) => {
           const Icon = item.icon
+          const staggerClass = `stagger-${(index % 4) + 1}`
           return (
             <div
               key={item.id}
-              className="group flex flex-col justify-between rounded-xl border border-line bg-canvas/60 p-5 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-teal/40 hover:bg-white hover:shadow-lg sm:p-6"
+              className={`group flex flex-col justify-between rounded-xl border border-line bg-canvas/60 p-5 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-teal/40 hover:bg-white hover:shadow-lg sm:p-6 animate-card-reveal ${staggerClass}`}
             >
               <div>
                 <div className="flex items-center justify-between gap-2">

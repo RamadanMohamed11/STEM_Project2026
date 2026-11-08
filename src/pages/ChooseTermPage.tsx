@@ -86,7 +86,7 @@ export function ChooseTermPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-8 sm:space-y-10">
       {/* Page Header */}
-      <div>
+      <div className="animate-fade-in-up">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-teal">
             STEM Virtual Lab · Curriculum

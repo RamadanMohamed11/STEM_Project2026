@@ -191,7 +191,9 @@ export function AdminLayout() {
                 </Card>
               </div>
             )}
-            <Outlet />
+            <div key={pathname} className="animate-page-enter">
+              <Outlet />
+            </div>
           </PageContainer>
         </main>
       </div>

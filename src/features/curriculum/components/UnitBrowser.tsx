@@ -21,12 +21,14 @@ export function UnitBrowser({
     )
   return (
     <div className="space-y-4">
-      {units.map(({ unit, lessons }) => (
-        <details
-          key={unit.id}
-          open={unit.id === openUnitId || undefined}
-          className="group overflow-hidden rounded-xl border border-line bg-white shadow-xs transition-all duration-300 hover:border-teal/30 hover:shadow-md"
-        >
+      {units.map(({ unit, lessons }, index) => {
+        const staggerClass = `stagger-${Math.min((index % 6) + 1, 6)}`
+        return (
+          <details
+            key={unit.id}
+            open={unit.id === openUnitId || undefined}
+            className={`group overflow-hidden rounded-xl border border-line bg-white shadow-xs transition-all duration-300 hover:border-teal/30 hover:shadow-md animate-card-reveal ${staggerClass}`}
+          >
           <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 p-5 focus-visible:outline-teal sm:p-6 [&::-webkit-details-marker]:hidden">
             <div>
               <h2 className="text-lg font-semibold text-navy transition-colors group-hover:text-teal-dark">{unit.title}</h2>
@@ -78,7 +80,7 @@ export function UnitBrowser({
             )}
           </div>
         </details>
-      ))}
+      )})}
     </div>
   )
 }

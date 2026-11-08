@@ -74,7 +74,7 @@ export function CurriculumPage({ curriculumData }: CurriculumPageProps = {}) {
           academic grade and term.
         </p>
       )}
-      <section aria-label="Grade and term" className="grid gap-5 sm:grid-cols-2">
+      <section aria-label="Grade and term" className="grid gap-5 sm:grid-cols-2 animate-section-enter">
         <div>
           <label htmlFor="curriculum-grade" className="text-sm font-semibold text-navy">
             Selected Grade

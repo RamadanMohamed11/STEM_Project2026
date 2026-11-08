@@ -273,7 +273,7 @@ export function StudentProgressPage() {
 
       {/* Summary Metrics */}
       <section aria-label="Progress summary metrics" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card padding="md" className="space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+        <Card padding="md" className="space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md animate-card-reveal stagger-1">
           <div className="flex items-center justify-between text-xs font-semibold tracking-wider text-ink-muted uppercase">
             <span>Available Experiments</span>
             <FlaskConical className="h-4 w-4 text-teal" aria-hidden="true" />
@@ -285,7 +285,7 @@ export function StudentProgressPage() {
           </p>
         </Card>
 
-        <Card padding="md" className="space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+        <Card padding="md" className="space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md animate-card-reveal stagger-2">
           <div className="flex items-center justify-between text-xs font-semibold tracking-wider text-ink-muted uppercase">
             <span>Started Experiments</span>
             <Clock className="h-4 w-4 text-cyan" aria-hidden="true" />
@@ -296,7 +296,7 @@ export function StudentProgressPage() {
           </p>
         </Card>
 
-        <Card padding="md" className="space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+        <Card padding="md" className="space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md animate-card-reveal stagger-3">
           <div className="flex items-center justify-between text-xs font-semibold tracking-wider text-ink-muted uppercase">
             <span>Completed Experiments</span>
             <CheckCircle2 className="h-4 w-4 text-emerald-600" aria-hidden="true" />
@@ -307,7 +307,7 @@ export function StudentProgressPage() {
           </p>
         </Card>
 
-        <Card padding="md" className="space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+        <Card padding="md" className="space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md animate-card-reveal stagger-4">
           <div className="flex items-center justify-between text-xs font-semibold tracking-wider text-ink-muted uppercase">
             <span>Quiz Results</span>
             <Award className="h-4 w-4 text-teal" aria-hidden="true" />
@@ -320,7 +320,7 @@ export function StudentProgressPage() {
       </section>
 
       {/* Continue Learning Section */}
-      <section aria-labelledby="continue-learning-heading" className="space-y-4">
+      <section aria-labelledby="continue-learning-heading" className="space-y-4 animate-section-enter">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h2 id="continue-learning-heading" className="text-lg font-bold text-ink">

@@ -12,7 +12,7 @@ export function StudentProfilePage() {
   const { state } = useAuth()
   const profile = getOwnStudentProfile(state)
   return (
-    <section className="mx-auto w-full max-w-2xl">
+    <section className="mx-auto w-full max-w-2xl animate-fade-in-up">
       <h1 className="text-3xl font-semibold text-navy">Your Profile</h1>
       <p className="mt-3 text-slate">Keep your name and grade up to date.</p>
       <Card className="mt-6 min-w-0" padding="lg">

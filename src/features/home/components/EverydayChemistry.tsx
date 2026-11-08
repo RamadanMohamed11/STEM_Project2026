@@ -65,7 +65,7 @@ const everydayExamples: EverydayItem[] = [
 
 export function EverydayChemistry() {
   return (
-    <section aria-labelledby="everyday-heading">
+    <section aria-labelledby="everyday-heading" className="animate-section-enter">
       <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
         <div>
           <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-teal">
@@ -85,12 +85,13 @@ export function EverydayChemistry() {
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {everydayExamples.map((item) => {
+        {everydayExamples.map((item, index) => {
           const Icon = item.icon
+          const staggerClass = `stagger-${(index % 4) + 1}`
           return (
             <article
               key={item.id}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-line bg-white p-5 shadow-card transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-teal/40 hover:shadow-lg sm:p-6"
+              className={`group relative flex flex-col justify-between overflow-hidden rounded-xl border border-line bg-white p-5 shadow-card transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-teal/40 hover:shadow-lg sm:p-6 animate-card-reveal ${staggerClass}`}
             >
               {/* Subtle top accent gradient line on hover */}
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-teal-light via-teal to-teal-dark opacity-0 transition-opacity duration-300 group-hover:opacity-100" />

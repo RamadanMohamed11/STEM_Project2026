@@ -17,7 +17,7 @@ export function HomePage() {
       {/* Hero Section */}
       <section
         aria-labelledby="home-title"
-        className="relative overflow-hidden rounded-2xl border border-line bg-white shadow-card lg:grid lg:grid-cols-[minmax(0,1.16fr)_minmax(0,0.94fr)]"
+        className="relative overflow-hidden rounded-2xl border border-line bg-white shadow-card lg:grid lg:grid-cols-[minmax(0,1.16fr)_minmax(0,0.94fr)] animate-section-enter"
       >
         {/* Subtle decorative background gradient orb */}
         <div className="pointer-events-none absolute -left-16 -top-16 size-72 rounded-full bg-teal-soft/50 blur-3xl" aria-hidden="true" />

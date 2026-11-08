@@ -39,13 +39,14 @@ export function GradeSelectionGrid({
       onKeyDown={handleKeyDown}
       className="grid gap-5 md:grid-cols-3 lg:gap-6"
     >
-      {grades.map((grade) => (
+      {grades.map((grade, index) => (
         <GradeOptionCard
           key={grade.id}
           grade={grade}
           detail={gradeDetailsMap[grade.id]}
           isSelected={selectedGradeId === grade.id}
           onSelect={onSelectGrade}
+          index={index}
         />
       ))}
     </div>

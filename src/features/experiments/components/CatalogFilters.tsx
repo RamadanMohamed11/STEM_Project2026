@@ -63,7 +63,7 @@ export function CatalogFilters({
   return (
     <section
       aria-label="Find experiments"
-      className="rounded-xl border border-line bg-white px-4 py-5 shadow-card sm:px-6 sm:py-6"
+      className="rounded-xl border border-line bg-white px-4 py-5 shadow-card sm:px-6 sm:py-6 animate-section-enter"
     >
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>

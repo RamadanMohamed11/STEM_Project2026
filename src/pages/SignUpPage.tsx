@@ -4,7 +4,7 @@ import { usePageTitle } from '@/hooks/usePageTitle'
 export function SignUpPage() {
   usePageTitle('Sign Up')
   return (
-    <section className="mx-auto max-w-xl">
+    <section className="mx-auto max-w-xl animate-fade-in-up">
       <p className="text-xs font-bold uppercase tracking-[0.14em] text-teal">
         STEM Virtual Lab · Sign Up
       </p>

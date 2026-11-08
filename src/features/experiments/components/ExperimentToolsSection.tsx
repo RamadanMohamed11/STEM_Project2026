@@ -27,12 +27,14 @@ export function ExperimentToolsSection({ tools }: ExperimentToolsSectionProps) {
         </div>
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {tools.map((tool) => (
-            <article
-              key={tool.id}
-              className="group flex flex-col justify-between rounded-xl border border-line bg-white p-5 shadow-xs transition-all duration-300 ease-out hover:-translate-y-1 hover:border-teal/30 hover:shadow-md"
-              aria-labelledby={`tool-title-${tool.id}`}
-            >
+          {tools.map((tool, index) => {
+            const staggerClass = `stagger-${Math.min((index % 6) + 1, 6)}`
+            return (
+              <article
+                key={tool.id}
+                className={`group flex flex-col justify-between rounded-xl border border-line bg-white p-5 shadow-xs transition-all duration-300 ease-out hover:-translate-y-1 hover:border-teal/30 hover:shadow-md animate-card-reveal ${staggerClass}`}
+                aria-labelledby={`tool-title-${tool.id}`}
+              >
               <div className="space-y-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="transition-transform duration-300 group-hover:scale-105">
@@ -71,7 +73,7 @@ export function ExperimentToolsSection({ tools }: ExperimentToolsSectionProps) {
                 </div>
               )}
             </article>
-          ))}
+          )})}
         </div>
       )}
     </section>

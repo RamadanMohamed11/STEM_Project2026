@@ -56,12 +56,14 @@ export function ExperimentMaterialsSection({
       ) : (
         <div className="space-y-5">
           <div className="grid gap-5 lg:grid-cols-2">
-            {materials.map((material) => (
-              <article
-                key={material.id}
-                className="group flex flex-col justify-between rounded-xl border border-line bg-white p-5 shadow-xs transition-all duration-300 ease-out hover:-translate-y-1 hover:border-teal/30 hover:shadow-md"
-                aria-labelledby={`material-title-${material.id}`}
-              >
+            {materials.map((material, index) => {
+              const staggerClass = `stagger-${Math.min((index % 6) + 1, 6)}`
+              return (
+                <article
+                  key={material.id}
+                  className={`group flex flex-col justify-between rounded-xl border border-line bg-white p-5 shadow-xs transition-all duration-300 ease-out hover:-translate-y-1 hover:border-teal/30 hover:shadow-md animate-card-reveal ${staggerClass}`}
+                  aria-labelledby={`material-title-${material.id}`}
+                >
                 <div className="space-y-4">
                   {/* Header: Visual + Name & Formula + Role */}
                   <div className="flex items-start gap-4">
@@ -145,7 +147,7 @@ export function ExperimentMaterialsSection({
                   )}
                 </div>
               </article>
-            ))}
+            )})}
           </div>
 
           {/* Model Disclaimer */}

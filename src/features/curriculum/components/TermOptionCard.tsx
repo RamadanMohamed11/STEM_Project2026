@@ -7,10 +7,12 @@ interface TermOptionCardProps {
   detail?: TermCardDetail
   isSelected: boolean
   onSelect: (termId: string) => void
+  index?: number
 }
 
-export function TermOptionCard({ term, detail, isSelected, onSelect }: TermOptionCardProps) {
+export function TermOptionCard({ term, detail, isSelected, onSelect, index }: TermOptionCardProps) {
   const Icon = detail?.icon
+  const staggerClass = index !== undefined ? `stagger-${(index % 2) + 1}` : ''
 
   return (
     <article
@@ -24,7 +26,7 @@ export function TermOptionCard({ term, detail, isSelected, onSelect }: TermOptio
           onSelect(term.id)
         }
       }}
-      className={`group relative flex cursor-pointer flex-col justify-between rounded-2xl border p-5 transition-all duration-300 ease-out select-none sm:p-7 hover:-translate-y-1.5 hover:shadow-xl ${
+      className={`group relative flex cursor-pointer flex-col justify-between rounded-2xl border p-5 transition-all duration-300 ease-out select-none sm:p-7 hover:-translate-y-1.5 hover:shadow-xl animate-card-reveal ${staggerClass} ${
         isSelected
           ? 'border-teal bg-teal-soft/20 shadow-md ring-2 ring-teal/30'
           : 'border-line bg-white shadow-card hover:border-teal/40'

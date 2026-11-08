@@ -6,7 +6,7 @@ export function PasswordRecoveryPage({ mode }: { mode: RecoveryMode }) {
   const title = mode === 'forgot' ? 'Forgot Your Password?' : 'Reset Your Password'
   usePageTitle(title)
   return (
-    <section className="mx-auto max-w-xl">
+    <section className="mx-auto max-w-xl animate-fade-in-up">
       <p className="text-xs font-bold uppercase tracking-[0.14em] text-teal">
         STEM Virtual Lab · Account Recovery
       </p>

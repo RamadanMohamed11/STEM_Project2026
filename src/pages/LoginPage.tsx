@@ -5,7 +5,7 @@ export function LoginPage() {
   usePageTitle('Login')
 
   return (
-    <section className="mx-auto max-w-xl">
+    <section className="mx-auto max-w-xl animate-fade-in-up">
       <p className="text-xs font-bold uppercase tracking-[0.14em] text-teal">
         STEM Virtual Lab · Login
       </p>

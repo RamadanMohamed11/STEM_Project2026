@@ -50,7 +50,9 @@ export function AppShell() {
         <Header menuOpen={menuOpen} onMenuOpen={() => setMenuOpen(true)} />
         <main id="main-content" tabIndex={-1} className="min-w-0 flex-1">
           <PageContainer>
-            <Outlet />
+            <div key={pathname} className="animate-page-enter">
+              <Outlet />
+            </div>
           </PageContainer>
         </main>
         <AppShellFooter />

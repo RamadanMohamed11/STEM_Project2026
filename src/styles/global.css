@@ -259,6 +259,51 @@ a {
   }
 }
 
+/* Route Page, Section, and Card Entrance Animations */
+@keyframes pageEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes sectionEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes cardReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes subtleScaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .animate-spin-slow {
   animation: spinSlow 20s linear infinite;
 }
@@ -285,6 +330,42 @@ a {
 
 .animate-scale-in {
   animation: scaleIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-page-enter {
+  animation: pageEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-section-enter {
+  animation: sectionEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-card-reveal {
+  animation: cardReveal 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-subtle-scale {
+  animation: subtleScaleIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Stagger delay tokens for smooth stepped cascade */
+.stagger-1 {
+  animation-delay: 50ms;
+}
+.stagger-2 {
+  animation-delay: 100ms;
+}
+.stagger-3 {
+  animation-delay: 150ms;
+}
+.stagger-4 {
+  animation-delay: 200ms;
+}
+.stagger-5 {
+  animation-delay: 250ms;
+}
+.stagger-6 {
+  animation-delay: 300ms;
 }
 
 .animate-shimmer {
@@ -351,5 +432,41 @@ a {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  .animate-page-enter,
+  .animate-section-enter,
+  .animate-card-reveal,
+  .animate-subtle-scale,
+  .animate-fade-in-up,
+  .animate-scale-in,
+  .animate-slide-in-right,
+  .animate-subtle-float,
+  .animate-subtle-float-slow,
+  .animate-pulse-glow,
+  .animate-bubble-rise,
+  .animate-shimmer,
+  .animate-float-particle,
+  .animate-float-particle-slow,
+  .animate-ripple,
+  .animate-gentle-bounce,
+  .animate-liquid-wave,
+  .animate-pulse-ring,
+  .animate-gradient-flow,
+  .animate-celebrate-pop,
+  .animate-sparkle-twinkle {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .stagger-1,
+  .stagger-2,
+  .stagger-3,
+  .stagger-4,
+  .stagger-5,
+  .stagger-6 {
+    animation-delay: 0ms !important;
   }
 }

@@ -6,7 +6,7 @@ export function WebsiteIntroduction() {
   return (
     <section
       aria-labelledby="intro-heading"
-      className="overflow-hidden rounded-2xl border border-line bg-white p-6 shadow-card sm:p-8 lg:p-10"
+      className="overflow-hidden rounded-2xl border border-line bg-white p-6 shadow-card sm:p-8 lg:p-10 animate-section-enter"
     >
       <div className="grid gap-8 lg:grid-cols-12 lg:items-center lg:gap-12">
         {/* Left column: Overview narrative */}

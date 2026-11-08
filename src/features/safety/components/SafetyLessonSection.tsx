@@ -15,7 +15,7 @@ export function SafetyLessonSection({
   children: ReactNode
 }) {
   return (
-    <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-24">
+    <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-24 animate-section-enter">
       <div className="mb-5 flex items-start gap-4 sm:mb-6">
         <span className="pt-1 text-sm font-semibold tracking-widest text-teal" aria-hidden="true">
           {number}
