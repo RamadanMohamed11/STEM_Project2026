@@ -37,3 +37,7 @@ References: [minimatch maintainer advisory](https://github.com/isaacs/minimatch/
 ## T37 follow-up (8 November 2026)
 
 Route pages are now lazy and the main entry is smaller, but the T36 baseline has manual Three.js chunk groups in vite.config.ts again. These existing groups still preload heavy 3D libraries on Home. They were not changed in T37; the measured total initial gzip reduction is 9.3%, versus 87.3% for the main entry alone. See ROUTE_CODE_SPLITTING.md for reproducible before/after figures and browser verification limits.
+
+## T38 follow-up (8 November 2026)
+
+The real Egyptian Ministry of Education secondary chemistry curriculum (Grades 1, 2, and 3 Secondary; 2 terms each; 11 units; 22 lessons with practical experiments; 23 total experiments) is defined in `src/features/curriculum/data/egyptianCurriculum.ts` and seeded via `supabase/migrations/202611080001_curriculum_seed.sql`. All 22 new experiments are marked `draft` (publication status) and `planned` (simulation status); only the salt dissolution experiment (`exp-salt-water-001`) is playable (`demo`). The migration was not applied to production (owner will apply it). Scientific accuracy review checklist is documented in `docs/CURRICULUM_SOURCES.md`.

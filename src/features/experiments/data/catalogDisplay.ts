@@ -11,8 +11,10 @@ export const experimentDifficultyLabels: Record<ExperimentDifficulty, string> = 
   advanced: 'Advanced',
 }
 
-export const safetyLevelLabels = {
+export const safetyLevelLabels: Record<'none' | 'low' | 'moderate' | 'medium' | 'high', string> = {
+  none: 'No hazard precautions',
   low: 'Low-risk precautions',
   moderate: 'Additional precautions',
+  medium: 'Moderate precautions',
   high: 'Special precautions',
-} as const
+}

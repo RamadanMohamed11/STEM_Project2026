@@ -36,7 +36,7 @@ export type ExperimentStatus = 'demo' | 'planned'
 export type ExperimentDifficulty = 'beginner' | 'intermediate' | 'advanced'
 
 export interface SafetyMetadata {
-  level: 'low' | 'moderate' | 'high'
+  level: 'none' | 'low' | 'moderate' | 'medium' | 'high'
   requiresSupervision: boolean
   note?: string
   recommendedPpe?: readonly string[]

@@ -199,16 +199,18 @@ export function SafetyNotice({
             className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
               safety.level === 'high'
                 ? 'bg-danger-soft text-danger'
-                : safety.level === 'moderate'
+                : safety.level === 'moderate' || safety.level === 'medium'
                   ? 'bg-warning-soft text-warning-dark'
                   : 'bg-teal-soft text-teal-dark'
             }`}
           >
             {safety.level === 'high'
               ? 'High Safety Level'
-              : safety.level === 'moderate'
+              : safety.level === 'moderate' || safety.level === 'medium'
                 ? 'Moderate Safety Level'
-                : 'Low-Risk Educational Activity'}
+                : safety.level === 'none'
+                  ? 'No Inherent Hazards'
+                  : 'Low-Risk Educational Activity'}
           </span>
         )}
       </div>

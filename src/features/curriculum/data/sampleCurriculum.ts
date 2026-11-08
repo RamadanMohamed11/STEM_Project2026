@@ -114,3 +114,13 @@ export const sampleCurriculum: CurriculumData = {
     { lessonId: 'sample-lesson-2-1', experimentId: 'exp-ph-003', order: 1 },
   ],
 }
+
+export {
+  egyptianCurriculum,
+  egyptianGrades,
+  egyptianTerms,
+  egyptianUnits,
+  egyptianLessons,
+  egyptianExperiments,
+  egyptianLessonExperiments,
+} from './egyptianCurriculum.ts'

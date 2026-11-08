@@ -1087,7 +1087,7 @@ export function resolveStudentCurriculumDataset(
   if (!managedState) {
     return {
       data: fallbackSample,
-      source: 'sample',
+      source: fallbackSample.contentStatus === 'reviewed' ? 'published' : 'sample',
     }
   }
 

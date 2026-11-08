@@ -150,7 +150,7 @@ export function AdminExperimentsPage({
   const [objectivesText, setObjectivesText] = useState<string>('')
   const [requiredToolsText, setRequiredToolsText] = useState<string>('')
   const [requiredMaterialsText, setRequiredMaterialsText] = useState<string>('')
-  const [safetyLevel, setSafetyLevel] = useState<'low' | 'moderate' | 'high'>('low')
+  const [safetyLevel, setSafetyLevel] = useState<'none' | 'low' | 'moderate' | 'medium' | 'high'>('low')
   const [requiresSupervision, setRequiresSupervision] = useState<boolean>(true)
   const [safetyNote, setSafetyNote] = useState<string>('')
   const [safetyReviewStatus, setSafetyReviewStatus] =
@@ -1112,10 +1112,14 @@ export function AdminExperimentsPage({
                   className={inputClass}
                   value={safetyLevel}
                   onChange={(e) =>
-                    setSafetyLevel(e.target.value as 'low' | 'moderate' | 'high')
+                    setSafetyLevel(
+                      e.target.value as 'none' | 'low' | 'moderate' | 'medium' | 'high',
+                    )
                   }
                 >
+                  <option value="none">{safetyLevelLabels.none}</option>
                   <option value="low">{safetyLevelLabels.low}</option>
+                  <option value="medium">{safetyLevelLabels.medium}</option>
                   <option value="moderate">{safetyLevelLabels.moderate}</option>
                   <option value="high">{safetyLevelLabels.high}</option>
                 </select>

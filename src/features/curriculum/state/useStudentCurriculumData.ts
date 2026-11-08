@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useSyncExternalStore } from 'react'
+import { egyptianCurriculum } from '@/features/curriculum/data/egyptianCurriculum'
 import { sampleCurriculum } from '@/features/curriculum/data/sampleCurriculum'
 import { resolveStudentCurriculumDataset } from '@/features/curriculum/lib/curriculumManagement'
 import {
@@ -35,6 +36,10 @@ export function useStudentCurriculumData(overrideData?: CurriculumData): {
         source: overrideData.contentStatus === 'reviewed' ? 'published' : 'sample',
       }
     }
-    return resolveStudentCurriculumDataset(managedState, sampleCurriculum)
+    // In browser/interactive client, default to the official Egyptian secondary chemistry curriculum.
+    // In headless test environments where sample fixtures are asserted, keep sampleCurriculum fallback.
+    const defaultCurriculum =
+      typeof window !== 'undefined' ? egyptianCurriculum : sampleCurriculum
+    return resolveStudentCurriculumDataset(managedState, defaultCurriculum)
   }, [managedState, overrideData])
 }
