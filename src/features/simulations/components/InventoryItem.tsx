@@ -1,5 +1,6 @@
 import { ChevronRight } from 'lucide-react'
 import { LaboratoryEquipmentPreview } from '@/features/simulations/components/LaboratoryEquipmentPreview'
+import { ToolNotePopover } from '@/features/experiments/components/ToolNotePopover'
 import type { InventoryItem as InventoryItemData } from '@/types/laboratory'
 
 interface InventoryItemProps {
@@ -57,6 +58,10 @@ export function InventoryItem({
           {placing ? 'Placing' : 'Place'}
         </button>
       )}
+      <ToolNotePopover
+        toolId={item.id}
+        triggerAriaLabel={`Equipment safety note for ${item.title}`}
+      />
     </li>
   )
 }

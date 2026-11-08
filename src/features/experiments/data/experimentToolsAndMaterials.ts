@@ -1,4 +1,5 @@
 import type { ExperimentToolsAndMaterialsData } from '../types/toolsAndMaterials'
+import { resolveToolItem } from './equipmentCatalog.ts'
 
 /**
  * 1. Dissolving Salt in Water (Grade 1 Term 1)
@@ -9,69 +10,42 @@ export const saltDissolutionToolsAndMaterials: ExperimentToolsAndMaterialsData =
   measurementDisclaimer:
     'Quantities reflect educational simulation targets, not certified analytical measurements.',
   tools: [
-    {
-      id: 'beaker',
+    resolveToolItem('beaker', {
       name: 'Beaker',
-      visual: 'beaker',
-      shortExplanation: 'A flat-bottomed cylindrical glass container with a pouring spout.',
       purpose: 'Holds the water solvent and provides space for adding and stirring the solid salt.',
       specification: '250 mL Borosilicate Glass',
-      safetyNote:
-        'Inspect for chips or cracks before use. Support by the body and base when handling.',
-    },
-    {
-      id: 'graduated-cylinder',
+      safetyNote: 'Inspect for chips or cracks before use. Support by the body and base when handling.',
+    }),
+    resolveToolItem('graduated-cylinder', {
       name: 'Graduated Cylinder',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'A tall, narrow glass cylinder marked with calibrated measurement lines.',
       purpose: 'Measures exactly 100 mL of water before transferring it into the reaction beaker.',
       specification: '100 mL Calibrated Glass',
-      safetyNote:
-        'Always read the bottom of the curved meniscus at eye level on a flat, level surface.',
-    },
-    {
-      id: 'stirring-rod',
+      safetyNote: 'Always read the bottom of the curved meniscus at eye level on a flat, level surface.',
+    }),
+    resolveToolItem('stirring-rod', {
       name: 'Glass Stirring Rod',
-      visual: 'stirring-rod',
-      shortExplanation: 'A solid glass rod with smooth, rounded, fire-polished ends.',
       purpose: 'Helps mix liquids and speeds up the dissolution of solid salt crystals in water.',
       specification: 'Solid Borosilicate Glass',
-      safetyNote:
-        'Stir gently in circular motions without striking the glass bottom or sides of the beaker.',
-    },
-    {
-      id: 'digital-balance',
+      safetyNote: 'Stir gently in circular motions without striking the glass bottom or sides of the beaker.',
+    }),
+    resolveToolItem('digital-balance', {
       name: 'Digital Balance',
-      visual: 'digital-balance',
-      shortExplanation: 'An electronic weighing device that displays mass on a digital readout.',
-      purpose:
-        'Measures the net mass of sodium chloride placed in the tared weighing boat (5.00 g).',
+      purpose: 'Measures the net mass of sodium chloride placed in the tared weighing boat (5.00 g).',
       specification: 'Two-decimal electronic balance (0.01 g precision)',
-      safetyNote:
-        'Tare the balance with the empty weighing boat before adding crystals; keep the pan dry.',
-    },
-    {
-      id: 'spatula',
+      safetyNote: 'Tare the balance with the empty weighing boat before adding crystals; keep the pan dry.',
+    }),
+    resolveToolItem('spatula', {
       name: 'Laboratory Spatula',
-      visual: 'spatula',
-      shortExplanation: 'A handheld stainless-steel tool with a flat blade and a shallow scoop.',
-      purpose:
-        'Transfers small portions of solid sodium chloride cleanly from the reagent bottle into the weighing boat.',
+      purpose: 'Transfers small portions of solid sodium chloride cleanly from the reagent bottle into the weighing boat.',
       specification: 'Stainless Steel Scoop Spatula',
-      safetyNote:
-        'Use only clean, dry spatulas. Never return excess chemical powder to the stock jar.',
-    },
-    {
-      id: 'weighing-boat',
+      safetyNote: 'Use only clean, dry spatulas. Never return excess chemical powder to the stock jar.',
+    }),
+    resolveToolItem('weighing-boat', {
       name: 'Weighing Boat',
-      visual: 'weighing-boat',
-      shortExplanation: 'A shallow, flexible dish used to hold solid chemical samples on a balance.',
-      purpose:
-        'Contains the scooped salt crystals during weighing and flexes easily to pour them into the beaker.',
+      purpose: 'Contains the scooped salt crystals during weighing and flexes easily to pour them into the beaker.',
       specification: 'Polystyrene shallow weighing dish',
-      safetyNote:
-        'Ensure the dish is completely dry before adding powders to avoid sticking or chemical clumps.',
-    },
+      safetyNote: 'Ensure the dish is completely dry before adding powders to avoid sticking or chemical clumps.',
+    }),
   ],
   materials: [
     {
@@ -138,33 +112,24 @@ export const liquidVolumeToolsAndMaterials: ExperimentToolsAndMaterialsData = {
   reviewStatus: 'draft',
   measurementDisclaimer: 'Volumetric tolerances follow standard Class B educational laboratory glassware.',
   tools: [
-    {
-      id: 'graduated-cylinder',
+    resolveToolItem('graduated-cylinder', {
       name: 'Graduated Cylinder',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Calibrated vertical glass tube with circular scale markings.',
       purpose: 'Measures variable volumes of liquid with precision to 0.5 mL.',
       specification: '100 mL Class B Glass Cylinder',
       safetyNote: 'Keep the rubber bumper ring positioned near the neck to cushion against tipping.',
-    },
-    {
-      id: 'beaker',
+    }),
+    resolveToolItem('beaker', {
       name: 'Beaker',
-      visual: 'beaker',
-      shortExplanation: 'Wide cylindrical container with graduation marks for rough estimation.',
       purpose: 'Holds stock liquid and demonstrates differences in measurement accuracy.',
       specification: '250 mL Borosilicate Glass',
       safetyNote: 'Beaker volume lines are approximate (±5%); never use for analytical measurements.',
-    },
-    {
-      id: 'pipette',
+    }),
+    resolveToolItem('pipette', {
       name: 'Volumetric Pipette',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Narrow glass tube calibrated to deliver a fixed volume.',
       purpose: 'Transfers exact 25.0 mL liquid aliquots with high precision.',
       specification: '25 mL One-Mark Volumetric Pipette',
       safetyNote: 'Always use a rubber pipette filler bulb; never pipette by mouth.',
-    },
+    }),
   ],
   materials: [
     {
@@ -189,31 +154,22 @@ export const phIndicatorsToolsAndMaterials: ExperimentToolsAndMaterialsData = {
   experimentId: 'exp-ph-003',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'test-tube',
+    resolveToolItem('test-tube', {
       name: 'Test Tube',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Cylindrical glass vessel for mixing and observing small reaction volumes.',
       purpose: 'Holds sample solutions for adding indicator drops and observing color transitions.',
       specification: '16 × 150 mm Borosilicate Glass',
       safetyNote: 'Never point the open mouth of a test tube toward yourself or others.',
-    },
-    {
-      id: 'test-tube-rack',
+    }),
+    resolveToolItem('test-tube-rack', {
       name: 'Test Tube Rack',
-      visual: 'beaker',
-      shortExplanation: 'Molded support rack for holding multiple test tubes upright.',
       purpose: 'Organizes acid, base, and neutral test tubes side by side for direct comparison.',
       specification: '6-place Polypropylene Rack',
-    },
-    {
-      id: 'dropper',
+    }),
+    resolveToolItem('dropper', {
       name: 'Medicine Dropper',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Glass pipette with rubber squeeze bulb for delivering liquid drops.',
       purpose: 'Adds controlled drops of indicator solution to test samples.',
       specification: 'Glass Dropper with Latex Bulb',
-    },
+    }),
   ],
   materials: [
     {
@@ -262,23 +218,17 @@ export const colloidsToolsAndMaterials: ExperimentToolsAndMaterialsData = {
   experimentId: 'exp-colloids-004',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'beaker',
+    resolveToolItem('beaker', {
       name: 'Beakers (Set of 2)',
-      visual: 'beaker',
-      shortExplanation: 'Clear glass beakers for optical transmission observation.',
       purpose: 'Hold the true solution and colloidal dispersion side by side.',
       specification: '150 mL Borosilicate Glass',
       safetyNote: 'Ensure the outer glass walls are wiped completely clean and dry before shining light.',
-    },
-    {
-      id: 'stirring-rod',
+    }),
+    resolveToolItem('stirring-rod', {
       name: 'Glass Stirring Rod',
-      visual: 'stirring-rod',
-      shortExplanation: 'Solid glass rod for dispersing colloidal matter.',
       purpose: 'Mixes starch powder in warm water to form a uniform colloidal dispersion.',
       specification: '200 mm Glass Rod',
-    },
+    }),
   ],
   materials: [
     {
@@ -315,32 +265,23 @@ export const titrationToolsAndMaterials: ExperimentToolsAndMaterialsData = {
   experimentId: 'exp-titration-005',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'burette',
+    resolveToolItem('burette', {
       name: 'Burette with Stopcock',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Precision volumetric glass tube with a PTFE stopcock tap.',
       purpose: 'Delivers standardized hydrochloric acid dropwise into the reaction flask.',
       specification: '50 mL Class A Burette (0.1 mL graduations)',
       safetyNote: 'Ensure the stopcock is firmly seated; check that the tip is full of liquid before starting.',
-    },
-    {
-      id: 'erlenmeyer-flask',
+    }),
+    resolveToolItem('erlenmeyer-flask', {
       name: 'Conical (Erlenmeyer) Flask',
-      visual: 'beaker',
-      shortExplanation: 'Cone-shaped flask with narrow neck designed for swirl mixing without splashing.',
       purpose: 'Contains the measured sodium hydroxide aliquot and indicator during titration.',
       specification: '250 mL Borosilicate Glass',
-    },
-    {
-      id: 'pipette',
+    }),
+    resolveToolItem('pipette', {
       name: 'Volumetric Transfer Pipette',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Calibrated glass pipette for delivering a single fixed volume.',
       purpose: 'Measures exactly 10.0 mL of standard sodium hydroxide into the conical flask.',
       specification: '10 mL Class A Pipette',
       safetyNote: 'Use a rubber pipette safety bulb; never draw liquid by mouth.',
-    },
+    }),
   ],
   materials: [
     {
@@ -389,31 +330,22 @@ export const heatDissolutionToolsAndMaterials: ExperimentToolsAndMaterialsData =
   experimentId: 'exp-heat-dissolution-006',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'calorimeter',
+    resolveToolItem('calorimeter', {
       name: 'Coffee-Cup Calorimeter',
-      visual: 'beaker',
-      shortExplanation: 'Double-walled expanded polystyrene container with an insulating lid.',
       purpose: 'Minimizes heat exchange with the surroundings during salt dissolution.',
       specification: 'Nested Polystyrene Cups with Foam Lid',
-    },
-    {
-      id: 'thermometer',
+    }),
+    resolveToolItem('thermometer', {
       name: 'Precision Digital Thermometer',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Digital temperature probe measuring to 0.1°C resolution.',
       purpose: 'Records initial water temperature and maximum/minimum temperature after dissolution.',
       specification: '-10°C to +110°C Digital Thermocouple Probe',
       safetyNote: 'Do not use the thermometer as a stirring rod; handle probe gently.',
-    },
-    {
-      id: 'digital-balance',
+    }),
+    resolveToolItem('digital-balance', {
       name: 'Digital Balance',
-      visual: 'digital-balance',
-      shortExplanation: 'Two-decimal electronic balance for precise mass measurement.',
       purpose: 'Weighs 8.00 g of solid ammonium nitrate solute.',
       specification: '0.01 g Precision Balance',
-    },
+    }),
   ],
   materials: [
     {
@@ -450,30 +382,21 @@ export const heatNeutralizationToolsAndMaterials: ExperimentToolsAndMaterialsDat
   experimentId: 'exp-heat-neutralization-007',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'calorimeter',
+    resolveToolItem('calorimeter', {
       name: 'Insulated Calorimeter',
-      visual: 'beaker',
-      shortExplanation: 'Insulated cup system to capture heat released during acid-base neutralization.',
       purpose: 'Prevents thermal dissipation to the environment during reaction.',
       specification: '250 mL Insulated Cup Assembly',
-    },
-    {
-      id: 'graduated-cylinder',
+    }),
+    resolveToolItem('graduated-cylinder', {
       name: 'Graduated Cylinders (Pair)',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Measuring cylinders for equal volumes of acid and base.',
       purpose: 'Measures 50 mL of 1.0 M HCl and 50 mL of 1.0 M NaOH.',
       specification: '50 mL Glass Cylinders',
-    },
-    {
-      id: 'thermometer',
+    }),
+    resolveToolItem('thermometer', {
       name: 'Laboratory Thermometer',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Thermometer for monitoring exothermic temperature rise.',
       purpose: 'Measures starting solution temperature and peak neutralization temperature.',
       specification: '0°C to 100°C (0.2°C scale)',
-    },
+    }),
   ],
   materials: [
     {
@@ -510,32 +433,23 @@ export const flameTestsToolsAndMaterials: ExperimentToolsAndMaterialsData = {
   experimentId: 'exp-flame-tests-008',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'bunsen-burner',
+    resolveToolItem('bunsen-burner', {
       name: 'Bunsen Burner',
-      visual: 'beaker',
-      shortExplanation: 'Gas burner providing an adjustable, non-luminous high-temperature flame.',
       purpose: 'Thermally excites metal valence electrons in the hottest flame zone.',
       specification: 'Standard Natural Gas Burner with Air Collar',
       safetyNote: 'Tie back long hair and ensure gas valves are closed immediately after use.',
-    },
-    {
-      id: 'platinum-wire',
+    }),
+    resolveToolItem('platinum-wire', {
       name: 'Platinum / Nichrome Wire Loop',
-      visual: 'spatula',
-      shortExplanation: 'Heat-resistant metal wire fused into a glass rod handle.',
       purpose: 'Holds small chemical crystal samples directly in the flame without imparting background color.',
       specification: 'Platinum Wire (0.5 mm diameter) in Glass Holder',
       safetyNote: 'Wire becomes incandescently hot; allow to cool on heatproof mat.',
-    },
-    {
-      id: 'watch-glass',
+    }),
+    resolveToolItem('watch-glass', {
       name: 'Watch Glass',
-      visual: 'weighing-boat',
-      shortExplanation: 'Shallow circular concave glass dish.',
       purpose: 'Holds concentrated hydrochloric acid for cleaning the wire loop between tests.',
       specification: '75 mm Borosilicate Watch Glass',
-    },
+    }),
   ],
   materials: [
     {
@@ -585,22 +499,16 @@ export const oxidesToolsAndMaterials: ExperimentToolsAndMaterialsData = {
   experimentId: 'exp-oxides-009',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'combustion-spoon',
+    resolveToolItem('combustion-spoon', {
       name: 'Deflagrating (Combustion) Spoon',
-      visual: 'spatula',
-      shortExplanation: 'Long-handled metal spoon with a protective cover plate.',
       purpose: 'Lowers burning solid samples safely into a gas jar of pure oxygen.',
       specification: 'Stainless Steel Spoon with 250 mm Handle',
-    },
-    {
-      id: 'gas-jar',
+    }),
+    resolveToolItem('gas-jar', {
       name: 'Gas Jar with Glass Cover Plate',
-      visual: 'beaker',
-      shortExplanation: 'Heavy cylindrical glass jar for collecting and reacting gases.',
       purpose: 'Contains oxygen gas and encloses oxide combustion fumes.',
       specification: '500 mL Heavy Glass Jar',
-    },
+    }),
   ],
   materials: [
     {
@@ -649,22 +557,16 @@ export const halogenDisplacementToolsAndMaterials: ExperimentToolsAndMaterialsDa
   experimentId: 'exp-halogen-displacement-010',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'test-tube',
+    resolveToolItem('test-tube', {
       name: 'Test Tubes with Stoppers',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Glass tubes fitted with rubber stoppers for vigorous shaking.',
       purpose: 'Allows mixing aqueous halides with chlorine and extracting free halogens into solvent.',
       specification: '20 × 150 mm Rimless Tubes with Neoprene Stoppers',
-    },
-    {
-      id: 'dropper',
+    }),
+    resolveToolItem('dropper', {
       name: 'Pasteur Pipette Dropper',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Fine dropper for transferring volatile organic solvents cleanly.',
       purpose: 'Adds 2 mL portions of chlorine water and cyclohexane.',
       specification: 'Glass Dropper Pipette',
-    },
+    }),
   ],
   materials: [
     {
@@ -715,23 +617,17 @@ export const conductivityToolsAndMaterials: ExperimentToolsAndMaterialsData = {
   experimentId: 'exp-conductivity-011',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'conductivity-apparatus',
+    resolveToolItem('conductivity-apparatus', {
       name: 'Conductivity Apparatus',
-      visual: 'beaker',
-      shortExplanation: 'Rigid platform supporting two inert graphite electrodes and a low-wattage indicator lamp.',
       purpose: 'Completes an electrical circuit through test liquid to indicate mobile ion concentration.',
       specification: '6 V DC Circuit with Graphite Electrodes & 6 V Incandescent Bulb',
       safetyNote: 'Disconnect power supply before rinsing or touching electrode surfaces.',
-    },
-    {
-      id: 'beaker',
+    }),
+    resolveToolItem('beaker', {
       name: 'Sample Beakers (Set of 4)',
-      visual: 'beaker',
-      shortExplanation: 'Small glass containers for holding electrolyte samples.',
       purpose: 'Hold solid salt, salt water, sugar water, and dilute acetic acid for comparison.',
       specification: '100 mL Glass Beakers',
-    },
+    }),
   ],
   materials: [
     {
@@ -780,32 +676,23 @@ export const sodiumWaterToolsAndMaterials: ExperimentToolsAndMaterialsData = {
   experimentId: 'exp-sodium-water-012',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'safety-shield',
+    resolveToolItem('safety-shield', {
       name: 'Polycarbonate Safety Blast Shield',
-      visual: 'beaker',
-      shortExplanation: 'Transparent shatterproof polycarbonate barrier placed in front of the trough.',
       purpose: 'Protects students and instructor from potential corrosive splashes or sparks.',
       specification: '6 mm Heavy Polycarbonate Bench Shield',
       safetyNote: 'Position shield securely between reaction vessel and all personnel before adding sodium.',
-    },
-    {
-      id: 'beaker',
+    }),
+    resolveToolItem('beaker', {
       name: 'Large Glass Trough / Beaker',
-      visual: 'beaker',
-      shortExplanation: 'Heavy wide-mouth glass container filled half-full with water.',
       purpose: 'Provides ample surface area for the sodium sphere to dart freely.',
       specification: '1000 mL Heavy-Wall Borosilicate Trough',
-    },
-    {
-      id: 'spatula',
+    }),
+    resolveToolItem('spatula', {
       name: 'Laboratory Forceps / Tweezers',
-      visual: 'spatula',
-      shortExplanation: 'Stainless steel blunt-ended tweezers for chemical handling.',
       purpose: 'Transfers metallic sodium without any direct skin contact.',
       specification: '150 mm Stainless Steel Forceps',
       safetyNote: 'Never touch sodium metal with bare fingers; moisture on skin causes severe alkali burns.',
-    },
+    }),
   ],
   materials: [
     {
@@ -854,23 +741,17 @@ export const ammoniaPrepToolsAndMaterials: ExperimentToolsAndMaterialsData = {
   experimentId: 'exp-ammonia-prep-013',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'round-bottom-flask',
+    resolveToolItem('round-bottom-flask', {
       name: 'Round-Bottom Reaction Flask',
-      visual: 'beaker',
-      shortExplanation: 'Heat-resistant spherical flask for uniform thermal distribution.',
       purpose: 'Contains the dry solid mixture of ammonium chloride and slaked lime during heating.',
       specification: '250 mL Pyrex Round-Bottom Flask',
       safetyNote: 'Clamp flask tilted slightly downward toward the neck to prevent condensed water flowing onto hot glass.',
-    },
-    {
-      id: 'gas-delivery-tube',
+    }),
+    resolveToolItem('gas-delivery-tube', {
       name: 'Drying Tower & Inverted Delivery Tube',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Glass U-tube filled with quicklime lumps and inverted collector tube.',
       purpose: 'Dries ammonia gas over CaO and collects dry gas by downward displacement of air.',
       specification: 'Quicklime Glass Drying Column',
-    },
+    }),
   ],
   materials: [
     {
@@ -919,22 +800,16 @@ export const catalysisToolsAndMaterials: ExperimentToolsAndMaterialsData = {
   experimentId: 'exp-catalysis-014',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'erlenmeyer-flask',
+    resolveToolItem('erlenmeyer-flask', {
       name: 'Conical Gas Generator Flask',
-      visual: 'beaker',
-      shortExplanation: 'Conical reaction flask fitted with gas-tight delivery bung.',
       purpose: 'Holds hydrogen peroxide solution where solid manganese dioxide is added.',
       specification: '250 mL Borosilicate Conical Flask',
-    },
-    {
-      id: 'gas-delivery-tube',
+    }),
+    resolveToolItem('gas-delivery-tube', {
       name: 'Gas Syringe / Pneumatic Trough',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Calibrated glass gas syringe measuring evolved gas volume over time.',
       purpose: 'Collects and measures the volume of released oxygen gas at 10-second intervals.',
       specification: '100 mL Precision Gas Syringe',
-    },
+    }),
   ],
   materials: [
     {
@@ -971,22 +846,16 @@ export const anionsToolsAndMaterials: ExperimentToolsAndMaterialsData = {
   experimentId: 'exp-anions-015',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'test-tube',
+    resolveToolItem('test-tube', {
       name: 'Hard Glass Test Tubes (Rack of 6)',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Set of clean test tubes for parallel anion screening.',
       purpose: 'Hold solid salt samples for acid addition and gas evolution checks.',
       specification: '16 × 150 mm Borosilicate Glass',
-    },
-    {
-      id: 'gas-delivery-tube',
+    }),
+    resolveToolItem('gas-delivery-tube', {
       name: 'Bent Gas Delivery Tube',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Glass delivery tube with rubber stopper.',
       purpose: 'Channels evolved CO₂ gas directly into clear limewater without atmospheric dilution.',
       specification: 'Right-Angle Delivery Tube',
-    },
+    }),
   ],
   materials: [
     {
@@ -1035,22 +904,16 @@ export const cationsToolsAndMaterials: ExperimentToolsAndMaterialsData = {
   experimentId: 'exp-cations-016',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'test-tube',
+    resolveToolItem('test-tube', {
       name: 'Precipitation Test Tubes (Set of 4)',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Clear test tubes for observing gelatinous precipitate colors.',
       purpose: 'Hold aqueous cation solutions during dropwise reagent addition.',
       specification: '15 × 125 mm Tubes',
-    },
-    {
-      id: 'dropper',
+    }),
+    resolveToolItem('dropper', {
       name: 'Dropper Pipettes',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Calibrated dropper pipettes for controlled alkali delivery.',
       purpose: 'Delivers drops of NaOH to record initial precipitation and excess solubility.',
       specification: 'Fine-Tip Droppers',
-    },
+    }),
   ],
   materials: [
     {
@@ -1111,30 +974,21 @@ export const volumetricTitrationToolsAndMaterials: ExperimentToolsAndMaterialsDa
   experimentId: 'exp-volumetric-titration-017',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'burette',
+    resolveToolItem('burette', {
       name: 'Class A Precision Burette',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Calibrated analytical burette with fine needle control.',
       purpose: 'Measures exact volume of unknown hydrochloric acid required for neutralization.',
       specification: '50 mL ± 0.05 mL Tolerance Burette',
-    },
-    {
-      id: 'pipette',
+    }),
+    resolveToolItem('pipette', {
       name: 'Volumetric Transfer Pipette',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Single-volume precision glass pipette.',
       purpose: 'Dispenses exactly 25.0 mL of primary standard sodium carbonate solution.',
       specification: '25 mL Class A Volumetric Pipette',
-    },
-    {
-      id: 'erlenmeyer-flask',
+    }),
+    resolveToolItem('erlenmeyer-flask', {
       name: 'Titration Conical Flask',
-      visual: 'beaker',
-      shortExplanation: 'Wide base conical flask on a white glazed tile.',
       purpose: 'Reaction vessel for swirl mixing without drop splashing.',
       specification: '250 mL Conical Flask with White Tile',
-    },
+    }),
   ],
   materials: [
     {
@@ -1183,22 +1037,16 @@ export const equilibriumToolsAndMaterials: ExperimentToolsAndMaterialsData = {
   experimentId: 'exp-equilibrium-018',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'test-tube',
+    resolveToolItem('test-tube', {
       name: 'Matched Colorimeter Tubes (Set of 4)',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Uniform diameter glass tubes for direct optical comparison.',
       purpose: 'Contain equilibrium mixtures at different reactant concentrations.',
       specification: 'Matched 18 × 150 mm Tubes',
-    },
-    {
-      id: 'dropper',
+    }),
+    resolveToolItem('dropper', {
       name: 'Graduated Droppers',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Droppers for precise addition of reactant solutions.',
       purpose: 'Perturbs equilibrium by adding excess Fe³⁺ or SCN⁻ ions.',
       specification: '1 mL Droppers',
-    },
+    }),
   ],
   materials: [
     {
@@ -1247,30 +1095,21 @@ export const daniellCellToolsAndMaterials: ExperimentToolsAndMaterialsData = {
   experimentId: 'exp-daniell-cell-019',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'voltmeter',
+    resolveToolItem('voltmeter', {
       name: 'Digital Voltmeter with Clip Leads',
-      visual: 'digital-balance',
-      shortExplanation: 'High-impedance digital multimeter measuring DC potential difference.',
       purpose: 'Measures cell electromotive force without drawing significant current.',
       specification: 'Digital DC Voltmeter (0.001 V resolution)',
-    },
-    {
-      id: 'u-tube-cell',
+    }),
+    resolveToolItem('u-tube-cell', {
       name: 'U-Tube Salt Bridge Assembly',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Inverted U-shaped glass tube filled with agar gel and KNO₃ electrolyte.',
       purpose: 'Permits ion migration between half-cells while preventing solution intermixing.',
       specification: '15 mm Diameter Glass U-Tube with Porous Plugs',
-    },
-    {
-      id: 'beaker',
+    }),
+    resolveToolItem('beaker', {
       name: 'Half-Cell Beakers (Pair)',
-      visual: 'beaker',
-      shortExplanation: 'Beakers holding the respective metal electrode and sulfate solution.',
       purpose: 'Hold the zinc and copper half-cell systems.',
       specification: '250 mL Borosilicate Beakers',
-    },
+    }),
   ],
   materials: [
     {
@@ -1319,22 +1158,16 @@ export const electrolysisToolsAndMaterials: ExperimentToolsAndMaterialsData = {
   experimentId: 'exp-electrolysis-020',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'electrolytic-cell',
+    resolveToolItem('electrolytic-cell', {
       name: 'Electrolytic Cell Tank & Power Supply',
-      visual: 'beaker',
-      shortExplanation: 'Glass cell with DC power unit (0–12 V) and ammeter.',
       purpose: 'Supplies direct electric current to drive non-spontaneous redox decomposition.',
       specification: 'Variable DC Power Unit (0–6 V, 2 A) with Analog Ammeter',
-    },
-    {
-      id: 'digital-balance',
+    }),
+    resolveToolItem('digital-balance', {
       name: 'Analytical Balance',
-      visual: 'digital-balance',
-      shortExplanation: 'High-precision balance for weighing cathode before and after electrolysis.',
       purpose: 'Measures exact mass increase of deposited copper.',
       specification: '0.001 g Analytical Balance',
-    },
+    }),
   ],
   materials: [
     {
@@ -1371,31 +1204,22 @@ export const organicDetectionToolsAndMaterials: ExperimentToolsAndMaterialsData 
   experimentId: 'exp-organic-detection-021',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'hard-glass-tube',
+    resolveToolItem('hard-glass-tube', {
       name: 'Hard Glass Combustion Tube with Clamp',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Thick-walled borosilicate tube capable of withstanding direct burner flame.',
       purpose: 'Contains the mixture of organic substance and black copper(II) oxide during heating.',
       specification: 'Ignition Tube with Heat-Resistant Clamp',
       safetyNote: 'Ensure tube is completely dry; thermal shock can shatter cold damp glass.',
-    },
-    {
-      id: 'gas-delivery-tube',
+    }),
+    resolveToolItem('gas-delivery-tube', {
       name: 'Delivery Tube with Absorption Bulbs',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Bent delivery tube leading into a limewater test vial.',
       purpose: 'Passes combustion vapors over anhydrous CuSO₄ then bubbles gas into limewater.',
       specification: 'Custom Bent Glass Tube with One-Hole Rubber Stopper',
-    },
-    {
-      id: 'bunsen-burner',
+    }),
+    resolveToolItem('bunsen-burner', {
       name: 'Bunsen Burner',
-      visual: 'beaker',
-      shortExplanation: 'High-temperature gas burner for decomposing organic matrix.',
       purpose: 'Provides direct heat to initiate oxidation by copper(II) oxide.',
       specification: 'Laboratory Burner',
-    },
+    }),
   ],
   materials: [
     {
@@ -1444,31 +1268,22 @@ export const ethylenePrepToolsAndMaterials: ExperimentToolsAndMaterialsData = {
   experimentId: 'exp-ethylene-prep-022',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'round-bottom-flask',
+    resolveToolItem('round-bottom-flask', {
       name: 'Distillation Generating Flask with Thermometer',
-      visual: 'beaker',
-      shortExplanation: 'Heavy round-bottom flask fitted with thermometer dipping into reaction liquid.',
       purpose: 'Contains ethanol and concentrated H₂SO₄ heated precisely at 180°C.',
       specification: '250 mL Two-Neck Flask with 0–250°C Thermometer',
       safetyNote: 'Maintain temperature strictly between 170°C and 180°C to avoid ether formation at 140°C.',
-    },
-    {
-      id: 'wash-bottle',
+    }),
+    resolveToolItem('wash-bottle', {
       name: 'Gas Washing Bottle',
-      visual: 'beaker',
-      shortExplanation: 'Dreschel wash bottle containing sodium hydroxide solution.',
       purpose: 'Absorbs acidic sulfur dioxide and carbon dioxide impurities from ethene stream.',
       specification: '250 mL Glass Wash Bottle',
-    },
-    {
-      id: 'gas-delivery-tube',
+    }),
+    resolveToolItem('gas-delivery-tube', {
       name: 'Pneumatic Trough & Gas Collection Jars',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Water trough with beehive shelf and inverted gas jars.',
       purpose: 'Collects ethene gas over water by downward displacement.',
       specification: 'Beehive Shelf with 250 mL Gas Jars',
-    },
+    }),
   ],
   materials: [
     {
@@ -1517,31 +1332,22 @@ export const esterificationToolsAndMaterials: ExperimentToolsAndMaterialsData = 
   experimentId: 'exp-esterification-023',
   reviewStatus: 'draft',
   tools: [
-    {
-      id: 'water-bath',
+    resolveToolItem('water-bath', {
       name: 'Indirect Electric Water Bath',
-      visual: 'beaker',
-      shortExplanation: 'Water bath container maintained between 60°C and 70°C.',
       purpose: 'Safely heats flammable alcohol and acid mixture without an open burner flame.',
       specification: 'Constant-Temperature Laboratory Water Bath',
       safetyNote: 'Never use an open flame to heat alcohol mixtures.',
-    },
-    {
-      id: 'test-tube',
+    }),
+    resolveToolItem('test-tube', {
       name: 'Reaction Test Tube with Beaker',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Boiling tube placed into warm water bath, then decanted into beaker.',
       purpose: 'Hosts esterification condensation, then decants into sodium carbonate for odor inspection.',
       specification: '25 × 150 mm Hard Glass Tube and 250 mL Beaker',
-    },
-    {
-      id: 'dropper',
+    }),
+    resolveToolItem('dropper', {
       name: 'Pasteur Pipette Droppers',
-      visual: 'graduated-cylinder',
-      shortExplanation: 'Chemical droppers for measured reactant addition.',
       purpose: 'Adds concentrated sulfuric acid catalyst dropwise.',
       specification: 'Glass Droppers',
-    },
+    }),
   ],
   materials: [
     {

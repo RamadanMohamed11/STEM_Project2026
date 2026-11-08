@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react'
+import { ToolNotePopover } from '@/features/experiments/components/ToolNotePopover'
 import type { EquipmentGuideItem } from '../types/equipmentGuide'
 import { EquipmentVisual } from './EquipmentVisual'
 
@@ -20,9 +21,15 @@ export function EquipmentCard({ item, isSelected, onSelect }: EquipmentCardProps
       <div>
         <div className="flex items-start justify-between gap-3">
           <EquipmentVisual visualKey={item.visualKey} className="size-20 shrink-0 sm:size-24" />
-          <span className="rounded-full border border-line bg-canvas px-2.5 py-0.5 text-[11px] font-semibold text-slate">
-            {item.categoryLabel}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="rounded-full border border-line bg-canvas px-2.5 py-0.5 text-[11px] font-semibold text-slate">
+              {item.categoryLabel}
+            </span>
+            <ToolNotePopover
+              toolId={item.id}
+              triggerAriaLabel={`View lab notes for ${item.name}`}
+            />
+          </div>
         </div>
 
         <h3 className="mt-4 text-lg font-bold text-navy group-hover:text-teal-dark">

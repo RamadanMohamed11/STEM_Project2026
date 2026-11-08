@@ -1,5 +1,6 @@
 import type { ExperimentToolItem } from '../types/toolsAndMaterials'
 import { ToolAndMaterialVisual } from './ToolAndMaterialVisual'
+import { ToolNotePopover } from './ToolNotePopover'
 
 interface ExperimentToolsSectionProps {
   tools: readonly ExperimentToolItem[] | undefined
@@ -44,11 +45,17 @@ export function ExperimentToolsSection({ tools }: ExperimentToolsSectionProps) {
                       className="size-20 shrink-0"
                     />
                   </div>
-                  {tool.specification && (
-                    <span className="inline-block rounded-md bg-canvas px-2.5 py-1 text-right text-[11px] font-medium text-slate">
-                      {tool.specification}
-                    </span>
-                  )}
+                  <div className="flex flex-col items-end gap-1.5">
+                    {tool.specification && (
+                      <span className="inline-block rounded-md bg-canvas px-2.5 py-1 text-right text-[11px] font-medium text-slate">
+                        {tool.specification}
+                      </span>
+                    )}
+                    <ToolNotePopover
+                      toolId={tool.id}
+                      triggerAriaLabel={`View lab notes for ${tool.name}`}
+                    />
+                  </div>
                 </div>
 
                 <div>
