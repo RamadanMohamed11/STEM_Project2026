@@ -139,3 +139,61 @@ curl -N -X POST http://127.0.0.1:54321/functions/v1/ai-tutor -H "Authorization: 
 - `core.ts` passes a strict `tsc` check (DOM + ES2022). ESLint passes.
 - The migration and `ai_usage_rls_transaction.sql` were run in an in-memory Postgres (PGlite) with minimal stubs for `auth.uid()`, `auth.users` and the roles, and passed. A deliberately broken select policy made the test fail as expected.
 - **Not yet verified:** a real call to NVIDIA, the deployed Deno runtime, and the migration on the real Supabase project. These need the owner's key and deploy. The migration was **not** applied to production.
+
+# T46 — AI Tutor Chat UI
+
+## Where it appears
+
+| Place                                   | Behaviour                                                                                                                                                                                                                                                                       |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Experiment Details (`/experiments/:id`) | A collapsible "Ask the AI tutor" card below the learning stages, collapsed by default. It sends `stage: "details"`.                                                                                                                                                             |
+| Virtual lab (`/experiments/:id/lab`)    | A toolbar button (sparkles icon) opens a right-side panel. It closes the guide, inventory and help, and they close it. The panel stays mounted while hidden, so closing it keeps the conversation. Each request sends the current stage title and a short summary of the bench. |
+
+## Files
+
+- `src/features/ai/components/AiTutorPanel.tsx`: the chat UI, with `page` (collapsible) and `overlay` (lab) variants.
+- `src/features/ai/lib/aiTutorClient.ts`: `streamTutorReply` (fetch plus SSE parsing; it never throws and returns a student-safe outcome), `prepareHistory` (the last 20 non-empty messages, starting with a user turn, each at most 2,000 characters), `toStageLabel` and `clipLabState`. These make client requests pass the T45 server validation, and a test checks this.
+- `src/features/ai/lib/tutorContext.ts`: `getSuggestedQuestions` (3 per surface or lab stage: setup, measurement, procedure, observation, review) and `summarizeLabState`. The summary covers the step, stage, equipment on the bench, water volumes, salt amounts and recorded measurements. It is at most 1,000 characters and is built from `getExperimentSessionSnapshot()` at send time.
+- `EducationalAssistantPlaceholder.tsx` was removed. It was no longer rendered anywhere.
+
+## States
+
+| State                   | What the student sees                                                                            |
+| ----------------------- | ------------------------------------------------------------------------------------------------ |
+| Auth loading            | "Checking your account…"                                                                         |
+| Supabase not configured | "The AI tutor is not available in this version of the site."                                     |
+| Logged out              | A prompt and a Log in link                                                                       |
+| Signed in, no messages  | An intro line, 3 suggested questions, the input                                                  |
+| Answering               | Typing dots, then text as it streams; Send becomes **Stop**                                      |
+| Stopped                 | The partial answer is kept and marked "(stopped)"; an empty answer is removed                    |
+| 429                     | "You have reached the hourly limit…" (no retry button)                                           |
+| 401 / session expired   | The message and a Log in link                                                                    |
+| Other errors            | The message and a **Retry** button, which resends the last question; the failed reply is removed |
+
+- Enter sends and Shift+Enter adds a new line. The input is limited to 2,000 characters and shows a counter.
+- Answers are plain text (`white-space: pre-wrap`); no markdown library is used.
+- The conversation is kept only in memory. The in-flight request is aborted when the panel unmounts.
+- Accessibility:
+  - The heading button has `aria-expanded`/`aria-controls`.
+  - The input has a label.
+  - There is one `aria-live="polite"` region. It announces "answering", then the full answer once it finishes, not every token.
+  - Escape inside the input does not clear lab selections.
+- The footer always reads "AI answers can be wrong — check with your teacher."
+
+## Verification
+
+- `tests/aiTutorClient.test.mjs` (11 tests) covers:
+  - parsing split, CRLF and malformed events;
+  - trimming history to valid server input;
+  - stage and lab-state sanitising;
+  - the request headers and body;
+  - 401, 429, 5xx and offline outcomes;
+  - error events, cut-off streams and network resets;
+  - abort;
+  - suggestions and the lab summary;
+  - rendering of the logged-out details card and the signed-in overlay.
+- Full suite: 379 tests pass; typecheck, lint and build pass.
+- Browser (dev server, logged out):
+  - The details card expands and shows the log-in prompt and disclaimer.
+  - The lab toolbar button toggles the panel (`display: none` / `block`, 380 px wide).
+- **Not yet verified:** a real signed-in conversation. The function is not deployed (see T45), and Claude did not sign in to the hosted Supabase project.

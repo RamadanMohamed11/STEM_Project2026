@@ -15,12 +15,17 @@ import { usePageTitle } from '@/hooks/usePageTitle'
 import type { Experiment } from '@/types/experiment'
 import { HazardAlert } from '@/features/safety/components/HazardAlert'
 import { getExperimentHazardIds } from '@/features/safety/lib/experimentHazards'
+import { AiTutorPanel } from '@/features/ai/components/AiTutorPanel'
+import { getSuggestedQuestions } from '@/features/ai/lib/tutorContext'
 
 export function ExperimentDetailsPage() {
   const experiment = useOutletContext<Experiment>()
   usePageTitle(`${experiment.title} — Details`)
   const { catalog } = useStudentExperimentCatalog()
-  const lessons = getReviewedExperimentLessons(catalog.curriculum ?? sampleCurriculum, experiment.id)
+  const lessons = getReviewedExperimentLessons(
+    catalog.curriculum ?? sampleCurriculum,
+    experiment.id,
+  )
   const toolsAndMaterials = getExperimentToolsAndMaterials(experiment.id)
   const learningStages = getExperimentLearningStages(experiment.id)
 
@@ -45,6 +50,13 @@ export function ExperimentDetailsPage() {
         measurementDisclaimer={toolsAndMaterials?.measurementDisclaimer}
       />
       <ExperimentLearningStageViewer key={experiment.id} data={learningStages} />
+      <AiTutorPanel
+        key={`tutor-${experiment.id}`}
+        experimentId={experiment.id}
+        experimentTitle={experiment.title}
+        stage="details"
+        suggestions={getSuggestedQuestions({ surface: 'details' })}
+      />
       {lessons.length > 0 && (
         <section
           aria-labelledby="experiment-lessons-title"

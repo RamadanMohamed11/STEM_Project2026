@@ -13,6 +13,7 @@ import {
   Minimize2,
   RotateCcw,
   Scale,
+  Sparkles,
   X,
 } from 'lucide-react'
 import { Link } from 'react-router'
@@ -33,6 +34,9 @@ import type { SimulationRegistration } from '../lib/simulationRegistry'
 import { getExperimentPaths } from '@/app/paths'
 import type { Experiment } from '@/types/experiment'
 import { LaboratoryHazards } from '@/features/safety/components/LaboratoryHazards'
+import { AiTutorPanel } from '@/features/ai/components/AiTutorPanel'
+import { getSuggestedQuestions, summarizeLabState } from '@/features/ai/lib/tutorContext'
+import { getExperimentSessionSnapshot } from '../state/sessionSelectors'
 
 export function LaboratoryLayout({
   experiment,
@@ -47,6 +51,7 @@ export function LaboratoryLayout({
   const [inventoryOpen, setInventoryOpen] = useState(false)
   const [guideOpen, setGuideOpen] = useState(false)
   const [helpOpen, setHelpOpen] = useState(false)
+  const [tutorOpen, setTutorOpen] = useState(false)
   const [measurementsExpanded, setMeasurementsExpanded] = useState(false)
   const [fullscreen, setFullscreen] = useState(false)
   const resetRevision = useSaltSimulationStore((state) => state.resetRevision)
@@ -118,6 +123,27 @@ export function LaboratoryLayout({
     beginPlacement(id)
   }
 
+  const tutorStage = definition.stages[workflow.stageIndex]
+  // Read lazily at send time so the tutor sees the latest bench state.
+  const getTutorLabState = () => {
+    const snapshot = getExperimentSessionSnapshot()
+    const titleOf = (id: string) =>
+      presentation.inventory.find((item) => item.id === id)?.title ?? id
+    return summarizeLabState({
+      stageTitle: definition.stages[snapshot.currentStageIndex]?.title,
+      stepTitle: definition.steps[snapshot.currentStepIndex]?.title,
+      stepNumber: Math.min(snapshot.currentStepIndex + 1, definition.steps.length),
+      totalSteps: definition.steps.length,
+      completed: snapshot.experimentCompleted,
+      placedEquipment: snapshot.equipmentInstances
+        .filter((item) => item.placed)
+        .map((item) => titleOf(item.id)),
+      liquids: snapshot.containers,
+      substances: snapshot.substances,
+      measurements: snapshot.measurements,
+    })
+  }
+
   return (
     <div
       ref={viewportRef}
@@ -166,6 +192,7 @@ export function LaboratoryLayout({
               setInventoryOpen(!inventoryOpen)
               setGuideOpen(false)
               setHelpOpen(false)
+              setTutorOpen(false)
             }}
             title="Toggle equipment inventory"
             aria-label="Toggle equipment inventory"
@@ -180,6 +207,7 @@ export function LaboratoryLayout({
               setGuideOpen(!guideOpen)
               setInventoryOpen(false)
               setHelpOpen(false)
+              setTutorOpen(false)
             }}
             title="Experiment guide and scientific reference"
             aria-label="Experiment guide"
@@ -187,6 +215,22 @@ export function LaboratoryLayout({
             className="flex size-10 items-center justify-center rounded-xl text-white/85 hover:bg-white/10"
           >
             <BookOpen size={19} />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setTutorOpen(!tutorOpen)
+              setGuideOpen(false)
+              setInventoryOpen(false)
+              setHelpOpen(false)
+            }}
+            title="Ask the AI tutor"
+            aria-label="Ask the AI tutor"
+            aria-expanded={tutorOpen}
+            aria-controls="lab-ai-tutor"
+            className="flex size-10 items-center justify-center rounded-xl text-white/85 hover:bg-white/10"
+          >
+            <Sparkles size={19} />
           </button>
           <button
             type="button"
@@ -203,6 +247,7 @@ export function LaboratoryLayout({
               setHelpOpen(!helpOpen)
               setGuideOpen(false)
               setInventoryOpen(false)
+              setTutorOpen(false)
             }}
             title="Help"
             aria-label="Help"
@@ -453,6 +498,42 @@ export function LaboratoryLayout({
             />
           </aside>
         )}
+
+        {/* Kept mounted while hidden so the conversation survives closing the panel. */}
+        <aside
+          id="lab-ai-tutor"
+          aria-label="AI tutor"
+          hidden={!tutorOpen}
+          className="absolute inset-y-3 right-3 z-30 w-[min(380px,calc(100vw-24px))] overflow-hidden rounded-xl bg-white text-[#102b3a] shadow-2xl sm:inset-y-4 sm:right-4"
+        >
+          <div className="flex h-full min-h-0 flex-col">
+            <div className="flex items-center justify-between border-b border-[#dce6e7] bg-white px-3 py-2">
+              <span className="text-xs font-bold">AI tutor</span>
+              <button
+                type="button"
+                onClick={() => setTutorOpen(false)}
+                aria-label="Close AI tutor"
+                className="rounded-md p-2 hover:bg-[#e8efef]"
+              >
+                <X size={17} />
+              </button>
+            </div>
+            <div className="min-h-0 flex-1">
+              <AiTutorPanel
+                variant="overlay"
+                experimentId={experiment.id}
+                experimentTitle={experiment.title}
+                stage={tutorStage?.title}
+                suggestions={getSuggestedQuestions({
+                  surface: 'lab',
+                  stageId: tutorStage?.id,
+                  completed: workflow.completed,
+                })}
+                getLabState={getTutorLabState}
+              />
+            </div>
+          </div>
+        </aside>
 
         {helpOpen && (
           <div className="absolute left-3 top-16 z-40 w-[min(340px,calc(100vw-24px))] sm:left-4">
