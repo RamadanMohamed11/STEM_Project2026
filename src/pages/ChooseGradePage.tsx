@@ -150,7 +150,7 @@ export function ChooseGradePage() {
           Looking for a specific term?{' '}
           <Link
             to={routePaths.terms}
-            className="font-semibold text-teal-dark transition-colors hover:underline focus-visible:outline-teal"
+            className="inline-flex min-h-11 items-center font-semibold text-teal-dark transition-colors hover:underline focus-visible:outline-teal"
           >
             Browse all terms directly
           </Link>

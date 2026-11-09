@@ -554,7 +554,7 @@ export function AdminQuestionsPage({ initialState }: AdminQuestionsPageProps = {
             <button
               type="button"
               onClick={() => setIsCreatingAssessment((prev) => !prev)}
-              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-line bg-surface px-4 py-2 text-xs font-semibold text-navy transition hover:border-teal/40 hover:bg-teal-soft/30"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-surface px-4 py-2 text-xs font-semibold text-navy transition hover:border-teal/40 hover:bg-teal-soft/30"
             >
               <Plus className="size-4 text-teal-dark" aria-hidden="true" />
               <span>New Assessment</span>
@@ -563,7 +563,7 @@ export function AdminQuestionsPage({ initialState }: AdminQuestionsPageProps = {
               type="button"
               onClick={handleStartPreview}
               disabled={!selectedRecord || orderedQuestions.length === 0}
-              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-teal/35 bg-teal-soft/45 px-4 py-2 text-xs font-semibold text-teal-dark transition hover:bg-teal-soft disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-teal/35 bg-teal-soft/45 px-4 py-2 text-xs font-semibold text-teal-dark transition hover:bg-teal-soft disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Eye className="size-4" aria-hidden="true" />
               <span>Preview Quiz</span>
@@ -572,7 +572,7 @@ export function AdminQuestionsPage({ initialState }: AdminQuestionsPageProps = {
               type="button"
               onClick={() => void handleSaveAssessmentMetadata('draft')}
               disabled={!selectedRecord}
-              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-line bg-white px-4 py-2 text-xs font-semibold text-navy transition hover:bg-surface disabled:opacity-50"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-white px-4 py-2 text-xs font-semibold text-navy transition hover:bg-surface disabled:opacity-50"
             >
               <FileCheck2 className="size-4 text-slate" aria-hidden="true" />
               <span>Save Draft</span>
@@ -581,7 +581,7 @@ export function AdminQuestionsPage({ initialState }: AdminQuestionsPageProps = {
               type="button"
               onClick={() => void handleSetPublicationStatus('published')}
               disabled={!selectedRecord || !publishReadiness.valid}
-              className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-navy px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-navy/90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-navy px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-navy/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Sparkles className="size-4 text-teal" aria-hidden="true" />
               <span>Publish Quiz</span>

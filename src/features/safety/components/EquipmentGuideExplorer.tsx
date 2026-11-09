@@ -110,7 +110,7 @@ export function EquipmentGuideExplorer() {
                 key={cat.id}
                 type="button"
                 onClick={() => setActiveCategory(cat.id)}
-                className={`inline-flex min-h-9 items-center rounded-full px-3 font-semibold transition-all select-none ${
+                className={`inline-flex min-h-11 items-center rounded-full px-3.5 font-semibold transition-all select-none ${
                   isActive
                     ? 'border border-teal bg-teal text-white shadow-sm'
                     : 'border border-line bg-canvas text-navy hover:border-line-strong hover:bg-white'

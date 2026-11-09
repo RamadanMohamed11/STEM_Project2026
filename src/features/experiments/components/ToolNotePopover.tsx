@@ -88,9 +88,9 @@ export function ToolNotePopover({
           aria-haspopup="dialog"
           aria-expanded={isOpen}
           aria-label={triggerAriaLabel ?? `View tool note for ${tool.name}`}
-          className="inline-flex size-7 items-center justify-center rounded-full border border-line bg-canvas text-slate transition-colors hover:border-teal hover:bg-teal-soft hover:text-teal-dark focus-visible:outline-teal"
+          className="inline-flex min-h-11 min-w-11 size-11 items-center justify-center rounded-full border border-line bg-canvas text-slate transition-colors hover:border-teal hover:bg-teal-soft hover:text-teal-dark focus-visible:outline-teal"
         >
-          <Info size={14} aria-hidden="true" />
+          <Info size={16} aria-hidden="true" />
         </button>
       )}
 

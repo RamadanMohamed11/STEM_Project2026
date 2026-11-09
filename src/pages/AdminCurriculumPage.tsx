@@ -483,7 +483,7 @@ export function AdminCurriculumPage({
   }
 
   const inputClass =
-    'mt-1.5 min-h-10 w-full rounded-lg border border-line-strong bg-white px-3 py-2 text-sm text-ink focus-visible:outline-teal disabled:opacity-60'
+    'mt-1.5 min-h-11 w-full rounded-lg border border-line-strong bg-white px-3 py-2 text-sm text-ink focus-visible:outline-teal disabled:opacity-60'
 
   return (
     <div className="space-y-8 py-6 sm:py-8">
@@ -681,7 +681,7 @@ export function AdminCurriculumPage({
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder="Search title or slug..."
-                className="min-h-10 w-full rounded-lg border border-line-strong bg-white py-2 pr-3 pl-9 text-sm text-ink focus-visible:outline-teal"
+                className="min-h-11 w-full rounded-lg border border-line-strong bg-white py-2 pr-3 pl-9 text-sm text-ink focus-visible:outline-teal"
               />
             </div>
           </div>

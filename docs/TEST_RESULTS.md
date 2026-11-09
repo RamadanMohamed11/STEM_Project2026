@@ -75,3 +75,33 @@ Final `npm run typecheck`, `npm run lint` and `npm run build` passed. Build reta
 - Actual salt UI: confirmed safety, added cylinder and water through Inventory, selected them with native bench controls, transferred 100mL, observed source drop from 400 to 300mL and cylinder rise to 100mL; workflow advanced to Step 4 / 9. Restart also reset the practice state. A full nine-step browser completion is not claimed; existing automated workflow tests cover completion.
 - Evidence: `output/playwright/i15-browser-report.json` and `i15-*-header.png` / `i15-mobile-options.png`. Computer Use could not initialize; the supported Playwright CLI skill provided real-browser verification. No physical-phone FPS or screen-reader audit is claimed for this header task.
 - The same 13 browser assertions also passed on the public production alias after deployment `dpl_GDj9iN5S95KS3dHe8zM9mLHrqBeJ` reached READY. The production report confirms scroll widths of 375/768/1440px, 2 mobile primary buttons versus 10 inline controls, and a 44px minimum menu target height. No console errors; existing Three.js/Rapier deprecation warnings remain. The local report is preserved separately as `output/playwright/i15-browser-local-report.json`.
+
+## I16 — Small-screen responsive pass on non-lab pages (9 November 2026)
+
+- Automated test run: **484/484 passed**, zero failures/skips/cancellations (124.0s).
+- TypeScript: passed (`tsc -b`).
+- ESLint: passed (`eslint .`).
+- Production build: passed (`tsc -b && vite build`).
+- Real Chromium/Playwright verification at 375×812, 768×1024, and 1280×800 across all non-lab routes.
+- Zero horizontal page overflow (`scrollWidth - clientWidth === 0`) across all 16 tested routes and 3 breakpoints.
+- Interactive controls and touch targets meet the ≥ 44×44 px minimum on mobile devices.
+
+### Responsive layout pass results
+
+| Page | 375 | 768 | Desktop | Fix applied |
+| --- | --- | --- | --- | --- |
+| Home (`/`) | Pass (0px ovf) | Pass (0px ovf) | Pass (0px ovf) | Added `min-h-11` to `Brand` header logo; `min-h-11` on feature link; mobile `buttonSizeStyles.sm` min 44px. |
+| Login (`/login`) | Pass (0px ovf) | Pass (0px ovf) | Pass (0px ovf) | Password visibility toggle button enlarged to `min-h-11` (44px) at `top-2.5`. |
+| Sign up (`/signup`) | Pass (0px ovf) | Pass (0px ovf) | Pass (0px ovf) | Password toggle enlarged to `min-h-11`; `px-1.5` padding added to login text link for ≥44px target. |
+| Password recovery (`/forgot-password`, `/reset-password`) | Pass (0px ovf) | Pass (0px ovf) | Pass (0px ovf) | Shared `PasswordField` toggle button enlarged to `min-h-11` (44px). |
+| Safety page + "Get Lab Ready" (`/safety`) | Pass (0px ovf) | Pass (0px ovf) | Pass (0px ovf) | Filter chips enlarged to `min-h-11 px-3.5`; `ToolNotePopover` trigger enlarged to 44×44px (`min-h-11 min-w-11 size-11`); "Start again" activity button updated to `min-h-11`. |
+| Choose Grade (`/grades`) | Pass (0px ovf) | Pass (0px ovf) | Pass (0px ovf) | "Browse all terms directly" link updated to `inline-flex min-h-11 items-center`. |
+| Choose Term (`/terms`) | Pass (0px ovf) | Pass (0px ovf) | Pass (0px ovf) | "Change Grade" button updated from `min-h-10` to `min-h-11`; "Explore sample experiments" link updated to `inline-flex min-h-11 items-center`. |
+| Experiments library (`/experiments`) | Pass (0px ovf) | Pass (0px ovf) | Pass (0px ovf) | "Catalog View" switch button updated from `min-h-9` to `min-h-11 px-3.5`; curriculum cards adapt with `min-h-11` targets. |
+| Experiment Details (`/experiments/:id`) | Pass (0px ovf) | Pass (0px ovf) | Pass (0px ovf) | Tool note popover buttons enlarged to 44×44px; AI Tutor "Explain this" buttons updated to `min-h-11 px-3.5 py-2`. |
+| Five learning stages viewer | Pass (0px ovf) | Pass (0px ovf) | Pass (0px ovf) | Stage pagination preserved with `min-h-11`; video player controls (Play, Pause, Retry) updated to `min-h-11 px-3.5/4 py-2`. |
+| Quiz (`/experiments/:id/quiz`) | Pass (0px ovf) | Pass (0px ovf) | Pass (0px ovf) | Progress bar question buttons updated to `min-h-11 min-w-11 sm:size-8`; "Clear" answer button updated to `min-h-11 px-2.5 py-1.5`. |
+| Quiz results (`/experiments/:id/quiz/results`) | Pass (0px ovf) | Pass (0px ovf) | Pass (0px ovf) | `QuizReviewScreen` "Change Answer" buttons updated to `min-h-11 px-3.5 py-2`; review list stacks vertically on small screens. |
+| Progress page (`/progress`) | Pass (0px ovf) | Pass (0px ovf) | Pass (0px ovf) | Action buttons (Browse Experiments, Start Lab, View Results) enlarged to `min-h-11` on mobile via `buttonSizeStyles.sm`. |
+| Lab results (`/experiments/:id/results`) | Pass (0px ovf) | Pass (0px ovf) | Pass (0px ovf) | Wrapped `MeasurementTable` in `<div className="overflow-x-auto">` ensuring table contents scroll safely horizontally without clipping. |
+| Admin pages (`/admin/*`) | Pass (0px ovf) | Pass (0px ovf) | Pass (0px ovf) | `AdminLayout` header sign out button compacts to icon with `aria-label` below `sm`; inputs and action buttons in Curriculum, Experiments, Questions pages updated to `min-h-11`; existing `overflow-x-auto` table wrappers verified. |

@@ -438,7 +438,7 @@ export function AdminExperimentsPage({
   }
 
   const inputClass =
-    'mt-1.5 min-h-10 w-full rounded-lg border border-line-strong bg-white px-3 py-2 text-sm text-ink focus-visible:outline-teal disabled:opacity-60'
+    'mt-1.5 min-h-11 w-full rounded-lg border border-line-strong bg-white px-3 py-2 text-sm text-ink focus-visible:outline-teal disabled:opacity-60'
 
   const canEnable3DInEditor =
     formMode === 'edit' &&
@@ -567,7 +567,7 @@ export function AdminExperimentsPage({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search title, slug, or description..."
-                className="min-h-10 w-full rounded-lg border border-line-strong bg-white py-2 pr-3 pl-9 text-sm text-ink focus-visible:outline-teal"
+                className="min-h-11 w-full rounded-lg border border-line-strong bg-white py-2 pr-3 pl-9 text-sm text-ink focus-visible:outline-teal"
               />
             </div>
           </div>

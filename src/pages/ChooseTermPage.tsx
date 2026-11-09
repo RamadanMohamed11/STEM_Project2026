@@ -128,7 +128,7 @@ export function ChooseTermPage() {
 
           <Link
             to={routePaths.grades}
-            className="group/btn inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-teal/30 bg-white px-3.5 py-1.5 text-xs font-semibold text-teal-dark shadow-xs transition-all duration-150 hover:bg-teal-soft hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-teal"
+            className="group/btn inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-teal/30 bg-white px-3.5 py-1.5 text-xs font-semibold text-teal-dark shadow-xs transition-all duration-150 hover:bg-teal-soft hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-teal"
           >
             <ArrowLeft
               size={14}
@@ -257,7 +257,7 @@ export function ChooseTermPage() {
           Want to explore all activities directly?{' '}
           <Link
             to={routePaths.experiments}
-            className="font-semibold text-teal-dark transition-colors hover:underline focus-visible:outline-teal"
+            className="inline-flex min-h-11 items-center font-semibold text-teal-dark transition-colors hover:underline focus-visible:outline-teal"
           >
             Explore sample experiments
           </Link>

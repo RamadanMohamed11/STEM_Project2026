@@ -235,7 +235,7 @@ export function QuizReviewScreen({
                 <button
                   type="button"
                   onClick={() => onGoToQuestion(index)}
-                  className="inline-flex min-h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-line bg-canvas px-3.5 py-1.5 text-xs font-semibold text-navy hover:border-slate hover:bg-white focus-visible:outline-teal"
+                  className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-line bg-canvas px-3.5 py-2 text-xs font-semibold text-navy hover:border-slate hover:bg-white focus-visible:outline-teal"
                   aria-label={`${isAnswered ? 'Change' : 'Answer'} Question ${index + 1}`}
                 >
                   <Edit3 size={13} aria-hidden="true" />

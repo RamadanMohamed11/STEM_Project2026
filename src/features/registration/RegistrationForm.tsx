@@ -166,7 +166,7 @@ export function RegistrationForm() {
                       aria-pressed={visible}
                       aria-label={visible ? 'Hide password' : 'Show password'}
                       onClick={() => setVisible((value) => !value)}
-                      className="absolute right-1 top-3 min-h-10 rounded-md px-3 text-sm font-semibold text-teal-dark hover:bg-teal-soft"
+                      className="absolute right-1 top-2.5 min-h-11 rounded-md px-3 text-sm font-semibold text-teal-dark hover:bg-teal-soft"
                     >
                       {visible ? 'Hide' : 'Show'}
                     </button>
@@ -206,7 +206,7 @@ export function RegistrationForm() {
         Already have an account?{' '}
         <Link
           to={routePaths.login}
-          className="inline-flex min-h-11 items-center font-semibold text-teal-dark hover:underline"
+          className="inline-flex min-h-11 items-center px-1.5 font-semibold text-teal-dark hover:underline"
         >
           Log In
         </Link>

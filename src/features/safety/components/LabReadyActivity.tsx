@@ -286,8 +286,8 @@ export function LabReadyActivity({ onComplete }: { onComplete?: (complete: boole
           )}
           <Button
             variant="outline"
-            size="sm"
-            className="mt-4"
+            size="md"
+            className="mt-4 min-h-11"
             icon={<RotateCcw size={15} aria-hidden="true" />}
             onClick={() => {
               setFeedback(null)

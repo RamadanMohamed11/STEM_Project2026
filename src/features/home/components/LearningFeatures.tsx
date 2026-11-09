@@ -41,7 +41,7 @@ export function LearningFeatures() {
               {to && linkLabel && (
                 <Link
                   to={to}
-                  className="mt-4 inline-flex min-h-10 w-fit items-center gap-1.5 text-sm font-semibold text-teal-dark transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2 sm:mt-auto sm:pt-2"
+                  className="mt-4 inline-flex min-h-11 w-fit items-center gap-1.5 text-sm font-semibold text-teal-dark transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2 sm:mt-auto sm:pt-2"
                 >
                   {linkLabel}
                   <ArrowUpRight size={16} aria-hidden="true" />

@@ -73,7 +73,7 @@ export function QuizQuestionCard({
             <button
               type="button"
               onClick={() => onClearOption(question.id)}
-              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-slate hover:bg-canvas hover:text-navy focus-visible:outline-teal"
+              className="inline-flex min-h-11 items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-slate hover:bg-canvas hover:text-navy focus-visible:outline-teal"
               title="Clear selected answer"
               aria-label="Clear selected answer"
             >

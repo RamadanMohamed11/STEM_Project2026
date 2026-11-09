@@ -64,7 +64,7 @@ export function ExplainThis({
 
   const busy = state.status === 'loading'
   const buttonClass =
-    'inline-flex min-h-9 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-teal'
+    'inline-flex min-h-11 items-center gap-1.5 rounded-lg border px-3.5 py-2 text-xs font-semibold transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-teal'
 
   return (
     <div className={`space-y-2.5 ${className}`}>

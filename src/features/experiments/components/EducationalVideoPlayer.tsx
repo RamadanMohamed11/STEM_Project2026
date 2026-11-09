@@ -175,7 +175,7 @@ export function EducationalVideoPlayer({ video, stageTitle }: EducationalVideoPl
             <button
               type="button"
               onClick={handleRetry}
-              className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-teal px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-teal-dark"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-lg bg-teal px-4 py-2 text-xs font-semibold text-white hover:bg-teal-dark"
             >
               <RotateCcw size={14} aria-hidden="true" />
               Retry Video
@@ -192,7 +192,7 @@ export function EducationalVideoPlayer({ video, stageTitle }: EducationalVideoPl
             onClick={togglePlayPause}
             disabled={status === 'error'}
             aria-label={status === 'playing' ? 'Pause demonstration video' : 'Play demonstration video'}
-            className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-line bg-canvas px-3 py-1.5 text-xs font-semibold text-navy hover:bg-teal-soft/50 disabled:opacity-50"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-line bg-canvas px-3.5 py-2 text-xs font-semibold text-navy hover:bg-teal-soft/50 disabled:opacity-50"
           >
             {status === 'playing' ? (
               <>

@@ -184,54 +184,56 @@ export function MeasurementTable({
       </p>
     )
   return (
-    <table className="w-full text-left text-[11px] tabular-nums">
-      <caption className="sr-only">Recorded measurements</caption>
-      <thead>
-        <tr className={head}>
-          <th scope="col" className="py-1 pr-2 font-medium">
-            Time
-          </th>
-          <th scope="col" className="py-1 pr-2 font-medium">
-            Instrument
-          </th>
-          <th scope="col" className="py-1 pr-2 font-medium">
-            Item
-          </th>
-          <th scope="col" className="py-1 text-right font-medium">
-            Value
-          </th>
-          {onRemove && (
-            <th scope="col" className="w-6">
-              <span className="sr-only">Remove</span>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left text-[11px] tabular-nums">
+        <caption className="sr-only">Recorded measurements</caption>
+        <thead>
+          <tr className={head}>
+            <th scope="col" className="py-1 pr-2 font-medium">
+              Time
             </th>
-          )}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row) => (
-          <tr key={row.id} className={`border-t ${line}`}>
-            <td className="py-1 pr-2">{row.timeS.toFixed(1)} s</td>
-            <td className="py-1 pr-2">{INSTRUMENT_LABELS[row.instrument]}</td>
-            <td className="max-w-[90px] truncate py-1 pr-2">{row.targetLabel}</td>
-            <td className="py-1 text-right font-semibold">
-              {formatReading(row.quantity, row.value)}
-            </td>
+            <th scope="col" className="py-1 pr-2 font-medium">
+              Instrument
+            </th>
+            <th scope="col" className="py-1 pr-2 font-medium">
+              Item
+            </th>
+            <th scope="col" className="py-1 text-right font-medium">
+              Value
+            </th>
             {onRemove && (
-              <td className="py-1 text-right">
-                <button
-                  type="button"
-                  aria-label={`Remove measurement at ${row.timeS.toFixed(1)} s`}
-                  onClick={() => onRemove(row.id)}
-                  className="rounded p-0.5 opacity-60 hover:bg-white/10 hover:opacity-100"
-                >
-                  <X size={11} aria-hidden="true" />
-                </button>
-              </td>
+              <th scope="col" className="w-6">
+                <span className="sr-only">Remove</span>
+              </th>
             )}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.id} className={`border-t ${line}`}>
+              <td className="py-1 pr-2">{row.timeS.toFixed(1)} s</td>
+              <td className="py-1 pr-2">{INSTRUMENT_LABELS[row.instrument]}</td>
+              <td className="max-w-[90px] truncate py-1 pr-2">{row.targetLabel}</td>
+              <td className="py-1 text-right font-semibold">
+                {formatReading(row.quantity, row.value)}
+              </td>
+              {onRemove && (
+                <td className="py-1 text-right">
+                  <button
+                    type="button"
+                    aria-label={`Remove measurement at ${row.timeS.toFixed(1)} s`}
+                    onClick={() => onRemove(row.id)}
+                    className="rounded p-0.5 opacity-60 hover:bg-white/10 hover:opacity-100"
+                  >
+                    <X size={11} aria-hidden="true" />
+                  </button>
+                </td>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }
 

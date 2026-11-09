@@ -5,7 +5,7 @@ export function Brand({ compact = false }: { compact?: boolean }) {
   return (
     <Link
       to="/"
-      className="group inline-flex items-center gap-3 rounded-md text-inherit transition-transform duration-200 active:scale-[0.98]"
+      className="group inline-flex min-h-11 items-center gap-3 rounded-md text-inherit transition-transform duration-200 active:scale-[0.98]"
       aria-label="STEM Virtual Lab home"
     >
       <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-teal text-white shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:rotate-[-6deg] group-hover:shadow-md">

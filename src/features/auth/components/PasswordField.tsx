@@ -31,7 +31,7 @@ export function PasswordField({
           aria-pressed={visible}
           aria-label={`${visible ? 'Hide' : 'Show'} ${label.toLowerCase()}`}
           onClick={() => setVisible((value) => !value)}
-          className="absolute right-1 top-3 min-h-10 rounded-md px-3 text-sm font-semibold text-teal-dark hover:bg-teal-soft"
+          className="absolute right-1 top-2.5 min-h-11 rounded-md px-3 text-sm font-semibold text-teal-dark hover:bg-teal-soft"
         >
           {visible ? 'Hide' : 'Show'}
         </button>
