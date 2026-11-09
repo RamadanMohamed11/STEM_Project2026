@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import React from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { createServer } from './helpers/routeTestServer.mjs'
 import {
   moveBenchItem,
   attachBenchItem,
@@ -46,6 +49,26 @@ test('screen-reader bench summary distinguishes instances and current selection'
   assert.match(describeBench([], []), /0 items.*Selected: none/)
 })
 
+test('bench controls expose native selection and camera actions; description remains independent of the panel', async () => {
+  const vite = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
+  try {
+    const { AccessibleBenchControls, BenchDescription } = await vite.ssrLoadModule(
+      '/src/features/simulations/components/AccessibleBenchControls.tsx',
+    )
+    const controls = renderToStaticMarkup(React.createElement(AccessibleBenchControls))
+    const description = renderToStaticMarkup(React.createElement(BenchDescription))
+    assert.match(controls, /<summary[^>]*>Bench controls<\/summary>/)
+    assert.match(controls, /type="checkbox"/)
+    assert.match(controls, /View left|View right|Zoom in|Zoom out/)
+    assert.match(controls, /Close bench controls/)
+    assert.match(description, /id="bench-description"/)
+    assert.match(description, /role="status"/)
+    assert.match(description, /items on the bench/)
+  } finally {
+    await vite.close()
+  }
+})
+
 test('visibility subscriptions observe hide/resume transitions and clean up when unmounted', () => {
   class Page extends EventTarget {
     hidden = false
@@ -79,16 +102,14 @@ test('non-pointer salt flow still requires real transfers, loaded weighing, time
   }
   const transfer = (sourceId, targetId, materialId, amount, unit) => {
     assert.equal(
-      salt
-        .getState()
-        .beginTransfer({
-          requestId: `keyboard-${sourceId}`,
-          sourceId,
-          targetId,
-          materialId,
-          amount,
-          unit,
-        }).ok,
+      salt.getState().beginTransfer({
+        requestId: `keyboard-${sourceId}`,
+        sourceId,
+        targetId,
+        materialId,
+        amount,
+        unit,
+      }).ok,
       true,
     )
     for (let i = 0; salt.getState().transfer && i < 1000; i++) salt.getState().advanceTransfer(250)

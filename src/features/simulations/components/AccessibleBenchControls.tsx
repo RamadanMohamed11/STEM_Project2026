@@ -9,6 +9,16 @@ import {
 import { resolveEquipment } from '../three/sceneConfig'
 import { handlePhysicalInteraction, inspectFinalSolution } from '../state/directInteractions'
 
+export function BenchDescription() {
+  const ids = useLabSceneStore((s) => s.placedIds)
+  const selected = useLabSceneStore((s) => s.selectedIds)
+  return (
+    <p id="bench-description" className="sr-only" role="status" aria-live="polite">
+      {describeBench(ids, selected)}
+    </p>
+  )
+}
+
 export function AccessibleBenchControls() {
   const ids = useLabSceneStore((s) => s.placedIds)
   const selected = useLabSceneStore((s) => s.selectedIds)
@@ -67,9 +77,6 @@ export function AccessibleBenchControls() {
     'min-h-11 rounded-lg border border-white/25 px-3 py-2 text-sm disabled:opacity-40 focus-visible:outline-teal-light'
   return (
     <>
-      <p id="bench-description" className="sr-only" role="status" aria-live="polite">
-        {describeBench(ids, selected)}
-      </p>
       <details
         onToggle={(event) => {
           if (!event.currentTarget.open) setStirring(false)
@@ -82,7 +89,7 @@ export function AccessibleBenchControls() {
           event.currentTarget.open = false
           event.currentTarget.querySelector('summary')?.focus()
         }}
-        className="absolute bottom-16 left-3 z-30 max-h-[65dvh] w-[min(350px,calc(100vw-24px))] overflow-y-auto rounded-xl bg-navy p-3 text-white shadow-xl"
+        className="absolute top-32 left-3 z-30 max-h-[65dvh] w-fit max-w-[calc(100vw-24px)] open:w-[min(350px,calc(100vw-24px))] overflow-y-auto rounded-xl bg-navy p-3 text-white shadow-xl"
       >
         <summary id="bench-controls" className="min-h-11 cursor-pointer py-3 font-semibold">
           Bench controls

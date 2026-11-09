@@ -33,7 +33,7 @@ import { MaterialTransferController } from '../three/MaterialTransferController'
 import { BenchLiquidsController } from '../three/BenchLiquidsController'
 import { ContextualInstruction } from './ContextualInstruction'
 import { LabInventoryPanel } from './LabInventoryPanel'
-import { AccessibleBenchControls } from './AccessibleBenchControls'
+import { AccessibleBenchControls, BenchDescription } from './AccessibleBenchControls'
 import { BenchToolbar } from './BenchToolbar'
 import { ExperimentGuide } from './ExperimentGuide'
 import { ExperimentResults } from './ExperimentResults'
@@ -458,7 +458,10 @@ export function LaboratoryLayout({
           />
         )}
         <BenchToolbar />
-        <AccessibleBenchControls />
+        <BenchDescription />
+        {!inventoryOpen && !guideOpen && !helpOpen && !tutorOpen && !workflow.completed && (
+          <AccessibleBenchControls />
+        )}
 
         {guideOpen && (
           <aside

@@ -27,4 +27,18 @@ Pending checks after restoring the browser tool:
 5. On a real mobile browser, read the development FPS output after 10 seconds of warm-up. Record device/OS/browser, viewport, DPR, placed-item count, scene actions and at least three separate samples (idle, movement, pouring/effects). Record desktop 375px emulation separately; it is not a physical-phone performance measurement. Do not claim a 45/60 FPS target without those samples.
 6. Perform an actual screen-reader and touch-target pass. No complete WCAG compliance claim is made.
 
-No backend, authentication, curriculum or scientific engine definition is changed. The pre-existing untracked `.claude/` directory is outside this task. No push or deployment is authorized by this task.
+No backend, authentication, curriculum or scientific engine definition is changed. The pre-existing untracked `.claude/` directory is outside this task. The owner subsequently explicitly authorized a production release on the existing Vercel project. Release verification is recorded below; this does not waive the pending real-browser/device acceptance checks. No Git push was performed.
+
+## Authorized production release follow-up
+
+9 November 2026: the owner requested all current frontend changes on the existing production website despite the unavailable Computer Use runtime. Initial source deployment `dpl_Eto6tb6jE2HHCc7CuVyY3C5soRyW` reached READY. Public HTTP checks passed on 17 SPA paths and 89 JavaScript assets; actual compiled code contains the new bench controls, stirring, holder placement, camera commands and bench description. Development FPS instrumentation was absent from production code. These checks do not execute UI interactions or measure FPS.
+
+A subsequent static layout review found the closed bench-controls summary could overlap the lower instruction HUD. The release follow-up relocates it to a compact upper-left position and unmounts the panel while inventory/help/guide/tutor/completion overlays are open, stopping any active keyboard stirring. The live bench description remains mounted independently, so the workspace description reference stays valid. Six focused tests passed including independent description and native control markup.
+
+Final source release:
+
+- Existing project: `stem-project2026`, `prj_kml5fc5QBOfnT8qMF7AowyUjHMJ1`; production alias: <https://stem-project2026.vercel.app>.
+- Deployment: `dpl_4zHEmrbAY1BfeMhTJ2Qn8Kpn3ps2`, **READY**, production alias attached with no alias error.
+- Source payload: 365 frontend/config files; SHA-256 `74e01304ea6778e0f3230a6a978ce6922c64bc8daa07d65909fa6c8293c99245`. Includes committed L12 base `03e67bf` plus the reviewed compact-panel/live-description follow-up. Excludes environment files, credentials, tests, artifacts and local tooling state. No backend migration or Git push.
+- Final public HTTP verification at **2026-11-09 10:34 UTC**: **17 routes and 89 JavaScript assets passed**. Published entry `/assets/index-CdaSgeem.js`; all five L12 control/description markers present, development FPS marker absent, callback/reset security headers retained. A separate check confirmed the corrected compact-panel classes in published `/assets/VirtualLabPage-C3dJKd6p.js`.
+- Evidence: ignored `artifacts/l12-production-http.json`. These checks fetch HTML and compiled code; they are not browser interaction or physical-device performance tests. The pending acceptance matrix above remains open.
