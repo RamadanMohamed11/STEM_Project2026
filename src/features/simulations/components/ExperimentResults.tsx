@@ -1,3 +1,4 @@
+import { MistakesSummary } from './LabSafetyPanels'
 import {
   Award,
   BookOpenText,
@@ -341,6 +342,10 @@ export function ExperimentResults({
               </p>
             </section>
           </div>
+        </div>
+        {/* L9: completion summary lists the mistakes and safety alerts with explanations. */}
+        <div className="mt-5">
+          <MistakesSummary experimentId={definition.experimentId} />
         </div>
       </div>
     </section>

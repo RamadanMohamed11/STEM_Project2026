@@ -228,6 +228,7 @@ export function EquipmentRenderer({ entry }: { entry: EquipmentRegistryEntry }) 
             center
             position={[0, 0.16, 0]}
             style={{ pointerEvents: 'none', userSelect: 'none' }}
+            zIndexRange={[19, 0]}
           >
             <span className="block whitespace-nowrap rounded-md bg-[#6d3332]/95 px-2 py-1 text-[10px] font-semibold text-white">
               Blocked · move around equipment

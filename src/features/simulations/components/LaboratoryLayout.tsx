@@ -21,6 +21,13 @@ import { PairInteractionPanel } from './PairInteractionPanel'
 import { HotTouchWarning } from './BenchHeatingPanel'
 import { MeasurementAutoRecorder, MeasurementLogPanel } from './MeasurementLog'
 import { useMeasurementLogStore } from '../state/useMeasurementLogStore'
+import { useLabSafetyStore } from '../state/useLabSafetyStore'
+import {
+  GogglesToggle,
+  GuidedMistakeRecorder,
+  LabModeToggle,
+  SafetyAlertToast,
+} from './LabSafetyPanels'
 import { MaterialTransferController } from '../three/MaterialTransferController'
 import { BenchLiquidsController } from '../three/BenchLiquidsController'
 import { ContextualInstruction } from './ContextualInstruction'
@@ -82,10 +89,13 @@ export function LaboratoryLayout({
   const validatedSteps = workflow.completed ? definition.steps.length : workflow.stepIndex
   const progress = Math.round((validatedSteps / definition.steps.length) * 100)
   useEffect(() => () => suspendLaboratoryInteractions(), [])
-  // L8: one measurement log per experiment session.
+  // L8/L9: one measurement log and one mistakes record per experiment session.
   useEffect(() => {
     useMeasurementLogStore.getState().begin(definition.experimentId, Date.now())
+    useLabSafetyStore.getState().begin(definition.experimentId)
   }, [definition.experimentId])
+  const mode = useLabSafetyStore((state) => state.mode)
+  const guided = mode === 'guided'
 
   // Effects are presentation-only. Stopping an animation cannot validate or
   // advance a scientific step: only state-verified semantic events can.
@@ -176,24 +186,34 @@ export function LaboratoryLayout({
             <h1 className="truncate text-sm font-semibold sm:text-base">{experiment.title}</h1>
           </div>
         </div>
-        <div
-          className="hidden w-[min(23vw,270px)] flex-col gap-1.5 md:flex"
-          aria-label="Experiment progress"
-        >
-          <div className="flex justify-between text-[10px] font-semibold text-white/70">
-            <span>
-              Validated steps {validatedSteps} / {definition.steps.length}
-            </span>
-            <span>{progress}% validated</span>
+        {guided ? (
+          <div
+            className="hidden w-[min(23vw,270px)] flex-col gap-1.5 md:flex"
+            aria-label="Experiment progress"
+          >
+            <div className="flex justify-between text-[10px] font-semibold text-white/70">
+              <span>
+                Validated steps {validatedSteps} / {definition.steps.length}
+              </span>
+              <span>{progress}% validated</span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-white/15">
+              <div
+                className="h-full rounded-full bg-[#31c7b3] transition-[width]"
+                style={{ width: progress + '%' }}
+              />
+            </div>
           </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-white/15">
-            <div
-              className="h-full rounded-full bg-[#31c7b3] transition-[width]"
-              style={{ width: progress + '%' }}
-            />
-          </div>
-        </div>
+        ) : (
+          <p className="hidden text-[11px] font-semibold text-white/70 md:block">
+            Free mode · no steps — safety rules still apply
+          </p>
+        )}
         <div className="flex shrink-0 items-center gap-1.5">
+          <div className="hidden items-center gap-1.5 sm:flex">
+            <LabModeToggle />
+            <GogglesToggle />
+          </div>
           <button
             type="button"
             onClick={() => {
@@ -290,6 +310,15 @@ export function LaboratoryLayout({
         <LaboratoryCanvas />
         <PairInteractionPanel inventoryOpen={inventoryOpen || helpOpen} />
         <HotTouchWarning />
+        <SafetyAlertToast />
+        {/* Small screens: mode and goggles sit under the Inventory button, not in the header. */}
+        {!inventoryOpen && (
+          <div className="pointer-events-auto absolute left-3 top-16 z-20 flex items-center gap-1.5 rounded-lg bg-[#071d29]/85 p-1 sm:hidden">
+            <LabModeToggle />
+            <GogglesToggle />
+          </div>
+        )}
+        <GuidedMistakeRecorder />
         <MeasurementLogPanel />
         <MeasurementAutoRecorder />
 
@@ -298,6 +327,7 @@ export function LaboratoryLayout({
           open={inventoryOpen}
           items={presentation.inventory}
           core={simulation.core}
+          mode={mode}
           placedIds={placedIds}
           selectedId={selectedId}
           placingId={placement?.id ?? null}
@@ -416,11 +446,13 @@ export function LaboratoryLayout({
           )}
         </div>
 
-        <ContextualInstruction
-          key={resetRevision}
-          inventoryOpen={inventoryOpen}
-          presentation={presentation}
-        />
+        {guided && (
+          <ContextualInstruction
+            key={resetRevision}
+            inventoryOpen={inventoryOpen}
+            presentation={presentation}
+          />
+        )}
         <BenchToolbar />
 
         {guideOpen && (

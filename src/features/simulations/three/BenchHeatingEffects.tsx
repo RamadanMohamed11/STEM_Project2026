@@ -11,7 +11,11 @@ import {
 } from 'three'
 import { burnerUnder, heatSourceOf, HOT_TOUCH_C } from '../lib/benchHeating'
 import { receiverRimHeight } from '../lib/benchLiquids'
-import { benchTemperatureC, useBenchLiquidsStore } from '../state/useBenchLiquidsStore'
+import {
+  benchTemperatureC,
+  benchVolumeMl,
+  useBenchLiquidsStore,
+} from '../state/useBenchLiquidsStore'
 import { useLabSceneStore } from '../state/useLabSceneStore'
 import { snapElevation } from './benchLayout'
 import { FLAME_FRAGMENT, FLAME_VERTEX } from './effects/reaction/flameShader'
@@ -87,10 +91,11 @@ function TemperatureTag({ id }: { id: string }) {
   const lit = useBenchLiquidsStore((state) => state.lit)
   const burner = useLabSceneStore((state) => burnerUnder(id, state.relationships))
   const heated = !!burner && lit.includes(burner)
+  const hasLiquid = useBenchLiquidsStore((state) => benchVolumeMl(state, id) > 1e-6)
   const position = useLabSceneStore((state) => state.positions[id])
   const lift = useLabSceneStore((state) => snapElevation(id, state.relationships))
   if (temperature === null || !position || (temperature < 30 && !heated)) return null
-  const boiling = heated && temperature >= 100
+  const boiling = heated && temperature >= 100 && hasLiquid
   const hot = temperature >= HOT_TOUCH_C
   return (
     <Html

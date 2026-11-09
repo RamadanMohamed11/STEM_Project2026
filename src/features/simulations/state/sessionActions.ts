@@ -1,5 +1,6 @@
 import { useLabSceneStore } from './useLabSceneStore.ts'
 import { useMeasurementLogStore } from './useMeasurementLogStore.ts'
+import { useLabSafetyStore } from './useLabSafetyStore.ts'
 import { useSaltSimulationStore } from './useSaltSimulationStore.ts'
 
 /**
@@ -11,6 +12,8 @@ export function restartExperimentSession(): void {
   useSaltSimulationStore.getState().reset()
   // L8: a restarted experiment starts a fresh measurement log.
   useMeasurementLogStore.getState().clear()
+  // L9: and a fresh mistakes record.
+  useLabSafetyStore.getState().clear()
   const scene = useLabSceneStore.getState()
   scene.resetEquipment()
   scene.resetCamera()

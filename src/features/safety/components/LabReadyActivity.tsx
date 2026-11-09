@@ -8,6 +8,7 @@ import {
   type GearItem,
   type GearSlot,
 } from '../data/labReadiness'
+import { useLabReadinessStore } from '../state/useLabReadinessStore'
 
 const SKIN = '#e5bf9c'
 const DRAG_TYPE = 'text/plain'
@@ -150,6 +151,8 @@ export function LabReadyActivity({ onComplete }: { onComplete?: (complete: boole
   function update(next: ReadonlySet<string>) {
     setEquipped(next)
     onComplete?.(getGearProgress(next).complete)
+    // L9: the lab's safety rules check whether goggles are on.
+    useLabReadinessStore.getState().setGoggles(next.has('safety-goggles'))
   }
 
   function choose(item: GearItem, fromDrop = false) {

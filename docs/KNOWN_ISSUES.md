@@ -105,3 +105,12 @@ The reusable hazard catalog is draft guidance requiring academic review. No haza
 - The log lives in memory for the session. Refreshing the tab clears it, as it does the simulation.
 - "Copy as CSV" needs clipboard permission in the browser.
 - See MEASUREMENTS.md.
+
+## L9 limitations (9 November 2026)
+
+- The current catalogue has no concentrated acid, bleach or sealed container, so "water into concentrated acid", "incompatible chemicals" and "heating a closed container" fire only for experiments whose data defines them (L11). They are covered by the unit tests.
+- Free mode hides the salt steps, but the salt workflow still runs underneath. Doing the salt steps in free mode still advances it silently.
+- Mistakes are kept in memory for the session, like the measurement log.
+- Goggles are a session flag (Safety page activity or the lab toggle), not a 3D avatar.
+- The completion summary inside `ExperimentResults` was not seen at full completion in the browser; it was checked in the in-progress results section and by type checks.
+- See GUIDED_FREE_SAFETY.md.

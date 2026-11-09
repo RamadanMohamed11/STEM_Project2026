@@ -248,6 +248,7 @@ export function PlacementController() {
         position={[0, BENCH_TOP + 0.9, 0]}
         center
         style={{ pointerEvents: 'none', userSelect: 'none' }}
+        zIndexRange={[19, 0]}
       >
         <div
           role="status"
@@ -293,6 +294,7 @@ export function PlacementController() {
         ]}
         center
         style={{ pointerEvents: 'none', userSelect: 'none' }}
+        zIndexRange={[19, 0]}
       >
         <div
           role="status"

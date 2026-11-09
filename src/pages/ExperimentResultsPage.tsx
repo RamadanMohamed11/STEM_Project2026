@@ -10,6 +10,7 @@ import { getContextualSafetyState } from '@/features/simulations/lib/contextualS
 import { getExperimentResultsSummary } from '@/features/simulations/lib/resultsSummary'
 import { restartExperimentSession } from '@/features/simulations/state/sessionActions'
 import { RecordedMeasurements } from '@/features/simulations/components/MeasurementLog'
+import { MistakesSummary } from '@/features/simulations/components/LabSafetyPanels'
 import { sessionLifetimeMessage } from '@/features/simulations/state/simulationSession'
 import { useSimulationSession } from '@/features/simulations/state/useSimulationSession'
 import { usePageTitle } from '@/hooks/usePageTitle'
@@ -272,7 +273,12 @@ export function ExperimentResultsPage() {
         </p>
       )}
       {session.simulation && (
-        <RecordedMeasurements experimentId={session.simulation.definition.experimentId} />
+        <>
+          {!session.completed && (
+            <MistakesSummary experimentId={session.simulation.definition.experimentId} />
+          )}
+          <RecordedMeasurements experimentId={session.simulation.definition.experimentId} />
+        </>
       )}
       <p className="text-sm text-slate">{sessionLifetimeMessage}</p>
     </div>

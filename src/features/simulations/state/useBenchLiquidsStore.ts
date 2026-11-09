@@ -30,6 +30,9 @@ import { instanceTypeId, resolveEquipment } from '../three/sceneConfig.ts'
 import type { SpatialRelationship } from '../engine/spatialInteractions.ts'
 import { heatingConditions, hotTouchReason, isHeatSource } from '../lib/benchHeating.ts'
 import { useReactionEffectsStore } from './useReactionEffectsStore.ts'
+import { useLabSafetyStore } from './useLabSafetyStore.ts'
+import { vesselOver } from '../lib/benchHeating.ts'
+import type { SubstanceView } from '../lib/safetyRules.ts'
 
 export interface BenchPour {
   sourceId: string
@@ -89,7 +92,11 @@ interface BenchLiquidsState {
   /** L6/L7: runs the engine (heating, boiling, reactions); effect events drive the visuals. */
   react: (dtMs: number, relationships?: Readonly<Record<string, SpatialRelationship>>) => void
   /** L7: light or put out a burner on the bench. */
-  setLit: (burnerId: string, lit: boolean) => boolean
+  setLit: (
+    burnerId: string,
+    lit: boolean,
+    relationships?: Readonly<Record<string, SpatialRelationship>>,
+  ) => boolean
   /** L7: returns true (and raises a hot-surface warning) when an item is too hot to handle. */
   checkHotTouch: (
     itemId: string,
@@ -121,6 +128,8 @@ const emptyState = () => ({
 
 /** Below this gap to room temperature (and with no heating) the engine has nothing to do. */
 const SETTLED_C = 0.05
+/** L9: hottest an (empty) vessel gets over a burner in this model. */
+const MAX_GLASS_C = 300
 
 const labelOf = (id: string) => resolveEquipment(id)?.label ?? id
 
@@ -141,6 +150,37 @@ export function benchTemperatureC(
   id: string,
 ): number | null {
   return state.lab.containers[id]?.temperatureC ?? null
+}
+
+/** L9: what a bench container holds, as the safety rules see it. */
+export function benchSubstanceViews(
+  state: Pick<BenchLiquidsState, 'definition' | 'lab'>,
+  id: string,
+): SubstanceView[] {
+  return Object.keys(state.lab.containers[id]?.contents ?? {}).flatMap((substanceId) => {
+    const substance = state.definition.substances.find((entry) => entry.id === substanceId)
+    return substance
+      ? [
+          {
+            id: substance.id,
+            state: substance.state,
+            hazards: substance.hazards ?? [],
+            concentrated: !!substance.concentrated,
+            incompatibleWith: substance.incompatibleWith ?? [],
+          },
+        ]
+      : []
+  })
+}
+
+function reportPour(state: BenchLiquidsState, sourceId: string, targetId: string) {
+  useLabSafetyStore.getState().report({
+    type: 'pour',
+    sourceId,
+    targetId,
+    source: benchSubstanceViews(state, sourceId),
+    target: benchSubstanceViews(state, targetId),
+  })
 }
 
 export function benchPh(state: Pick<BenchLiquidsState, 'definition' | 'lab'>, id: string) {
@@ -218,6 +258,7 @@ export const useBenchLiquidsStore = create<BenchLiquidsState>()((set, get) => ({
       if (current.angle > 0.02) return false
     }
     const same = current?.sourceId === sourceId && current.targetId === targetId
+    if (!same && requestedAngle > 0) reportPour(state, sourceId, targetId)
     set({
       pour: {
         sourceId,
@@ -245,6 +286,7 @@ export const useBenchLiquidsStore = create<BenchLiquidsState>()((set, get) => ({
     }
     if (state.pour && state.pour.angle > 0.02 && state.pour.sourceId !== sourceId) return false
     const fill = available / capacityOf(sourceId)
+    reportPour(state, sourceId, targetId)
     set({
       pour: {
         sourceId,
@@ -368,13 +410,48 @@ export const useBenchLiquidsStore = create<BenchLiquidsState>()((set, get) => ({
     if (settled) return
     const result = simulateTick(definition, lab, dt, { heatingCPerSecond: heating })
     if (!result.ok) return
-    set({ lab: result.state })
+    // An empty vessel has no boiling point to hold it; glass on a flame stays below ~300 °C here.
+    let next = result.state
+    for (const id of Object.keys(heating))
+      if ((next.containers[id]?.temperatureC ?? 0) > MAX_GLASS_C)
+        next = {
+          ...next,
+          containers: {
+            ...next.containers,
+            [id]: { ...next.containers[id], temperatureC: MAX_GLASS_C },
+          },
+        }
+    set({ lab: next })
     if (result.events.length) useReactionEffectsStore.getState().ingest(result.events, definition)
+    // L9: continuous safety checks on heated vessels (boiling dry, closed containers).
+    for (const id of Object.keys(heating)) {
+      const container = definition.containers.find((entry) => entry.id === id)
+      useLabSafetyStore.getState().report({
+        type: 'heating',
+        vesselId: id,
+        volumeMl: benchVolumeMl({ definition, lab: next }, id),
+        previousVolumeMl: benchVolumeMl(state, id),
+        temperatureC: next.containers[id]?.temperatureC ?? 0,
+        open: container?.open ?? true,
+      })
+    }
   },
 
-  setLit: (burnerId, lit) => {
+  setLit: (burnerId, lit, relationships = {}) => {
     if (!isHeatSource(burnerId)) return false
     const state = get()
+    if (lit && !state.lit.includes(burnerId)) {
+      const vesselId = vesselOver(burnerId, relationships, state.ids)
+      useLabSafetyStore.getState().report({
+        type: 'light',
+        burnerId,
+        vesselId,
+        vesselVolumeMl: vesselId ? benchVolumeMl(state, vesselId) : 0,
+        vesselOpen: vesselId
+          ? (state.definition.containers.find((entry) => entry.id === vesselId)?.open ?? true)
+          : true,
+      })
+    }
     const next = state.lit.filter((id) => id !== burnerId)
     set({
       lit: lit ? [...next, burnerId] : next,
@@ -389,6 +466,7 @@ export const useBenchLiquidsStore = create<BenchLiquidsState>()((set, get) => ({
       state.lab.containers[id] ? state.lab.containers[id].temperatureC : null,
     )
     if (!reason) return false
+    useLabSafetyStore.getState().recordHotTouch(itemId, reason)
     set({ hotTouch: { itemId, message: reason, seq: (state.hotTouch?.seq ?? 0) + 1 } })
     return true
   },
@@ -414,6 +492,7 @@ export const useBenchLiquidsStore = create<BenchLiquidsState>()((set, get) => ({
       })
       return false
     }
+    reportPour(state, sourceId, dropperId)
     const result = pourLiquid(state.definition, state.lab, sourceId, dropperId, amount)
     set({ lab: result.state, message: `Dropper filled with ${formatMl(result.pouredMl)}.` })
     return true
@@ -433,6 +512,7 @@ export const useBenchLiquidsStore = create<BenchLiquidsState>()((set, get) => ({
       set({ message: 'The dropper is empty — fill it from a vessel first.' })
       return false
     }
+    reportPour(state, dropperId, targetId)
     const result = pourLiquid(state.definition, state.lab, dropperId, targetId, DROP_ML)
     const spilled = result.spilledMl > AMOUNT_EPSILON
     set({

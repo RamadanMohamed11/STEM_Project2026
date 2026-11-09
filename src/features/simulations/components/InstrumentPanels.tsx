@@ -18,12 +18,14 @@ import {
 } from '../state/benchInstruments'
 import {
   benchPh,
+  benchSubstanceViews,
   benchTemperatureC,
   benchVolumeMl,
   useBenchLiquidsStore,
 } from '../state/useBenchLiquidsStore'
 import { useLabSceneStore } from '../state/useLabSceneStore'
 import { useMeasurementLogStore } from '../state/useMeasurementLogStore'
+import { useLabSafetyStore } from '../state/useLabSafetyStore'
 import { resolveEquipment } from '../three/sceneConfig'
 
 const labelOf = (id: string) => resolveEquipment(id)?.label ?? id
@@ -169,7 +171,16 @@ export function InstrumentReadingPanel({ ids }: { ids: readonly string[] }) {
           <button
             type="button"
             disabled={empty || ph === null}
-            onClick={() => setDippedPh(ph)}
+            onClick={() => {
+              setDippedPh(ph)
+              // L9: testing a corrosive liquid without goggles is a safety mistake.
+              useLabSafetyStore.getState().report({
+                type: 'dip',
+                instrumentId,
+                targetId: vesselId,
+                target: benchSubstanceViews(useBenchLiquidsStore.getState(), vesselId),
+              })
+            }}
             className="w-full rounded-lg border border-white/25 px-3 py-1.5 font-semibold hover:bg-white/10 disabled:opacity-40"
           >
             {dippedPh === null ? 'Dip a fresh strip' : 'Dip a new strip'}

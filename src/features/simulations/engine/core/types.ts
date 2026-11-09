@@ -29,6 +29,10 @@ export interface SubstanceDefinition {
   acidBase?: { type: 'acid' | 'base'; equivalentsPerMol: number }
   /** Hazard ids from the safety catalogue (e.g. 'corrosive', 'flammable'). */
   hazards?: readonly string[]
+  /** L9: a concentrated reagent (e.g. conc. H₂SO₄): adding water to it is a safety mistake. */
+  concentrated?: boolean
+  /** L9: substances this must never be mixed with (safety rules raise an alert). */
+  incompatibleWith?: readonly string[]
 }
 
 export interface ContentEntry {
