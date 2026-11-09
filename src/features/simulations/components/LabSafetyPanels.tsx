@@ -156,9 +156,11 @@ function MistakeIcon({ mistake }: { mistake: LabMistake }) {
 }
 
 /** Completion summary / results page: what went wrong and why (light theme). */
+const noMistakes: LabMistake[] = []
+
 export function MistakesSummary({ experimentId }: { experimentId?: string }) {
   const mistakes = useLabSafetyStore((state) =>
-    !experimentId || state.experimentId === experimentId ? state.mistakes : [],
+    !experimentId || state.experimentId === experimentId ? state.mistakes : noMistakes,
   )
   const safety = mistakes.filter((m) => m.kind === 'safety')
   const steps = mistakes.filter((m) => m.kind === 'step')

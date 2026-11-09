@@ -1,3 +1,4 @@
+import { FocusDialog } from '@/components/ui/FocusDialog'
 import { useEffect, useMemo, useState } from 'react'
 import {
   ArrowLeft,
@@ -372,6 +373,7 @@ export function AdminStudentsPage({
 
       {/* Student Detail Modal / Drawer */}
       {selectedStudent && (
+        <FocusDialog onClose={() => setSelectedStudent(null)}>
         <div
           role="dialog"
           aria-modal="true"
@@ -386,9 +388,9 @@ export function AdminStudentsPage({
                   {selectedStudent.fullName.charAt(0).toUpperCase()}
                 </span>
                 <div>
-                  <h3 id="student-detail-title" className="text-lg font-bold text-navy">
+                  <h2 id="student-detail-title" className="text-lg font-bold text-navy">
                     {selectedStudent.fullName}
-                  </h3>
+                  </h2>
                   <div className="flex flex-wrap items-center gap-2 pt-0.5 text-xs text-slate">
                     <span>{selectedStudent.email}</span>
                     <span>·</span>
@@ -549,6 +551,7 @@ export function AdminStudentsPage({
             </div>
           </div>
         </div>
+        </FocusDialog>
       )}
     </div>
   )

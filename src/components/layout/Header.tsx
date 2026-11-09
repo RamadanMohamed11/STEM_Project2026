@@ -42,7 +42,7 @@ export function Header({ onMenuOpen, menuOpen }: HeaderProps) {
         </div>
 
         <div className="flex shrink-0 items-center gap-3">
-          <span className="hidden text-xs text-ink/65 sm:inline">Interactive Science Lab</span>
+          <span className="hidden text-xs text-ink/75 sm:inline">Interactive Science Lab</span>
           <StatusPill tone="ready" dot>Student Preview</StatusPill>
         </div>
       </div>

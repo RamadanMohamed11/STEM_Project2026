@@ -69,13 +69,13 @@ export function GradeOptionCard({ grade, detail, isSelected, onSelect, index }: 
         </div>
 
         {/* Grade Title */}
-        <h3
+        <h2
           className={`mt-5 text-xl font-bold tracking-tight transition-colors ${
             isSelected ? 'text-teal-dark' : 'text-navy group-hover:text-navy'
           }`}
         >
           {grade.title}
-        </h3>
+        </h2>
 
         {/* Short Description */}
         <p className="mt-2 text-xs leading-relaxed text-ink/75 sm:text-sm">

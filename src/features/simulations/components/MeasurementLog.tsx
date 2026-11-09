@@ -430,9 +430,11 @@ export function MeasurementLogPanel() {
 }
 
 /** Compact summary for the measurements card and the results page (light theme). */
+const noMeasurements: MeasurementRow[] = []
+
 export function RecordedMeasurements({ experimentId }: { experimentId?: string }) {
   const rows = useMeasurementLogStore((state) =>
-    !experimentId || state.experimentId === experimentId ? state.rows : [],
+    !experimentId || state.experimentId === experimentId ? state.rows : noMeasurements,
   )
   if (!rows.length) return null
   return (

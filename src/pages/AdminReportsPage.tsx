@@ -1,3 +1,4 @@
+import { FocusDialog } from '@/components/ui/FocusDialog'
 import { useEffect, useMemo, useState } from 'react'
 import {
   AlertTriangle,
@@ -379,6 +380,7 @@ export function AdminReportsPage({
 
       {/* Question Breakdown Modal */}
       {selectedReport && (
+        <FocusDialog onClose={() => setSelectedReport(null)}>
         <div
           role="dialog"
           aria-modal="true"
@@ -392,9 +394,9 @@ export function AdminReportsPage({
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-teal-dark">
                   Assessment Question Analysis
                 </span>
-                <h3 id="report-modal-title" className="text-lg font-bold text-navy">
+                <h2 id="report-modal-title" className="text-lg font-bold text-navy">
                   {selectedReport.experimentTitle}
-                </h3>
+                </h2>
                 <p className="text-xs text-slate">
                   {selectedReport.grade} · {selectedReport.term} · {selectedReport.totalQuizAttempts} total attempts
                 </p>
@@ -412,9 +414,9 @@ export function AdminReportsPage({
 
             {/* Questions List */}
             <div className="mt-4 space-y-3">
-              <h4 className="text-xs font-semibold text-slate uppercase tracking-wider">
+              <h3 className="text-xs font-semibold text-slate uppercase tracking-wider">
                 Question Difficulty & Error Rates
-              </h4>
+              </h3>
 
               {selectedReport.questionsBreakdown.length === 0 ? (
                 <p className="py-6 text-center text-xs text-slate">
@@ -486,6 +488,7 @@ export function AdminReportsPage({
             </div>
           </div>
         </div>
+        </FocusDialog>
       )}
     </div>
   )

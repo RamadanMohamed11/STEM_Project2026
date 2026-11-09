@@ -24,6 +24,9 @@ export function QuizFeedbackView({
 }: QuizFeedbackViewProps) {
   return (
     <div className="space-y-6">
+      <p role="status" aria-live="polite" className="sr-only">
+        Practice assessment completed. Your score is {result.percentage}%.
+      </p>
       {/* Score Summary Card */}
       <section
         aria-labelledby="your-score-heading"

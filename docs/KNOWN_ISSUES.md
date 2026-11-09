@@ -133,3 +133,7 @@ The reusable hazard catalog is draft guidance requiring academic review. No haza
 ## L12 pending acceptance — 9 November 2026
 
 The new keyboard/mobile/rendering changes require real browser and touch-device verification. Computer Use is blocked by a kernel-assets path startup error, so keyboard focus, two-finger gesture handover, 375px layout, hidden-tab GPU behavior and physical-mobile FPS have not been confirmed. The development FPS display is instrumentation, not evidence of a performance target. L12 is not complete until these checks pass; see LAB_MOBILE_ACCESSIBILITY.md. No new instancing/LOD redesign was attempted without measurements.
+
+## I17 accessibility audit limitation — 9 November 2026
+
+Shared accessibility fixes and evidence are documented in ACCESSIBILITY.md. The owner confirmed there is no admin account yet. Authorized admin CRUD/dialog keyboard flows, real screen-reader verification, successful auth/recovery service flows, complete populated scientific results states and exhaustive gradient/state contrast remain unverified. Signed-out admin guards are not evidence of admin-page completion. Do not claim site-wide WCAG AA conformance from the automated/token checks alone.

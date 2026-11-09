@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import {
   AlertTriangle,
   ArrowLeft,
@@ -35,6 +36,8 @@ export function QuizReviewScreen({
   detailsPath,
   resultsPath,
 }: QuizReviewScreenProps) {
+  const heading = useRef<HTMLHeadingElement>(null)
+  useEffect(() => { heading.current?.focus() }, [])
   const total = questions.length
   const answeredCount = questions.filter((q) => Boolean(answers[q.id])).length
   const unansweredCount = Math.max(0, total - answeredCount)
@@ -53,6 +56,8 @@ export function QuizReviewScreen({
             </span>
             <h2
               id="review-answers-title"
+              ref={heading}
+              tabIndex={-1}
               className="mt-1 text-xl font-semibold text-navy sm:text-2xl"
             >
               Review Answers

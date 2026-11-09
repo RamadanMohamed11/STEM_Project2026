@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 import { Brand } from '@/components/layout/Brand'
 import { NavigationLinks } from '@/components/layout/NavigationLinks'
+import { containDialogTab } from '@/components/ui/dialogKeyboard'
 
 interface MobileNavigationProps {
   open: boolean
@@ -48,6 +49,7 @@ export function MobileNavigation({ open, onClose }: MobileNavigationProps) {
       ref={dialogRef}
       id="mobile-navigation"
       aria-label="Navigation menu"
+      onKeyDown={containDialogTab}
       onClose={onClose}
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose()

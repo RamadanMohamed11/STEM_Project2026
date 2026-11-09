@@ -38,6 +38,9 @@ export function QuizQuestionCard({
       aria-labelledby={`question-title-${question.id}`}
       className="animate-fade-in-up space-y-6 rounded-2xl border border-line bg-white p-5 shadow-card sm:p-7"
     >
+      <p role="status" aria-live="polite" className="sr-only">
+        Question {questionIndex + 1} of {totalQuestions}. {question.prompt}
+      </p>
       {/* Question Header & Badges */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
         <div className="flex flex-wrap items-center gap-2">

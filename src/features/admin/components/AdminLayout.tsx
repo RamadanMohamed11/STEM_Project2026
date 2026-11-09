@@ -11,6 +11,7 @@ import { useAuth } from '@/features/auth/authContext'
 import { canAccessAdminPortal } from '@/features/auth/permissions'
 import { getActiveAdminNavItem, getAdminBreadcrumbs } from '../config/adminNavigation'
 import { AdminNavigationList } from './AdminNavigationList'
+import { containDialogTab } from '@/components/ui/dialogKeyboard'
 
 export function AdminLayout() {
   const { auth, state } = useAuth()
@@ -203,6 +204,7 @@ export function AdminLayout() {
       <dialog
         ref={dialogRef}
         id="admin-mobile-navigation"
+        onKeyDown={containDialogTab}
         aria-label="Admin mobile navigation"
         onClose={() => setMobileMenuOpen(false)}
         onClick={(event) => {

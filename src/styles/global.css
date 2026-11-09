@@ -477,3 +477,13 @@ a {
 [data-lab-workspace] button { min-width: 44px; }
 [data-lab-workspace] [role=toolbar] { max-width: calc(100vw - 16px); overflow-x: auto; }
 [data-lab-workspace] [role=toolbar] > button { flex-shrink: 0; }
+
+/* I17: field boundaries must be distinguishable on the light student/admin surfaces.
+   The immersive lab keeps its own dark controls. Decorative separators stay light. */
+:where(main:not(:has([data-lab-workspace]))) :where(input:not([type="checkbox"]):not([type="radio"]), select, textarea):not(:disabled):not([aria-invalid="true"]) {
+  border-color: #74838d;
+}
+main:not(:has([data-lab-workspace])) :is(input, textarea)::placeholder {
+  color: var(--color-slate);
+  opacity: 1;
+}
