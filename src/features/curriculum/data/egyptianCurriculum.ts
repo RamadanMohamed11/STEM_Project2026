@@ -508,7 +508,7 @@ const rawEgyptianExperiments: readonly Experiment[] = [
     categoryId: 'chemistry',
     difficulty: 'intermediate',
     estimatedDurationMinutes: 25,
-    status: 'planned',
+    status: 'demo',
     illustration: 'liquid-volume',
     safety: {
       level: 'medium',
@@ -528,7 +528,7 @@ const rawEgyptianExperiments: readonly Experiment[] = [
     categoryId: 'chemistry',
     difficulty: 'intermediate',
     estimatedDurationMinutes: 20,
-    status: 'planned',
+    status: 'demo',
     illustration: 'salt-dissolution',
     safety: {
       level: 'medium',
@@ -568,7 +568,7 @@ const rawEgyptianExperiments: readonly Experiment[] = [
     categoryId: 'chemistry',
     difficulty: 'beginner',
     estimatedDurationMinutes: 20,
-    status: 'planned',
+    status: 'demo',
     illustration: 'ph-indicators',
     safety: {
       level: 'medium',
@@ -588,7 +588,7 @@ const rawEgyptianExperiments: readonly Experiment[] = [
     categoryId: 'chemistry',
     difficulty: 'intermediate',
     estimatedDurationMinutes: 20,
-    status: 'planned',
+    status: 'demo',
     illustration: 'ph-indicators',
     safety: {
       level: 'low',
@@ -648,7 +648,7 @@ const rawEgyptianExperiments: readonly Experiment[] = [
     categoryId: 'chemistry',
     difficulty: 'advanced',
     estimatedDurationMinutes: 15,
-    status: 'planned',
+    status: 'demo',
     illustration: 'salt-dissolution',
     safety: {
       level: 'high',
@@ -708,7 +708,7 @@ const rawEgyptianExperiments: readonly Experiment[] = [
     categoryId: 'chemistry',
     difficulty: 'intermediate',
     estimatedDurationMinutes: 25,
-    status: 'planned',
+    status: 'demo',
     illustration: 'ph-indicators',
     safety: {
       level: 'medium',

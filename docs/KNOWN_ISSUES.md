@@ -122,3 +122,10 @@ The reusable hazard catalog is draft guidance requiring academic review. No haza
 - The panel uses its own small WebGL canvas, so it adds a second WebGL context while it is open.
 - It shows one container at a time.
 - See PARTICLE_VIEW.md.
+
+## L11 limitations (9 November 2026)
+
+- The initial batch of 6 declarative experiments is added as pure data definitions (`src/features/simulations/data/experiments/`) and verified via the core chemistry engine (`tests/simulationExperimentsL11.test.mjs`).
+- Guided steps are declarative data checked by `completeWhen` predicates in the core engine; full interactive 3D UI adapters for non-salt experiments remain tied to the generic free-workbench mode.
+- See EXPERIMENT_DATA_L11.md.
+

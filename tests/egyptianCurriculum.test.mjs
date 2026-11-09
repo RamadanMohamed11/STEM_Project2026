@@ -85,18 +85,26 @@ test('all 23 experiments have valid titles, short descriptions, categories, and 
   }
 })
 
-test('only salt dissolution is playable (demo) while all 22 other experiments are planned', () => {
-  const salt = findExperimentById(egyptianCurriculum, 'exp-salt-water-001')
-  assert.ok(salt)
-  assert.equal(salt.status, 'demo')
+test('playable experiments match registered simulations while unbuilt experiments remain planned', () => {
+  const playableIds = new Set([
+    'exp-salt-water-001',
+    'exp-titration-005',
+    'exp-heat-dissolution-006',
+    'exp-flame-tests-008',
+    'exp-oxides-009',
+    'exp-sodium-water-012',
+    'exp-anions-015',
+  ])
 
-  const nonSaltExperiments = egyptianExperiments.filter((exp) => exp.id !== 'exp-salt-water-001')
-  assert.equal(nonSaltExperiments.length, 22)
-  for (const exp of nonSaltExperiments) {
-    assert.equal(
-      exp.status,
-      'planned',
-      `Experiment ${exp.id} should have planned status until simulation engine is built`,
-    )
+  for (const exp of egyptianExperiments) {
+    if (playableIds.has(exp.id)) {
+      assert.equal(exp.status, 'demo', `Experiment ${exp.id} should be playable (demo)`)
+    } else {
+      assert.equal(
+        exp.status,
+        'planned',
+        `Experiment ${exp.id} should have planned status until simulation engine is built`,
+      )
+    }
   }
 })

@@ -28,6 +28,8 @@ import {
   saltStateToLabState,
 } from '../src/features/simulations/engine/saltExperiment.ts'
 import {
+  allCoreExperiments,
+  getCoreExperiment,
   getRegisteredExperimentIds,
   registryIssues,
   resolveSimulation,
@@ -301,6 +303,11 @@ test('fixture and salt definitions validate; the registry exposes salt with no i
   assert.equal(isValidExperimentDefinition(saltCoreExperiment), true)
   assert.deepEqual(getRegisteredExperimentIds(), ['exp-salt-water-001'])
   assert.deepEqual(registryIssues.get('exp-salt-water-001'), [])
+  assert.equal(allCoreExperiments.length, 7)
+  for (const def of allCoreExperiments) {
+    assert.deepEqual(validateExperimentDefinition(def), [])
+    assert.equal(getCoreExperiment(def.experimentId)?.id, def.id)
+  }
   const registration = resolveSimulation({ id: 'exp-salt-water-001', status: 'demo' })
   assert.equal(registration.core, saltCoreExperiment)
   assert.equal(registration.definition.experimentId, 'exp-salt-water-001')

@@ -1,5 +1,6 @@
 import { saltExperimentDefinition } from '../data/saltExperimentDefinition.ts'
 import { saltCoreExperiment } from '../data/saltCoreDefinition.ts'
+import { l11CoreExperiments } from '../data/experiments/index.ts'
 import {
   validateExperimentDefinition,
   type CoreExperimentDefinition,
@@ -62,3 +63,18 @@ export type SimulationRegistration = NonNullable<ReturnType<typeof resolveSimula
 
 /** Stable compatibility alias, independent of catalog ordering or future available entries. */
 export const previewExperimentId = saltExperimentDefinition.experimentId
+
+/** All generic core experiment definitions available to the data-driven engine (L1 + L11). */
+export const allCoreExperiments: readonly CoreExperimentDefinition[] = [
+  saltCoreExperiment,
+  ...l11CoreExperiments,
+]
+
+export const coreExperimentRegistry: ReadonlyMap<string, CoreExperimentDefinition> = new Map(
+  allCoreExperiments.map((def) => [def.experimentId, def]),
+)
+
+export function getCoreExperiment(experimentId: string): CoreExperimentDefinition | undefined {
+  return coreExperimentRegistry.get(experimentId)
+}
+
