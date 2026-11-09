@@ -20,6 +20,7 @@ import {
   getVesselFill,
 } from '../three/models/library/modelSpecs.ts'
 import { instanceTypeId, isChemistryLinked, resolveEquipment } from '../three/sceneConfig.ts'
+import { HYDROCHLORIC_ACID_PARTICLES, WATER_PARTICLES } from '../data/particleSpecies.ts'
 
 /** One drop from the dropper (mL). */
 export const DROP_ML = 0.05
@@ -40,6 +41,7 @@ export const BENCH_SUBSTANCES: readonly SubstanceDefinition[] = [
     opacity: 0.15,
     densityGPerMl: 1,
     boilingPointC: 100,
+    particles: WATER_PARTICLES,
   },
   {
     id: 'hydrochloric-acid',
@@ -52,6 +54,7 @@ export const BENCH_SUBSTANCES: readonly SubstanceDefinition[] = [
     molarMassGPerMol: 1020,
     // Dilute acid boils just above water (teaching value).
     boilingPointC: 100.5,
+    particles: HYDROCHLORIC_ACID_PARTICLES,
     acidBase: { type: 'acid', equivalentsPerMol: 1 },
     hazards: ['corrosive'],
   },

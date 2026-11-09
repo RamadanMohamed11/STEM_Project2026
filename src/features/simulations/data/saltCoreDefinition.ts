@@ -1,4 +1,5 @@
 import type { CoreExperimentDefinition, DissolutionProcess } from '../engine/core/index.ts'
+import { SODIUM_CHLORIDE_PARTICLES, WATER_PARTICLES } from './particleSpecies.ts'
 
 /**
  * L1: the salt-dissolution experiment described as data for the generic engine.
@@ -40,6 +41,7 @@ export const saltCoreExperiment: CoreExperimentDefinition = {
         densityGPerMl: 1,
         molarMassGPerMol: 18.015,
         boilingPointC: 100,
+        particles: WATER_PARTICLES,
       },
       {
         id: 'sodium-chloride',
@@ -50,6 +52,7 @@ export const saltCoreExperiment: CoreExperimentDefinition = {
         opacity: 1,
         molarMassGPerMol: 58.44,
         hazards: ['irritant'],
+        particles: SODIUM_CHLORIDE_PARTICLES,
       },
       {
         id: 'sodium-chloride-aq',
@@ -59,6 +62,7 @@ export const saltCoreExperiment: CoreExperimentDefinition = {
         color: '#d6ecff',
         opacity: 0,
         molarMassGPerMol: 58.44,
+        particles: SODIUM_CHLORIDE_PARTICLES,
       },
     ],
     containers: [

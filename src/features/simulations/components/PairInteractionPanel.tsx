@@ -2,6 +2,7 @@ import { useId, useRef, useState, type FormEvent } from 'react'
 import { resolveEquipment } from '../three/sceneConfig'
 import { isBenchLiquidContainer } from '../lib/benchLiquids'
 import { BenchPourPanel } from './BenchPourPanel'
+import { ParticleViewButton } from './ParticleViewButton'
 import { BenchVesselInfo, BurnerPanel } from './BenchHeatingPanel'
 import { isHeatSource } from '../lib/benchHeating'
 import { BalancePanel, InstrumentReadingPanel } from './InstrumentPanels'
@@ -70,6 +71,7 @@ function SingleObjectInfo({ id, chemistry }: { id: string; chemistry: SaltExperi
           </div>
         )}
       </dl>
+      <ParticleViewButton id={id} />
       <p className="text-[11px] leading-relaxed text-white/65">
         {id === 'stirring-rod'
           ? 'Drag the rod inside the beaker and draw complete circles to stir.'

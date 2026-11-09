@@ -114,3 +114,11 @@ The reusable hazard catalog is draft guidance requiring academic review. No haza
 - Goggles are a session flag (Safety page activity or the lab toggle), not a 3D avatar.
 - The completion summary inside `ExperimentResults` was not seen at full completion in the browser; it was checked in the in-progress results section and by type checks.
 - See GUIDED_FREE_SAFETY.md.
+
+## L10 limitations (9 November 2026)
+
+- The particle view is a teaching picture, not a simulation: counts are scaled, and motion is random kicks, not molecular dynamics. Ions are not drawn with surrounding water shells.
+- Dilute HCl is shown as H₃O⁺ and Cl⁻ (complete ionisation). Other substances without particle data show one generic particle per substance.
+- The panel uses its own small WebGL canvas, so it adds a second WebGL context while it is open.
+- It shows one container at a time.
+- See PARTICLE_VIEW.md.

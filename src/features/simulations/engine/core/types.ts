@@ -33,6 +33,29 @@ export interface SubstanceDefinition {
   concentrated?: boolean
   /** L9: substances this must never be mixed with (safety rules raise an alert). */
   incompatibleWith?: readonly string[]
+  /**
+   * L10: particles one formula unit is made of, for the particle view (e.g. NaCl → Na⁺ + Cl⁻).
+   * Species with the same `key` in different substances are the same particles (NaCl(s) and
+   * NaCl(aq) share Na⁺ and Cl⁻, so dissolving moves ions out of the lattice).
+   */
+  particles?: readonly SubstanceParticle[]
+}
+
+export interface ParticleSpecies {
+  key: string
+  formula: string
+  name: string
+  color: string
+  /** Relative size (1 = typical ion). */
+  radius?: number
+}
+
+export interface SubstanceParticle {
+  species: ParticleSpecies
+  /** Particles per formula unit (stoichiometry, e.g. 2 for Cl⁻ in CaCl₂). */
+  per: number
+  /** Drawn as the background solvent (e.g. the water in a solution), not counted by moles. */
+  solvent?: boolean
 }
 
 export interface ContentEntry {

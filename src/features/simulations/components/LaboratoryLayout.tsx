@@ -20,6 +20,7 @@ import { LaboratoryCanvas } from './LaboratoryCanvas'
 import { PairInteractionPanel } from './PairInteractionPanel'
 import { HotTouchWarning } from './BenchHeatingPanel'
 import { MeasurementAutoRecorder, MeasurementLogPanel } from './MeasurementLog'
+import { ParticleViewPanel } from './ParticleViewPanel'
 import { useMeasurementLogStore } from '../state/useMeasurementLogStore'
 import { useLabSafetyStore } from '../state/useLabSafetyStore'
 import {
@@ -311,6 +312,7 @@ export function LaboratoryLayout({
         <PairInteractionPanel inventoryOpen={inventoryOpen || helpOpen} />
         <HotTouchWarning />
         <SafetyAlertToast />
+        <ParticleViewPanel />
         {/* Small screens: mode and goggles sit under the Inventory button, not in the header. */}
         {!inventoryOpen && (
           <div className="pointer-events-auto absolute left-3 top-16 z-20 flex items-center gap-1.5 rounded-lg bg-[#071d29]/85 p-1 sm:hidden">

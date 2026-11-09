@@ -10,6 +10,7 @@ import {
 } from '../state/useBenchLiquidsStore'
 import { useLabSceneStore } from '../state/useLabSceneStore'
 import { instanceTypeId, resolveEquipment } from '../three/sceneConfig'
+import { ParticleViewButton } from './ParticleViewButton'
 
 const labelOf = (id: string) => resolveEquipment(id)?.label ?? id
 
@@ -91,6 +92,7 @@ export function BenchVesselInfo({ id }: { id: string }) {
           </dd>
         </div>
       </dl>
+      <ParticleViewButton id={id} />
       <p className="text-[11px] leading-relaxed text-white/65">
         {heated
           ? temperature !== null && temperature >= 99.9 && ml > 0
