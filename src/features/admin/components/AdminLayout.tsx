@@ -169,7 +169,7 @@ export function AdminLayout() {
                 type="button"
                 disabled={signingOut}
                 onClick={handleSignOut}
-                aria-label="Sign out"
+                aria-label={signingOut ? 'Signing Out…' : 'Sign Out'}
                 className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-line px-3 text-xs font-semibold text-ink transition-colors hover:bg-surface-muted disabled:opacity-50 focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2"
               >
                 <LogOut className="h-3.5 w-3.5" aria-hidden="true" />

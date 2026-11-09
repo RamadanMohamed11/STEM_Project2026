@@ -105,3 +105,16 @@ Final `npm run typecheck`, `npm run lint` and `npm run build` passed. Build reta
 | Progress page (`/progress`) | Pass (0px ovf) | Pass (0px ovf) | Pass (0px ovf) | Action buttons (Browse Experiments, Start Lab, View Results) enlarged to `min-h-11` on mobile via `buttonSizeStyles.sm`. |
 | Lab results (`/experiments/:id/results`) | Pass (0px ovf) | Pass (0px ovf) | Pass (0px ovf) | Wrapped `MeasurementTable` in `<div className="overflow-x-auto">` ensuring table contents scroll safely horizontally without clipping. |
 | Admin pages (`/admin/*`) | Pass (0px ovf) | Pass (0px ovf) | Pass (0px ovf) | `AdminLayout` header sign out button compacts to icon with `aria-label` below `sm`; inputs and action buttons in Curriculum, Experiments, Questions pages updated to `min-h-11`; existing `overflow-x-auto` table wrappers verified. |
+
+### I16 commit review follow-up
+
+Reviewed all 24 files changed by `4743760`, including the shared button styles, Brand, admin layout/editors, AI explanation button, all three quiz components, login/registration/shared password fields, video controls, tool-note popover, home/safety links and controls, measurement table, grade/term/catalog pages, ignore entries and this report. No event handlers, routes, validation, stores or scientific operations were removed or changed. The measurement table retains its contents, semantics and remove handlers inside the new scroll wrapper. Larger touch targets were left intact.
+
+Two concrete regressions fixed separately:
+
+- `QuizProgressBar`: `min-h-11 min-w-11` continued to override `sm:size-8`, making desktop navigation 44px instead of its intended 32px. Added matching `sm:min-h-8 sm:min-w-8`; mobile remains 44px.
+- `AdminLayout`: the new fixed `aria-label` overrode the visible pending sign-out text. Its accessible name now follows `signingOut`, including on the icon-only mobile button. No sign-out handler or authentication logic changed.
+
+Actual Chromium checks on the local quiz at 375/768/1280px confirmed 44/32/32px button dimensions, no horizontal overflow and working question selection. Screenshots were visually inspected (`output/playwright/i16-review-*.png`); dimensions are recorded in `output/playwright/i16-review.json`. An initial measurement immediately after resizing ran before responsive styles settled; the final assertions wait for the expected layout. An authenticated admin sign-out was not executed; that label change was verified by code review. This follow-up does not claim a fresh browser pass over every original I16 page.
+
+Review-fix verification: TypeScript, ESLint, production build and `git diff --check` passed. Full suite: **484/484 passed**, zero failures/skips/cancellations, 204.2 seconds (`artifacts/i16-review-tests.log`). Existing bundle-size and Three.js deprecation warnings remain. No deployment or Git push was performed for this review.

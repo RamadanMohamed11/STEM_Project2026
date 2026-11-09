@@ -63,7 +63,7 @@ export function QuizProgressBar({
               onClick={() => onSelectIndex(index)}
               aria-current={isCurrent ? 'step' : undefined}
               aria-label={`Question ${index + 1}: ${isAnswered ? 'Answered' : 'Unanswered'}${isCurrent ? ' (Current)' : ''}`}
-              className={`flex min-h-11 min-w-11 sm:size-8 shrink-0 items-center justify-center rounded-lg text-sm sm:text-xs font-semibold transition-all duration-200 select-none focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2 hover:scale-110 active:scale-95 ${
+              className={`flex min-h-11 min-w-11 sm:size-8 sm:min-h-8 sm:min-w-8 shrink-0 items-center justify-center rounded-lg text-sm sm:text-xs font-semibold transition-all duration-200 select-none focus-visible:outline-2 focus-visible:outline-teal focus-visible:outline-offset-2 hover:scale-110 active:scale-95 ${
                 isCurrent
                   ? 'border-2 border-teal bg-teal text-white shadow-sm ring-2 ring-teal/30 scale-105'
                   : isAnswered
