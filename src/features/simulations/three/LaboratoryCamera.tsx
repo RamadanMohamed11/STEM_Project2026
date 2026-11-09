@@ -1,3 +1,4 @@
+import { TOUCH, Vector3 } from 'three'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
@@ -52,6 +53,24 @@ export function LaboratoryCamera() {
     }
   }, [])
 
+  useEffect(() => {
+    const handleCommand = (event: Event) => {
+      const controls = controlsRef.current
+      if (!controls?.enabled) return
+      const command = (event as CustomEvent<unknown>).detail
+      const offset = controls.object.position.clone().sub(controls.target)
+      if (command === 'left' || command === 'right')
+        offset.applyAxisAngle(new Vector3(0, 1, 0), command === 'left' ? 0.15 : -0.15)
+      else if (command === 'zoom-in' || command === 'zoom-out')
+        offset.multiplyScalar(command === 'zoom-in' ? 0.9 : 1.1)
+      else return
+      controls.object.position.copy(controls.target).add(offset)
+      controls.update()
+    }
+    window.addEventListener('lab-camera-command', handleCommand)
+    return () => window.removeEventListener('lab-camera-command', handleCommand)
+  }, [])
+
   const constrainTarget = useCallback(() => {
     const controls = controlsRef.current
     if (!controls) return
@@ -89,6 +108,7 @@ export function LaboratoryCamera() {
         makeDefault
         target={[...DEFAULT_CAMERA_TARGET]}
         enabled={!dragging && !placing && !transferring}
+        touches={{ ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_ROTATE }}
         enableDamping
         dampingFactor={0.095}
         enablePan

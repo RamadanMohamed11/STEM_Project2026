@@ -157,7 +157,7 @@ export interface SnapMatch {
   position: Point2D
 }
 
-function rotate(offset: Point2D, angle: number): Point2D {
+export function rotateSnapOffset(offset: Point2D, angle: number): Point2D {
   const cos = Math.cos(angle)
   const sin = Math.sin(angle)
   return { x: offset.x * cos + offset.z * sin, z: -offset.x * sin + offset.z * cos }
@@ -197,7 +197,7 @@ export function findSnapTarget(
           ),
       )
       if (occupied) continue
-      const offset = rotate(rule.offset, state.rotations[holderId] ?? 0)
+      const offset = rotateSnapOffset(rule.offset, state.rotations[holderId] ?? 0)
       const position = { x: at.x + offset.x, z: at.z + offset.z }
       const distance = Math.hypot(released.x - position.x, released.z - position.z)
       if (distance <= rule.captureRadius && distance < bestDistance) {

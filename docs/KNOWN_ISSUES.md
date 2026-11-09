@@ -129,3 +129,7 @@ The reusable hazard catalog is draft guidance requiring academic review. No haza
 - Guided steps are declarative data checked by `completeWhen` predicates in the core engine; full interactive 3D UI adapters for non-salt experiments remain tied to the generic free-workbench mode.
 - See EXPERIMENT_DATA_L11.md.
 
+
+## L12 pending acceptance — 9 November 2026
+
+The new keyboard/mobile/rendering changes require real browser and touch-device verification. Computer Use is blocked by a kernel-assets path startup error, so keyboard focus, two-finger gesture handover, 375px layout, hidden-tab GPU behavior and physical-mobile FPS have not been confirmed. The development FPS display is instrumentation, not evidence of a performance target. L12 is not complete until these checks pass; see LAB_MOBILE_ACCESSIBILITY.md. No new instancing/LOD redesign was attempted without measurements.

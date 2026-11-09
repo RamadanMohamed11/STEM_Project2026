@@ -39,6 +39,7 @@ export function LaboratoryCanvas() {
   return (
     <section
       aria-labelledby="3d-workspace-title"
+      aria-describedby="bench-description"
       className="relative size-full min-h-0 min-w-0 overflow-hidden bg-[#dde9e9]"
     >
       <h2 id="3d-workspace-title" className="sr-only">

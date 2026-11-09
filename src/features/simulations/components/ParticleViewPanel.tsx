@@ -1,4 +1,5 @@
 import { useMemo, useRef } from 'react'
+import { usePageVisibility } from '@/hooks/usePageVisibility'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Atom, X } from 'lucide-react'
 import { Object3D, type InstancedMesh, type MeshBasicMaterial } from 'three'
@@ -171,6 +172,7 @@ function ParticleCanvasContent({ scene, reduced }: { scene: ParticleScene; reduc
 
 /** L10: zoomed particle view of the selected container, driven by the engine state. */
 export function ParticleViewPanel() {
+  const visible = usePageVisibility()
   const containerId = useParticleViewStore((state) => state.containerId)
   const scene = useParticleScene(containerId)
   const reduced = usePrefersReducedMotion()
@@ -202,7 +204,7 @@ export function ParticleViewPanel() {
             className="aspect-square w-full overflow-hidden rounded-xl border border-white/15"
             aria-hidden="true"
           >
-            <Canvas orthographic camera={{ position: [0, 0, 5], zoom: 130 }} dpr={[1, 1.5]}>
+            <Canvas frameloop={visible ? 'always' : 'never'} orthographic camera={{ position: [0, 0, 5], zoom: 130 }} dpr={[1, 1.5]}>
               <ParticleCanvasContent scene={scene} reduced={reduced} />
             </Canvas>
           </div>

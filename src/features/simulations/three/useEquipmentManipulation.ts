@@ -211,6 +211,7 @@ export function useEquipmentManipulation(entry: EquipmentRegistryEntry) {
       simulation = useSaltSimulationStore.getState()
     if (
       event.button !== 0 ||
+      (event.pointerType === 'touch' && !event.isPrimary) ||
       active.current ||
       scene.pressedId ||
       scene.draggingId ||
@@ -424,9 +425,13 @@ export function useEquipmentManipulation(entry: EquipmentRegistryEntry) {
     const onKey = (key: KeyboardEvent) => {
       if (key.key === 'Escape') finish(true)
     }
+    const onAdditionalTouch = (pointer: PointerEvent) => {
+      if (pointer.pointerType === 'touch' && pointer.pointerId !== session.pointerId) finish(true)
+    }
     const onHidden = () => {
       if (document.hidden) finish(true)
     }
+    canvas.addEventListener('pointerdown', onAdditionalTouch, true)
     window.addEventListener('pointermove', onMove, true)
     window.addEventListener('pointerup', onUp, true)
     window.addEventListener('pointercancel', onCancel, true)
@@ -435,6 +440,7 @@ export function useEquipmentManipulation(entry: EquipmentRegistryEntry) {
     document.addEventListener('visibilitychange', onHidden)
     canvas.addEventListener('lostpointercapture', onCancel)
     releaseListeners.current = () => {
+      canvas.removeEventListener('pointerdown', onAdditionalTouch, true)
       window.removeEventListener('pointermove', onMove, true)
       window.removeEventListener('pointerup', onUp, true)
       window.removeEventListener('pointercancel', onCancel, true)

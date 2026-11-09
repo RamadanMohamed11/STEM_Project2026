@@ -1,5 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import type { RootState } from '@react-three/fiber'
+import { usePageVisibility } from '@/hooks/usePageVisibility'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { LaboratoryCamera } from './LaboratoryCamera'
 import { LaboratoryEnvironment } from './LaboratoryEnvironment'
@@ -12,6 +13,7 @@ import { BenchHeatingEffects } from './BenchHeatingEffects'
 import { benchEffectAnchor } from './benchEffectAnchors'
 import { ReactionEffectsLayer } from './effects/reaction/ReactionEffects'
 import { PlacementController } from './PlacementController'
+import { ScenePerformance } from './ScenePerformance'
 import { SimulationSceneEffects } from './SimulationSceneEffects'
 import { LaboratoryPhysics } from './LaboratoryPhysics'
 import { EquipmentAffordanceHints } from './EquipmentAffordanceHints'
@@ -29,6 +31,7 @@ export default function LaboratoryScene() {
   const dragging = useLabSceneStore((state) => state.draggingId !== null)
   const hovering = useLabSceneStore((state) => state.hoveredId !== null)
   const tiltHandleHovered = useLabSceneStore((state) => state.tiltHandleHoveredId !== null)
+  const visible = usePageVisibility()
   const [contextLost, setContextLost] = useState(false)
   const [renderKey, setRenderKey] = useState(0)
   const clearContextListeners = useRef<(() => void) | null>(null)
@@ -66,6 +69,7 @@ export default function LaboratoryScene() {
       <Canvas
         key={renderKey}
         shadows
+        frameloop={visible ? 'always' : 'never'}
         style={{
           touchAction: 'none',
           cursor:
@@ -105,10 +109,11 @@ export default function LaboratoryScene() {
       >
         <Suspense fallback={null}>
           <AdaptiveRenderQuality />
+          {import.meta.env.DEV && <ScenePerformance />}
           <LaboratoryCamera />
           <LaboratoryLighting />
           <LaboratoryEnvironment />
-          <LaboratoryPhysics>
+          <LaboratoryPhysics paused={!visible}>
             <SceneInteractionManager />
           </LaboratoryPhysics>
           <PlacementController />

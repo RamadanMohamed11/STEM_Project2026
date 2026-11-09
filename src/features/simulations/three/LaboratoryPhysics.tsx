@@ -48,9 +48,9 @@ function WorkbenchCollider() {
  * Add Rapier contact geometry to the Three.js lab scene.
  * The existing visual workbench is rendered by LaboratoryEnvironment.
  */
-export function LaboratoryPhysics({ children }: { children: ReactNode }) {
+export function LaboratoryPhysics({ children, paused = false }: { children: ReactNode; paused?: boolean }) {
   return (
-    <Physics gravity={[0, 0, 0]} timeStep={1 / 60}>
+    <Physics paused={paused} gravity={[0, 0, 0]} timeStep={1 / 60}>
       <WorkbenchCollider />
       {children}
     </Physics>

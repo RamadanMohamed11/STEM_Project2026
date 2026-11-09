@@ -33,6 +33,7 @@ import { MaterialTransferController } from '../three/MaterialTransferController'
 import { BenchLiquidsController } from '../three/BenchLiquidsController'
 import { ContextualInstruction } from './ContextualInstruction'
 import { LabInventoryPanel } from './LabInventoryPanel'
+import { AccessibleBenchControls } from './AccessibleBenchControls'
 import { BenchToolbar } from './BenchToolbar'
 import { ExperimentGuide } from './ExperimentGuide'
 import { ExperimentResults } from './ExperimentResults'
@@ -168,6 +169,7 @@ export function LaboratoryLayout({
       ref={viewportRef}
       className="relative flex h-dvh w-full flex-col overflow-hidden bg-[#071d29] text-white"
       aria-label="Immersive laboratory workspace"
+      data-lab-workspace
     >
       <LaboratoryHazards experiment={experiment} workflow={workflow} />
       <header className="relative z-30 flex h-[60px] shrink-0 items-center justify-between gap-2 border-b border-white/10 bg-[#071d29] px-3 sm:px-5">
@@ -456,6 +458,7 @@ export function LaboratoryLayout({
           />
         )}
         <BenchToolbar />
+        <AccessibleBenchControls />
 
         {guideOpen && (
           <aside

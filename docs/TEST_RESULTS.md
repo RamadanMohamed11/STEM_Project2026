@@ -51,3 +51,11 @@ Baseline initial compressed JS was approximately **1,438 kB** across the entry, 
 Only `public/favicon.svg` is a static public asset; the existing lab uses procedural geometry rather than large public model/texture downloads. No quantitative GPU FPS, memory, throttled mobile Web Vitals or React render-profiler benchmark was collected. Avoid claiming these metrics improved solely because transfer size fell.
 
 Production deployment is READY. The same eight browser groups and sixteen layout checks also passed against the public production alias, and the published lab rendered. Five direct HTTP paths, entry JS content/type and callback/reset security headers passed. Evidence is in `artifacts/t35-browser-production.json` and `artifacts/t35-production-http.json`; the deployment and source identifiers are recorded in [RELEASE_READINESS.md](RELEASE_READINESS.md).
+
+## L12 verification status — 9 November 2026
+
+Implementation adds keyboard bench controls, shared validated placement/snap actions, instance-aware screen-reader descriptions, lab-scoped 44px targets, touch cancellation/two-finger camera mapping, and hidden-tab frame/physics suspension (including molecular view). Existing instancing and adaptive resolution remain. A development-only FPS/draw-call/DPR display is available; it measures rendered frames rather than inventing a performance result.
+
+Browser acceptance and real mobile FPS: **NOT VERIFIED**. Computer Use could not initialize (`failed to write kernel assets`, OS error 3); reset and retry did not fix it. There are no L12 FPS samples, mobile screenshots or hardware-performance claims. See `LAB_MOBILE_ACCESSIBILITY.md` for the exact pending keyboard/touch/visibility/device matrix. Earlier T35/T37 browser results do not validate these new L12 controls.
+
+L12 automated results: `npm test` passed **483/483**, with zero failures, skips or cancellations (186.6 seconds; `artifacts/l12-tests-final.log`). TypeScript, ESLint and production build passed; the existing large-chunk warning remains. Five new accessible-bench tests cover placement/undo, measurement constraints, descriptions, visibility subscriptions and the authoritative non-pointer salt workflow. These automated results do not replace the pending browser/device checks.
