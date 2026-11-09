@@ -19,6 +19,8 @@ dist-ssr
 
 # Test artifacts and audit snapshots
 artifacts/
+.playwright-cli/
+output/playwright/
 *.zip
 
 # Python cache

@@ -61,3 +61,15 @@ The lab header has a **Guided / Free** switch.
 - **Found and fixed during the check:**
   - an empty vessel heated without limit and was tagged "boiling" (it is now capped at 300 °C and tagged "heating");
   - the 3D name tags drew over the alerts (their z-index range is now capped below the panels).
+
+## I15 — Compact mobile header (9 November 2026)
+
+Below `sm` (640px), the header shows Inventory and **Lab options** beside the existing Back link and title. The non-modal popover reuses the tool-note popover's Escape/outside-click pattern. It contains the existing Guided/Free radiogroup, goggles toggle, selected container's `ParticleViewButton`, data-log action and other header actions. Control names, pressed/checked states and store actions are preserved. Controls are at least 44×44px; focus enters on opening, Escape returns it to the trigger without cancelling bench selection, and Tab/outside clicks close the panel. Resizing to `sm` closes it.
+
+At `sm` and above, the existing controls remain inline in their original order. The title is truncated rather than wrapped; the read-only progress/free-mode description appears from `lg` to leave room at 768px. The mobile header's z-index is 25: above 3D labels (0–19), below safety alerts (30). Bench controls are hidden while options are open to avoid overlap; the live bench description stays mounted.
+
+Verified in a real Chromium browser through Playwright CLI at **375, 768 and 1440px**: no horizontal page overflow, header buttons within its bounds, keyboard opening/toggling/closing/Tab exit, focus restoration, state across breakpoints, data log and particle view. The salt lab rendered and a real 100mL water transfer advanced its validated workflow to the pouring step. All **484 tests**, TypeScript, lint and production build passed; the existing large-chunk build warning remains. Computer Use's startup error persisted, so these screenshots/checks use the Playwright skill instead. These viewport checks are not physical-device or screen-reader certification.
+
+Screenshots: `output/playwright/i15-375-header.png` (two primary controls), `i15-mobile-options.png` (open menu and particle-view state), `i15-768-header.png` (tablet inline controls), `i15-1440-header.png` (desktop inline controls). Browser assertions: `output/playwright/i15-browser-report.json`. No store logic, simulation scene or dependency changes.
+
+Production: `dpl_GDj9iN5S95KS3dHe8zM9mLHrqBeJ` reached READY on the existing `stem-project2026` project and <https://stem-project2026.vercel.app>. Source payload: 366 files, SHA-256 `2084d44d13d4ffc30b92f2d6886afa42afe7ce87b386ba29a5f09ae8ca6e2792`. The same responsive/keyboard browser assertions passed on the public production lab, with zero console errors. Screenshots above show that production release. Existing Three.js deprecation warnings remain.

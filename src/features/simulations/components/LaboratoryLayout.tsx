@@ -4,6 +4,7 @@ import {
   BookOpen,
   ChevronLeft,
   ChevronRight,
+  ClipboardList,
   Droplets,
   Expand,
   FlaskConical,
@@ -21,6 +22,8 @@ import { PairInteractionPanel } from './PairInteractionPanel'
 import { HotTouchWarning } from './BenchHeatingPanel'
 import { MeasurementAutoRecorder, MeasurementLogPanel } from './MeasurementLog'
 import { ParticleViewPanel } from './ParticleViewPanel'
+import { ParticleViewButton } from './ParticleViewButton'
+import { LabOptionsMenu } from './LabOptionsMenu'
 import { useMeasurementLogStore } from '../state/useMeasurementLogStore'
 import { useLabSafetyStore } from '../state/useLabSafetyStore'
 import {
@@ -62,6 +65,7 @@ export function LaboratoryLayout({
   const paths = getExperimentPaths(experiment.id)
   const viewportRef = useRef<HTMLDivElement>(null)
   const [inventoryOpen, setInventoryOpen] = useState(false)
+  const [optionsOpen, setOptionsOpen] = useState(false)
   const [guideOpen, setGuideOpen] = useState(false)
   const [helpOpen, setHelpOpen] = useState(false)
   const [tutorOpen, setTutorOpen] = useState(false)
@@ -96,6 +100,8 @@ export function LaboratoryLayout({
     useMeasurementLogStore.getState().begin(definition.experimentId, Date.now())
     useLabSafetyStore.getState().begin(definition.experimentId)
   }, [definition.experimentId])
+  const logOpen = useMeasurementLogStore((state) => state.open)
+  const logCount = useMeasurementLogStore((state) => state.rows.length)
   const mode = useLabSafetyStore((state) => state.mode)
   const guided = mode === 'guided'
 
@@ -172,7 +178,7 @@ export function LaboratoryLayout({
       data-lab-workspace
     >
       <LaboratoryHazards experiment={experiment} workflow={workflow} />
-      <header className="relative z-30 flex h-[60px] shrink-0 items-center justify-between gap-2 border-b border-white/10 bg-[#071d29] px-3 sm:px-5">
+      <header className="relative z-[25] flex h-[60px] shrink-0 items-center justify-between gap-2 border-b border-white/10 bg-[#071d29] px-3 sm:z-30 sm:px-5">
         <div className="flex min-w-0 items-center gap-2.5">
           <Link
             to={paths.details}
@@ -183,7 +189,7 @@ export function LaboratoryLayout({
             <ArrowLeft size={18} />
           </Link>
           <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#55d6c4]">
+            <p className="truncate text-[10px] font-bold uppercase tracking-[0.2em] text-[#55d6c4]">
               STEM Virtual Lab · Live simulation
             </p>
             <h1 className="truncate text-sm font-semibold sm:text-base">{experiment.title}</h1>
@@ -191,7 +197,7 @@ export function LaboratoryLayout({
         </div>
         {guided ? (
           <div
-            className="hidden w-[min(23vw,270px)] flex-col gap-1.5 md:flex"
+            className="hidden w-[min(23vw,270px)] flex-col gap-1.5 lg:flex"
             aria-label="Experiment progress"
           >
             <div className="flex justify-between text-[10px] font-semibold text-white/70">
@@ -208,7 +214,7 @@ export function LaboratoryLayout({
             </div>
           </div>
         ) : (
-          <p className="hidden text-[11px] font-semibold text-white/70 md:block">
+          <p className="hidden text-[11px] font-semibold text-white/70 lg:block">
             Free mode · no steps — safety rules still apply
           </p>
         )}
@@ -228,7 +234,7 @@ export function LaboratoryLayout({
             title="Toggle equipment inventory"
             aria-label="Toggle equipment inventory"
             aria-expanded={inventoryOpen}
-            className="flex size-10 items-center justify-center rounded-xl text-white/85 hover:bg-white/10"
+            className="flex size-11 items-center justify-center rounded-xl text-white/85 hover:bg-white/10 sm:size-10"
           >
             <Layers3 size={19} />
           </button>
@@ -243,7 +249,7 @@ export function LaboratoryLayout({
             title="Experiment guide and scientific reference"
             aria-label="Experiment guide"
             aria-expanded={guideOpen}
-            className="flex size-10 items-center justify-center rounded-xl text-white/85 hover:bg-white/10"
+            className="hidden size-10 items-center justify-center rounded-xl text-white/85 hover:bg-white/10 sm:flex"
           >
             <BookOpen size={19} />
           </button>
@@ -259,7 +265,7 @@ export function LaboratoryLayout({
             aria-label="Ask the AI tutor"
             aria-expanded={tutorOpen}
             aria-controls="lab-ai-tutor"
-            className="flex size-10 items-center justify-center rounded-xl text-white/85 hover:bg-white/10"
+            className="hidden size-10 items-center justify-center rounded-xl text-white/85 hover:bg-white/10 sm:flex"
           >
             <Sparkles size={19} />
           </button>
@@ -282,7 +288,7 @@ export function LaboratoryLayout({
             }}
             title="Help"
             aria-label="Help"
-            className="flex size-10 items-center justify-center rounded-xl text-white/85 hover:bg-white/10"
+            className="hidden size-10 items-center justify-center rounded-xl text-white/85 hover:bg-white/10 sm:flex"
           >
             <HelpCircle size={19} />
           </button>
@@ -300,10 +306,84 @@ export function LaboratoryLayout({
             onClick={onRestart}
             title="Restart experiment"
             aria-label="Restart experiment"
-            className="flex size-10 items-center justify-center rounded-xl border border-white/15 text-white/85 hover:bg-white/10"
+            className="hidden size-10 items-center justify-center rounded-xl border border-white/15 text-white/85 hover:bg-white/10 sm:flex"
           >
             <RotateCcw size={19} />
           </button>
+          <LabOptionsMenu
+            open={optionsOpen}
+            onOpenChange={setOptionsOpen}
+            controls={
+              <>
+                <LabModeToggle touch />
+                <GogglesToggle touch />
+                {selectedId && <ParticleViewButton id={selectedId} />}
+              </>
+            }
+            actions={[
+              {
+                id: 'guide',
+                label: 'Experiment guide',
+                icon: <BookOpen size={18} />,
+                expanded: guideOpen,
+                onSelect: () => {
+                  setGuideOpen(!guideOpen)
+                  setInventoryOpen(false)
+                  setHelpOpen(false)
+                  setTutorOpen(false)
+                },
+              },
+              {
+                id: 'tutor',
+                label: 'Ask the AI tutor',
+                icon: <Sparkles size={18} />,
+                expanded: tutorOpen,
+                onSelect: () => {
+                  setTutorOpen(!tutorOpen)
+                  setGuideOpen(false)
+                  setInventoryOpen(false)
+                  setHelpOpen(false)
+                },
+              },
+              {
+                id: 'data-log',
+                label: `${logOpen ? 'Close' : 'Open'} data log (${logCount} measurements)`,
+                icon: <ClipboardList size={18} />,
+                pressed: logOpen,
+                onSelect: () => useMeasurementLogStore.getState().setOpen(!logOpen),
+              },
+              {
+                id: 'help',
+                label: 'Help',
+                icon: <HelpCircle size={18} />,
+                expanded: helpOpen,
+                onSelect: () => {
+                  setHelpOpen(!helpOpen)
+                  setGuideOpen(false)
+                  setInventoryOpen(false)
+                  setTutorOpen(false)
+                },
+              },
+              {
+                id: 'camera',
+                label: 'Reset camera',
+                icon: <RotateCcw size={18} />,
+                onSelect: resetCamera,
+              },
+              {
+                id: 'fullscreen',
+                label: fullscreen ? 'Exit fullscreen' : 'Enter fullscreen',
+                icon: fullscreen ? <Minimize2 size={18} /> : <Expand size={18} />,
+                onSelect: toggleFullscreen,
+              },
+              {
+                id: 'restart',
+                label: 'Restart experiment',
+                icon: <RotateCcw size={18} />,
+                onSelect: onRestart,
+              },
+            ]}
+          />
         </div>
       </header>
 
@@ -315,13 +395,6 @@ export function LaboratoryLayout({
         <HotTouchWarning />
         <SafetyAlertToast />
         <ParticleViewPanel />
-        {/* Small screens: mode and goggles sit under the Inventory button, not in the header. */}
-        {!inventoryOpen && (
-          <div className="pointer-events-auto absolute left-3 top-16 z-20 flex items-center gap-1.5 rounded-lg bg-[#071d29]/85 p-1 sm:hidden">
-            <LabModeToggle />
-            <GogglesToggle />
-          </div>
-        )}
         <GuidedMistakeRecorder />
         <MeasurementLogPanel />
         <MeasurementAutoRecorder />
@@ -459,9 +532,12 @@ export function LaboratoryLayout({
         )}
         <BenchToolbar />
         <BenchDescription />
-        {!inventoryOpen && !guideOpen && !helpOpen && !tutorOpen && !workflow.completed && (
-          <AccessibleBenchControls />
-        )}
+        {!optionsOpen &&
+          !inventoryOpen &&
+          !guideOpen &&
+          !helpOpen &&
+          !tutorOpen &&
+          !workflow.completed && <AccessibleBenchControls />}
 
         {guideOpen && (
           <aside

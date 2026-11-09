@@ -7,7 +7,7 @@ import { useSaltSimulationStore } from '../state/useSaltSimulationStore'
 import { resolveEquipment } from '../three/sceneConfig'
 
 /** Guided ⇄ Free mode switch for the lab header. */
-export function LabModeToggle() {
+export function LabModeToggle({ touch = false }: { touch?: boolean } = {}) {
   const mode = useLabSafetyStore((state) => state.mode)
   const options: { id: LabMode; label: string; hint: string }[] = [
     { id: 'guided', label: 'Guided', hint: 'Follow the experiment steps; each action is checked.' },
@@ -21,7 +21,7 @@ export function LabModeToggle() {
     <div
       role="radiogroup"
       aria-label="Lab mode"
-      className="flex rounded-lg bg-white/10 p-0.5 text-[11px] font-semibold"
+      className={`flex rounded-lg bg-white/10 p-0.5 text-[11px] font-semibold ${touch ? 'w-full' : ''}`}
     >
       {options.map((option) => (
         <button
@@ -31,7 +31,7 @@ export function LabModeToggle() {
           aria-checked={mode === option.id}
           title={option.hint}
           onClick={() => useLabSafetyStore.getState().setMode(option.id)}
-          className={`rounded-md px-2 py-1 ${mode === option.id ? 'bg-[#31c7b3] text-[#062431]' : 'text-white/75 hover:bg-white/10'}`}
+          className={`rounded-md ${touch ? 'min-h-11 min-w-[88px] flex-1 px-3 text-xs' : 'px-2 py-1'} ${mode === option.id ? 'bg-[#31c7b3] text-[#062431]' : 'text-white/75 hover:bg-white/10'}`}
         >
           {option.label}
         </button>
@@ -41,7 +41,7 @@ export function LabModeToggle() {
 }
 
 /** Goggles worn (from the Safety page, or put on here). */
-export function GogglesToggle() {
+export function GogglesToggle({ touch = false }: { touch?: boolean } = {}) {
   const goggles = useLabReadinessStore((state) => state.goggles)
   return (
     <button
@@ -51,7 +51,7 @@ export function GogglesToggle() {
       title={
         goggles ? 'Safety goggles on' : 'Safety goggles off — put them on before handling chemicals'
       }
-      className={`flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold ${goggles ? 'bg-[#31c7b3]/20 text-[#9ff0e1]' : 'bg-amber-400/20 text-amber-200'}`}
+      className={`flex items-center gap-1 rounded-lg text-[11px] font-semibold ${touch ? 'min-h-11 w-full px-3 text-xs' : 'px-2 py-1'} ${goggles ? 'bg-[#31c7b3]/20 text-[#9ff0e1]' : 'bg-amber-400/20 text-amber-200'}`}
     >
       <Glasses size={14} aria-hidden="true" /> {goggles ? 'Goggles on' : 'No goggles'}
     </button>
