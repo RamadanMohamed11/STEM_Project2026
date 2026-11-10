@@ -124,3 +124,40 @@ Review-fix verification: TypeScript, ESLint, production build and `git diff --ch
 Full suite: **485/485 passed**, zero failures/skips/cancellations, 206.3 seconds (`artifacts/i17-tests.log`). This preceded the final explicit native-drawer boundary helper; the student drawer subsequently passed 30 real keyboard Tab operations and Escape/focus return. The two contrast tests passed independently. Browser route trees, keyboard tests, findings/fixes and limits are recorded in ACCESSIBILITY.md. No dependency, authentication/data logic or 3D scene changes. Full WCAG AA conformance and all authenticated flows are not claimed.
 
 Final rerun including drawer helpers and stable results selectors: **485/485 passed**, 205.8 seconds (`artifacts/i17-tests-final.log`). The final review-heading focus adjustment passed **21 focused tests** and the built-preview Space/Enter quiz-to-feedback flow. Final typecheck, lint, build and diff checks passed. The preview safety/PPE/questions/checklist → Grade → Term → filtered experiments flow also passed using keyboard controls. See ACCESSIBILITY.md for the full page/criterion/fix table and explicit remaining acceptance checks.
+
+## I13 — Particle view shares the renderer (10 November 2026)
+
+The baseline at `6e14212` still used a standalone particle Canvas. I13 implements option b: an isolated scene/camera rendered to a lab-owned target, copied asynchronously to a 2D canvas inside the existing DOM panel. See [PARTICLE_VIEW.md](PARTICLE_VIEW.md) for the evaluated options, colour conversion and ownership/cleanup details.
+
+### Measured before and after
+
+Real **headless Chrome + ANGLE SwiftShader** on this Windows host, Vite development mode, no CPU throttling. Desktop: 1440×900, device scale factor 1. Mobile emulation: 375×812, device scale factor 2, mobile/touch enabled. Same three-item bench (initial beaker/balance plus the actual water container), selected water, same particle description/legend and panel dimensions. Lab DPR adapts under load; it reached 0.75 during the open-panel samples. Particle DPR remains 1 desktop / 1.5 mobile, as before.
+
+| View | Live WebGL contexts with panel open, before → after | Lab FPS with panel open, before → after | Lab FPS while closed, before → after | Open/close cycles after |
+| --- | --- | --- | --- | --- |
+| Desktop 1440×900 | **2 → 1** | **3.55 → 3.85** | 2.43 → 2.68 | **10 passed**, 1 context total created |
+| Mobile emulation 375×812 | **2 → 1** | **10.28 → 10.84** | 7.32 → 7.38 | **10 passed**, 1 context total created |
+
+Each open sample lasts 20 seconds after a 3-second settling period; the closed sample lasts 12 seconds. FPS counts actual default-framebuffer WebGL colour clears on the lab renderer, rather than browser requestAnimationFrame callbacks. The existing `ScenePerformance` useFrame overlay corroborates the readings. WebGL getContext is instrumented to count unique live contexts and context losses; canvas DOM count alone would be misleading because the panel now uses 2D canvas.
+
+The final ten-cycle run created **no additional WebGL contexts**. There were **no “Too many active WebGL contexts” warnings** and no page errors. Live framebuffer allocations returned to **52 → 52** on the shared renderer after all cycles at both widths. Pixel comparisons matched the old background/particle/edge colours. Panel bounds and computed `z-index:20; bottom:64px; right:12px` exactly matched the baseline at each width. Both widths had no horizontal page overflow. Screenshots were visually inspected.
+
+These low software-rendered FPS numbers **do not establish 45/60 FPS on physical hardware** or a statistically significant speed improvement. Adaptive DPR/warmup explains why open-panel FPS exceeds the earlier closed sample; opening the panel is not itself claimed to improve performance. The verified improvement is removal of the second WebGL context, with bounded asynchronous readback and no measured framebuffer/context leak. Pixel-copy overhead and real low-end phone performance remain to be profiled.
+
+Evidence (ignored local artifacts): `output/playwright/i13-before.json`, `i13-after.json`, `i13-before-{1440,375}-open.png`, `i13-after-{1440,375}-open.png`, plus the corresponding accessibility trees. The first after-run exposed a missing offscreen tone-mapping conversion; the final measurements and screenshots include its correction. Early browser helper attempts stopped on locating the mobile canvas, a capture camera, or the not-yet-ready lazy root; those are not counted as passing runs.
+
+### Functional browser checks
+
+`output/playwright/i13-functional.json` passed at **1440×900 and 375×812** using rendered keyboard controls for equipment selection, camera movement and the material transfer:
+
+- Moving the actual active lab camera left did not change the particle camera's position/projection; the particle scene has no lab lights or environment. No live L6 explosion was injected; shake isolation follows the independent camera/scene ownership.
+- The original output background colour, visible moving particles, legend and live description were present. Real reduced-motion matchMedia emulation retained the original slow animation.
+- An explicit `document.hidden`/`visibilitychange` fixture verified that both rendering and bitmap updates stop and then resume. This is a test of the existing visibility hook in headless Chrome, not a claim about physical-device background-tab behavior.
+- A real **100 mL guided water transfer** reached the cylinder with the particle panel open; safety acknowledgement plus preplaced-beaker validation and this transfer reached the first three guided steps. There were no scientific store setters in these interactions. Screenshots: `output/playwright/i13-functional-{1440,375}.png`.
+- No page errors or horizontal overflow. The camera/lighting/effect ownership, original model, materials, text and panel stacking were also reviewed in source.
+
+The existing **7 particle model tests** and **8 new renderer tests** pass. The new tests cover colour conversion, restoration of renderer/framebuffer/viewport state (including an explicit clear independent of post-processing flags), bounded readbacks, deferred disposal, hidden-page suppression, resize and both asynchronous/synchronous failures.
+
+Final repository verification: **537/537 Node tests passed**, zero failures/skips/cancellations, **182.3s** (`artifacts/i13-tests.log`). `npm run typecheck`, `npm run lint` and `npm run build` passed (`artifacts/i13-typecheck.log`, `i13-lint.log`, `i13-build.log`); Vite built in 1.70s and retained the existing large-chunk warning. Changed-source Prettier checks and `git diff --check` passed. Existing Three.js/Rapier development deprecation warnings remain. No dependencies, particle model, chemistry/workflow calculations, backend or authentication code changed. No Git push or deployment.
+
+The preceding I3 commit remains separate (`6e14212`). Its required 844.86s salt regression reached real completion/reset but exited 1 for the three known stream-render timing checks at transfers 2/4/12; that result is documented in GUIDED_FREE_SAFETY.md and is not reclassified as an I13 suite pass. I13's own final focused browser run verified real guided transfers with the shared particle renderer at both sizes.

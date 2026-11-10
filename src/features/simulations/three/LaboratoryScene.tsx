@@ -15,6 +15,7 @@ import { ReactionEffectsLayer } from './effects/reaction/ReactionEffects'
 import { PlacementController } from './PlacementController'
 import { ScenePerformance } from './ScenePerformance'
 import { SimulationSceneEffects } from './SimulationSceneEffects'
+import { ParticleViewRenderer } from './ParticleViewRenderer'
 import { LaboratoryPhysics } from './LaboratoryPhysics'
 import { EquipmentAffordanceHints } from './EquipmentAffordanceHints'
 import { useLabSceneStore } from '@/features/simulations/state/useLabSceneStore'
@@ -123,6 +124,7 @@ export default function LaboratoryScene() {
           <ReactionEffectsLayer resolve={benchEffectAnchor} />
           <EquipmentAffordanceHints />
           <SimulationSceneEffects />
+          <ParticleViewRenderer />
         </Suspense>
       </Canvas>
       {contextLost && (

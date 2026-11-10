@@ -124,7 +124,7 @@ The reusable hazard catalog is draft guidance requiring academic review. No haza
 
 - The particle view is a teaching picture, not a simulation: counts are scaled, and motion is random kicks, not molecular dynamics. Ions are not drawn with surrounding water shells.
 - Dilute HCl is shown as H₃O⁺ and Cl⁻ (complete ionisation). Other substances without particle data show one generic particle per substance.
-- The panel uses its own small WebGL canvas, so it adds a second WebGL context while it is open.
+- I13 shares the lab's WebGL renderer via an isolated render target and a 2D panel bitmap. The asynchronous pixel copy adds work and can update below the lab frame rate on slow devices. Desktop/mobile-emulation context counts and FPS are in TEST_RESULTS.md; no physical-device performance claim is made.
 - It shows one container at a time.
 - See PARTICLE_VIEW.md.
 
