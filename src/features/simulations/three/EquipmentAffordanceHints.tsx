@@ -1,4 +1,4 @@
-import { Html } from '@react-three/drei'
+import { SceneLabel as Html } from './SceneLabels'
 import { useLabSceneStore } from '../state/useLabSceneStore'
 import { useSaltSimulationStore } from '../state/useSaltSimulationStore'
 import { resolveEquipment, BENCH_TOP } from './sceneConfig'

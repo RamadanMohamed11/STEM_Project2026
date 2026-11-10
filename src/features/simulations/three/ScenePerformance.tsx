@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { Html } from '@react-three/drei'
+import { SceneLabel as Html } from './SceneLabels'
 
 /** Development-only, actual rendered frames; not a simulated performance score. */
 export function ScenePerformance() {

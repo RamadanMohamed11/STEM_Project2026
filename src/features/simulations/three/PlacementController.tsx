@@ -1,12 +1,18 @@
 import { memo, useEffect, useLayoutEffect, useRef } from 'react'
 import { useThree } from '@react-three/fiber'
-import { Html } from '@react-three/drei'
+import { SceneLabel as Html } from './SceneLabels'
 import { Mesh, Plane, Raycaster, Vector2, Vector3, type Group, type Material } from 'three'
 import { useLabSceneStore } from '@/features/simulations/state/useLabSceneStore'
 import { useSaltSimulationStore } from '@/features/simulations/state/useSaltSimulationStore'
 import { EquipmentModel } from './models'
 import { shouldUpdatePlacementHint } from './placementHintMotion'
-import { nextInstanceId, isKnownEquipment, resolveEquipment, BENCH_TOP, equipmentRegistry } from './sceneConfig'
+import {
+  nextInstanceId,
+  isKnownEquipment,
+  resolveEquipment,
+  BENCH_TOP,
+  equipmentRegistry,
+} from './sceneConfig'
 
 const tabletopPlane = new Plane(new Vector3(0, 1, 0), -BENCH_TOP)
 const EQUIPMENT_DRAG_TYPE = 'application/x-stem-lab-equipment'

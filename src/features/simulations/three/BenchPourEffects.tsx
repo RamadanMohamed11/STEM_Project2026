@@ -1,5 +1,5 @@
 import { useMemo, useRef } from 'react'
-import { Html } from '@react-three/drei'
+import { SceneLabel as Html } from './SceneLabels'
 import { useFrame } from '@react-three/fiber'
 import { Quaternion, Vector3, type Group, type Mesh, type MeshBasicMaterial } from 'three'
 import {

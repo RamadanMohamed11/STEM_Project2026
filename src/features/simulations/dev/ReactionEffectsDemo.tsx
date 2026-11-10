@@ -23,6 +23,7 @@ import { useReactionEffectsStore } from '../state/useReactionEffectsStore'
 import { LibraryModel } from '../three/models/library/LibraryModel'
 import { vesselEffectAnchor } from '../three/effects/reaction/effectAnchors'
 import { ReactionEffectsLayer } from '../three/effects/reaction/ReactionEffects'
+import { SceneLabel, SceneLabels } from '../three/SceneLabels'
 
 const definition = EFFECTS_DEMO_DEFINITION
 const SPACING = 1.1
@@ -142,6 +143,11 @@ function DemoVessel({ index }: { index: number }) {
         volumeMl={volume}
         liquidColor={color ?? undefined}
       />
+      <SceneLabel center position={[0, 0.9, 0]}>
+        <div className="whitespace-nowrap rounded bg-navy/90 px-2 py-1 text-[10px] text-white">
+          {vessel.title} · {volume.toFixed(1)} mL
+        </div>
+      </SceneLabel>
     </group>
   )
 }
@@ -212,29 +218,31 @@ export function ReactionEffectsDemo() {
         <span ref={stats} className="ml-auto tabular-nums text-white/60" />
       </div>
       <div className="relative flex-1">
-        <Canvas camera={{ position: [0, 2.3, 5.4], fov: 40 }} dpr={[1, 1.5]}>
-          <color attach="background" args={['#10303f']} />
-          <ambientLight intensity={0.7} />
-          <directionalLight position={[3, 5, 4]} intensity={1.4} />
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.002, 0]}>
-            <planeGeometry args={[7, 4.5]} />
-            <meshStandardMaterial color="#2a4552" roughness={0.9} />
-          </mesh>
-          <Suspense fallback={null}>
-            {EFFECTS_DEMO_VESSELS.map((vessel, index) => (
-              <DemoVessel key={vessel.id} index={index} />
-            ))}
-          </Suspense>
-          <EngineRunner />
-          <ReactionEffectsLayer resolve={resolveDemoAnchor} reducedMotion={reducedMotion} />
-          <RenderStats
-            report={(text) => {
-              if (stats.current) stats.current.textContent = text
-            }}
-          />
-          <OrbitControls target={[0, 0.35, 0]} />
-          <Stats />
-        </Canvas>
+        <SceneLabels>
+          <Canvas camera={{ position: [0, 2.3, 5.4], fov: 40 }} dpr={[1, 1.5]}>
+            <color attach="background" args={['#10303f']} />
+            <ambientLight intensity={0.7} />
+            <directionalLight position={[3, 5, 4]} intensity={1.4} />
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.002, 0]}>
+              <planeGeometry args={[7, 4.5]} />
+              <meshStandardMaterial color="#2a4552" roughness={0.9} />
+            </mesh>
+            <Suspense fallback={null}>
+              {EFFECTS_DEMO_VESSELS.map((vessel, index) => (
+                <DemoVessel key={vessel.id} index={index} />
+              ))}
+            </Suspense>
+            <EngineRunner />
+            <ReactionEffectsLayer resolve={resolveDemoAnchor} reducedMotion={reducedMotion} />
+            <RenderStats
+              report={(text) => {
+                if (stats.current) stats.current.textContent = text
+              }}
+            />
+            <OrbitControls target={[0, 0.35, 0]} />
+            <Stats />
+          </Canvas>
+        </SceneLabels>
       </div>
       <ol className="grid grid-cols-2 gap-1.5 border-t border-white/10 p-2 text-[11px] leading-tight sm:grid-cols-4">
         {/* Back row (Colour change … Flame), then front row (Smoke … Dissolving). */}

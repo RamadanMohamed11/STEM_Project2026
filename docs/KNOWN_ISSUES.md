@@ -84,8 +84,13 @@ The reusable hazard catalog is draft guidance requiring academic review. No haza
 - Precipitate grains settle visually and then slowly fade. The solid stays in the engine's contents but has no permanent mesh of its own.
 - The explosion is a teaching "pop" (a flash, sparks and a short shake), not a destructive simulation. Reduced motion disables the shake and cuts the particles.
 - With the Claude browser pane hidden, frames are throttled. Effects then advance slowly, so check them with the pane visible.
-- drei `Html` labels sometimes log "synchronously unmount a root" errors in development (React 19 StrictMode). In the demo, the first of eight labels went missing, so the demo shows its readouts as plain DOM text instead.
+- I14 replaced application drei Html roots with a shared DOM label overlay. The effects demo has eight projected labels again and retains its accessible DOM readouts. See CONSOLE_AUDIT.md for the cause, fixes and actual checks.
 - See REACTION_EFFECTS.md.
+
+## I14 remaining dependency warnings (10 November 2026)
+
+- Fiber 9.8.2 still creates Three.Clock internally, which Three 0.187 marks deprecated. No application code constructs it. Its replacement needs a compatible upstream frame-clock change; the warning is not suppressed.
+- React Three Rapier's compatibility initializer still triggers the generated WASM-loader deprecated-argument warning on lab startup. Physics initialization was not rewritten or patched. Both remaining warning texts and source causes are recorded in CONSOLE_AUDIT.md.
 
 ## L7 limitations (8 November 2026)
 

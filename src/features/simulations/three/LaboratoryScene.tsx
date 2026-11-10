@@ -1,4 +1,5 @@
 import { Canvas } from '@react-three/fiber'
+import { SceneLabels } from './SceneLabels'
 import type { RootState } from '@react-three/fiber'
 import { usePageVisibility } from '@/hooks/usePageVisibility'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
@@ -66,10 +67,10 @@ export default function LaboratoryScene() {
   }
 
   return (
-    <div className="relative size-full">
+    <SceneLabels>
       <Canvas
         key={renderKey}
-        shadows
+        shadows="percentage"
         frameloop={visible ? 'always' : 'never'}
         style={{
           touchAction: 'none',
@@ -148,6 +149,6 @@ export default function LaboratoryScene() {
           </button>
         </div>
       )}
-    </div>
+    </SceneLabels>
   )
 }
