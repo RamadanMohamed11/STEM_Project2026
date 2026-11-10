@@ -4,6 +4,8 @@ import { resolveSimulation } from '../lib/simulationRegistry'
 import { getSimulationSessionStatus } from './simulationSession'
 import { useSaltSimulationStore } from './useSaltSimulationStore'
 import { useLabSceneStore } from './useLabSceneStore'
+// Hydrates the implemented adapter before the first session snapshot is read.
+import './labSessionPersistence.ts'
 
 const getPlacedIds = () => useLabSceneStore.getState().placedIds
 

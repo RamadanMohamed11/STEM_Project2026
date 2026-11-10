@@ -22,7 +22,7 @@ T35, 7 November 2026. Priority reflects actual impact; advisory counts are not p
 | P2       | No end-to-end recovery email delivery, email verification or password change test in T35.         | Production has confirmation OFF by prior explicit owner approval; signup does not prove mailbox ownership. Validate SMTP, exact redirect allowlist and real mailbox flows before institutional rollout.                                                                    |
 | P2       | Supabase leaked-password protection disabled.                                                     | Provider security advisor warning remains; owner should review plan support and enable protection deliberately. No auth settings changed here.                                                                                                                             |
 | P2       | Academic approval incomplete.                                                                     | Curriculum examples, safety guidance, objectives, quizzes and learning stages remain demonstration/draft content; no official curriculum or safety certification claim is supported.                                                                                       |
-| P2       | Simulation refresh and detailed quiz-result refresh persistence are absent by design.             | Same-tab navigation preserves live scientific state. Reload starts a new lab session; detailed quiz review is in memory. Device-local progress summaries survive reload but are not account records.                                                                       |
+| P2       | Detailed quiz-result refresh persistence is absent by design.                                     | Detailed quiz review is in memory. I3 restores the supported lab session in the same tab. Device-local progress summaries survive reload but are not account records. |
 | P2       | Accessibility/device audit incomplete.                                                            | Canvas manipulation is pointer-oriented; keyboard-only equipment placement and screen-reader descriptions require further work. Shared button contrast is fixed, but muted/hardcoded colors, all modal focus behavior and every text combination were not certified.       |
 | P3       | 10 moderate npm findings, 0 high/critical.                                                        | All trace to development-tool minimatch amplification advisory GHSA-g3hv-75wg-m249; no runtime dependency finding. Avoid untrusted glob patterns in tooling. Review a compatible toolchain update; do not blindly apply npm's suggested major downgrades.                  |
 | P3       | Main route bundle still large (~1.21 MB raw); lazy 3D bundle ~3.32 MB raw.                        | Initial compressed JS is much lower, but admin/student routes are still eagerly imported. Profile real classroom devices, then introduce measured route splitting. No FPS/memory benchmark was collected.                                                                  |
@@ -102,7 +102,6 @@ The reusable hazard catalog is draft guidance requiring academic review. No haza
 - Empty glassware mass is an estimate from capacity, not a catalogue value.
 - There is no pH meter; pH paper reads whole numbers only.
 - The thermometer and pH paper are used by selecting them with a vessel; they are not placed into the vessel in 3D.
-- The log lives in memory for the session. Refreshing the tab clears it, as it does the simulation.
 - "Copy as CSV" needs clipboard permission in the browser.
 - See MEASUREMENTS.md.
 
@@ -111,10 +110,15 @@ The reusable hazard catalog is draft guidance requiring academic review. No haza
 - The current catalogue has no concentrated acid, bleach or sealed container, so "water into concentrated acid", "incompatible chemicals" and "heating a closed container" fire only for experiments whose data defines them (L11). They are covered by the unit tests.
 - Returning from Free mode with changed salt quantities or missing previously placed equipment needed by the saved step requires an explicit experiment reset before Guided mode can continue. Saved guided evidence is never inferred from practice actions; see GUIDED_FREE_SAFETY.md (I1).
 - I1 verification: the required browser transfer run completed the guided salt workflow but retained two known stream-render timing failures and exceeded its audit time budget during the reset case. The final browser suite is not a pass; no fresh final JSON export was produced. The separate 375px/1440px Free-mode/reset UI checks and all 497 Node tests passed. See GUIDED_FREE_SAFETY.md for exact evidence and limits.
-- Mistakes are kept in memory for the session, like the measurement log.
 - Goggles are a session flag (Safety page activity or the lab toggle), not a 3D avatar.
 - The completion summary inside `ExperimentResults` was not seen at full completion in the browser; it was checked in the in-progress results section and by type checks.
 - See GUIDED_FREE_SAFETY.md.
+
+## I3 refresh recovery limits (10 November 2026)
+
+- The last second of changes may be lost because lab saves are limited to 1 Hz. If sessionStorage is blocked or full, the lab still works in memory but refresh recovery is unavailable.
+- Refresh during a guided transfer stops the transient operation and requires an explicit reset of that guided run; delivered chemistry and the saved step are retained without creating completion evidence. Alerts, effects, undo history, selection, camera/drag state, open panels and automatic measurement recording are not restored. Heating does not advance while the page is closed; a saved stopwatch returns paused.
+- Browser “reopen closed tab”, session recovery and tab duplication may restore/copy sessionStorage. An ordinary newly opened tab is fresh. Recovery is currently implemented for the existing salt UI adapter, not unbuilt L11 adapters.
 
 ## L10 limitations (9 November 2026)
 

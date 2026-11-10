@@ -10,7 +10,6 @@ import { useReactionEffectsStore } from '../state/useReactionEffectsStore'
 export function BenchLiquidsController() {
   useEffect(() => {
     const liquids = useBenchLiquidsStore.getState
-    liquids().reset()
     liquids().sync(useLabSceneStore.getState().placedIds)
     let frame = 0
     let last = performance.now()
@@ -38,7 +37,8 @@ export function BenchLiquidsController() {
       window.removeEventListener('keydown', onKey)
       window.removeEventListener('blur', straighten)
       document.removeEventListener('visibilitychange', onVisibility)
-      liquids().reset()
+      // Navigation/refresh does not discard contents or temperature. Only clocks/effects stop.
+      liquids().straighten()
       useReactionEffectsStore.getState().clear()
     }
   }, [])

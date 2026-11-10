@@ -3,6 +3,7 @@ import { useMeasurementLogStore } from './useMeasurementLogStore.ts'
 import { useLabSafetyStore } from './useLabSafetyStore.ts'
 import { useParticleViewStore } from './useParticleViewStore.ts'
 import { useSaltSimulationStore } from './useSaltSimulationStore.ts'
+import { labSessionPersistence } from './labSessionPersistence.ts'
 
 /**
  * One user-facing retry boundary. Reset simulation first to cancel any
@@ -10,15 +11,17 @@ import { useSaltSimulationStore } from './useSaltSimulationStore.ts'
  * Components can also key local form controls to resetRevision.
  */
 export function restartExperimentSession(): void {
-  useSaltSimulationStore.getState().reset()
-  // L8: a restarted experiment starts a fresh measurement log.
-  useMeasurementLogStore.getState().clear()
-  // L9: and a fresh mistakes record.
-  useLabSafetyStore.getState().clear()
-  useParticleViewStore.getState().close()
-  const scene = useLabSceneStore.getState()
-  scene.resetEquipment()
-  scene.resetCamera()
+  labSessionPersistence.reset(() => {
+    useSaltSimulationStore.getState().reset()
+    // L8: a restarted experiment starts a fresh measurement log.
+    useMeasurementLogStore.getState().clear()
+    // L9: and a fresh mistakes record.
+    useLabSafetyStore.getState().clear()
+    useParticleViewStore.getState().close()
+    const scene = useLabSceneStore.getState()
+    scene.resetEquipment()
+    scene.resetCamera()
+  })
 }
 
 /** Drop presentation-only work on navigation. The transfer controller owns its safe interrupted return. */

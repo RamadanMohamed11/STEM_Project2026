@@ -3,7 +3,7 @@ import type { useSaltSimulationStore } from './useSaltSimulationStore.ts'
 import type { useLabSceneStore } from './useLabSceneStore.ts'
 
 export const sessionLifetimeMessage =
-  'Your progress stays in this tab while the app is open. Refreshing or closing the tab starts a new session.'
+  'Your lab session is saved in this tab. Refresh to continue. A new tab starts fresh. Changes from the last second may not be saved.'
 
 /** Derived navigation state only. The workflow engine owns completion and all recorded quantities. */
 export function getSimulationSessionStatus(

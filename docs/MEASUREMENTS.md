@@ -22,7 +22,17 @@ Each instrument has **Record measurement**, which adds a row: time since the log
   - the table, with a remove button on each row;
   - **Copy as CSV** and **Clear log**.
 - The lab's **Current measurements** card (`ExperimentInteractionPanel`) and the **results page** show the recorded table and chart (`RecordedMeasurements`).
-- The log is kept in memory for the experiment session, like the simulation stores. Restarting the experiment clears it, and another experiment starts a fresh log.
+- The log is saved in this tab's `sessionStorage`, with the matching experiment's bench and workflow (I3). Refreshing restores rows, balance tare values and the stopwatch reading. The stopwatch restores **paused**, and automatic recording and the open panel are not restored. Restarting the experiment or Reset bench clears the stored copy. A normal new tab starts fresh.
+
+## I3 — Refresh recovery
+
+`labSessionPersistence.ts` coordinates one versioned JSON envelope at `stem-lab-session:<experimentId>`. It uses the existing readiness store's guarded storage pattern, rather than independently saving interdependent stores. `labSessionSnapshot.ts` validates the schema, workflow/core definition versions, experiment identity, equipment, containers, finite quantities, temperatures, evidence, measurements and completion before hydration. Old, corrupt or incompatible entries are discarded as a whole.
+
+Durable changes mark the session dirty; capture and serialization happen at most once per second. A running stopwatch also checkpoints at 1 Hz. Page-hide/visibility events request a flush within that same rate limit. The last second of changes can be lost in a sudden refresh or crash. Every storage read, write, removal and storage getter is guarded; blocked storage or quota errors leave the in-memory lab working.
+
+Heating resumes from saved temperatures and lit burners without simulating offline time. Source/receiver contents and overflow totals are saved together. Undo history, effects, alerts, selection, dragging, camera state and other open panels are deliberately not restored. An unfinished drag restores its last confirmed placement. Browser “reopen closed tab”, session recovery, or duplicating a tab can restore/copy sessionStorage under the browser's own rules; the application does not use localStorage or a database for lab recovery.
+
+See `GUIDED_FREE_SAFETY.md` for guided transfer interruption and the verification record.
 
 ## Code
 

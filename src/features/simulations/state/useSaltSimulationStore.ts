@@ -117,6 +117,22 @@ let nextTransferSequence = 0
 // Request and operation identities deliberately outlive reset; replay is never a new action.
 const acceptedTransferRequests = new Set<string>()
 
+/** Reserve persisted receipts so a refresh cannot reuse an accepted transfer identity. */
+export function reserveRestoredTransferIdentities(events: readonly SimulationEvent[]) {
+  for (const event of events) {
+    if (
+      event.type !== 'MATERIAL_TRANSFER_COMPLETED' &&
+      event.type !== 'MATERIAL_TRANSFER_INTERRUPTED'
+    )
+      continue
+    const match = /^material-transfer-(\d+)$/.exec(event.operationId)
+    if (match && Number.isSafeInteger(Number(match[1])))
+      nextTransferId = Math.max(nextTransferId, Number(match[1]))
+    nextTransferSequence = Math.max(nextTransferSequence, event.sequence)
+    acceptedTransferRequests.add(event.requestId)
+  }
+}
+
 function tickTransfer(deltaMs: number, operationId: string): void {
   const current = useSaltSimulationStore.getState()
   const previous = current.transfer

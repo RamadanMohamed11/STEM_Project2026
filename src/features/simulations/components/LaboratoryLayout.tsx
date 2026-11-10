@@ -24,6 +24,7 @@ import { MeasurementAutoRecorder, MeasurementLogPanel } from './MeasurementLog'
 import { ParticleViewPanel } from './ParticleViewPanel'
 import { ParticleViewButton } from './ParticleViewButton'
 import { LabOptionsMenu } from './LabOptionsMenu'
+import { LabSessionRestoredNotice } from './LabSessionRestoredNotice'
 import { useMeasurementLogStore } from '../state/useMeasurementLogStore'
 import { useLabSafetyStore } from '../state/useLabSafetyStore'
 import {
@@ -390,6 +391,7 @@ export function LaboratoryLayout({
       </header>
 
       <GuidedWorkflowNotice onReset={onRestart} />
+      <LabSessionRestoredNotice />
 
       <div className="relative min-h-0 flex-1">
         <MaterialTransferController />

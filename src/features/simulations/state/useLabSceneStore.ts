@@ -20,6 +20,7 @@ import { useBenchLiquidsStore } from './useBenchLiquidsStore.ts'
 import { subscribeBenchHistory, type PracticeLiquidSnapshot } from './benchHistoryEvents.ts'
 import { isBenchLiquidContainer } from '../lib/benchLiquids.ts'
 import { vesselOver } from '../lib/benchHeating.ts'
+import { notifyLabSessionReset } from './labSessionEvents.ts'
 
 export interface PlacementPreview {
   id: string
@@ -585,7 +586,8 @@ export const useLabSceneStore = create<LabSceneState>((set, get) => ({
           }
         : state,
     ),
-  resetBench: () =>
+  resetBench: () => {
+    const previous = get()
     set((state) => {
       if (state.placement || state.draggingId || state.pressedId) return state
       const initial = initialState()
@@ -605,7 +607,10 @@ export const useLabSceneStore = create<LabSceneState>((set, get) => ({
         selectedIds: [],
         feedback: 'Bench reset to its starting layout.',
       }
-    }),
+    })
+    // Blocked resets keep both history and the saved copy intact.
+    if (get() !== previous) notifyLabSessionReset()
+  },
 }))
 
 // Keep removal/restoration atomic from the caller's point of view, including Node

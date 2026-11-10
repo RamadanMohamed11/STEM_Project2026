@@ -1,6 +1,6 @@
 /**
- * L8: recorded measurements, balance tare values and the stopwatch. Kept in memory for the
- * session, like the simulation stores, so the results page can show what was recorded.
+ * L8: recorded measurements, balance tare values and the stopwatch. I3 coordinates a guarded
+ * sessionStorage snapshot with the other lab stores, including the results page's readings.
  * Times are wall-clock seconds since the log started (`nowMs` is passed in for testability).
  */
 import { create } from 'zustand'
