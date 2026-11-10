@@ -12,9 +12,6 @@ export function BenchLiquidsController() {
     const liquids = useBenchLiquidsStore.getState
     liquids().reset()
     liquids().sync(useLabSceneStore.getState().placedIds)
-    const unsubscribe = useLabSceneStore.subscribe((state, previous) => {
-      if (state.placedIds !== previous.placedIds) liquids().sync(state.placedIds)
-    })
     let frame = 0
     let last = performance.now()
     const loop = (now: number) => {
@@ -38,7 +35,6 @@ export function BenchLiquidsController() {
     document.addEventListener('visibilitychange', onVisibility)
     return () => {
       cancelAnimationFrame(frame)
-      unsubscribe()
       window.removeEventListener('keydown', onKey)
       window.removeEventListener('blur', straighten)
       document.removeEventListener('visibilitychange', onVisibility)

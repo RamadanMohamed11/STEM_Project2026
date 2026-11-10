@@ -13,6 +13,16 @@ Practice vessels on the bench can be heated over a flame. The engine models the 
 7. **Turn off** the burner. The vessel cools towards room temperature (22 °C).
 8. **Hot surfaces:** trying to drag, rotate or remove a lit burner, a tripod over a lit flame, or a vessel at 50 °C or more shows the T41 **Hot Surface** warning with its precautions, and the item stays put.
 
+## I2 — Safe undo and redo (10 November 2026)
+
+Undo and redo now use the same `checkHotTouch` path as direct handling. Before changing the history pointer, they check every moved/removed/rotated item, changed snap contact, affected liquid vessel and moved snapped child. A vessel at or above `HOT_TOUCH_C` (50°C), a lit burner or a tripod over a lit flame blocks the action, shows `HotTouchWarning` and records the same `recordHotTouch` mistake. Nothing in the layout, liquids or history stacks changes when blocked. Let the item cool and turn off the flame before retrying.
+
+Practice-liquid history restores affected vessels' contents and temperature for a removal or pour. Layout-only undo/redo keeps their current temperature and does not rewind passive cooling. Unrelated containers and burner setups are preserved. If restoring a layout changes/removes the vessel above a lit burner, the history action calls the existing `setLit(..., false)` path. Redo never ignites a burner automatically; use the existing Light control after checking the restored setup.
+
+Node coverage is in `tests/benchLiquidHistory.test.mjs`, including the 50°C threshold, unchanged history pointers on blocked undo/redo, hot placed/restored vessels, snapped children, lit burner/tripod checks, and safe extinguishing without automatic relighting. Chemistry, heating rates, safety-rule definitions and the guided salt workflow are unchanged.
+
+I2 browser verification: at **375px and 1440px**, a real Light action followed by Undo showed the existing Hot Surface warning and left the history stacks unchanged. Turn off → Undo succeeded; Redo restored the burner unlit. The 50°C vessel threshold and holder/child cases were verified by Node tests, not fabricated browser temperature readings. Screenshots and the browser report are listed in LIQUIDS_POURING.md. At 375px, Bench controls can cover part of a hot-surface alert, and simultaneous goggles/hot-surface alerts can also overlap; this existing overlay layout was not redesigned in I2.
+
 ## Model
 
 | Piece                                      | Where                                                                                                                                                                                                                                                                                              |
@@ -22,7 +32,7 @@ Practice vessels on the bench can be heated over a flame. The engine models the 
 | State                                      | `useBenchLiquidsStore`: `lit`, `setLit`, `react(dt, relationships)`, `checkHotTouch`, `hotTouch`. `BenchLiquidsController` calls `react` each frame. It skips the engine when nothing is heated, warm or reacting.                                                                                 |
 | Visuals                                    | `three/BenchHeatingEffects.tsx`: burner flames (the shared flame shader from L6, blue for Bunsen and orange for the spirit lamp, with a point light) and temperature tags. Boiling bubbles, steam and the glow are the L6 `gas` and `heat` effects: the engine's `evaporated` events become `gas`. |
 | Panels                                     | `components/BenchHeatingPanel.tsx`: `BurnerPanel`, `BenchVesselInfo` (volume and temperature) and `HotTouchWarning`. The practice-pour panel also shows °C when a vessel is warm.                                                                                                                  |
-| Blocking                                   | `useEquipmentManipulation` (pointer-down; the press is held so the camera does not orbit) and `BenchToolbar` (rotate, remove, Delete, `[` `]`).                                                                                                                                                    |
+| Blocking                                   | `useEquipmentManipulation` (pointer-down), `BenchToolbar` (rotate/remove/keys), and `useLabSceneStore` (undo/redo hot-item guard before moving the history pointer).                                                                                                                               |
 | Temperature-dependent reactions            | L1 `ReactionConditions.minTemperatureC` / `maxTemperatureC` / `requiresHeating`. They work with bench heating unchanged; see the test.                                                                                                                                                             |
 
 ## Verification

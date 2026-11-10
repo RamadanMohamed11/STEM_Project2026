@@ -16,6 +16,10 @@ import {
 } from '../three/sceneConfig.ts'
 import type { SpatialRelationship } from '../engine/spatialInteractions.ts'
 import { snappedChildren, snappedPartners } from '../three/benchLayout.ts'
+import { useBenchLiquidsStore } from './useBenchLiquidsStore.ts'
+import { subscribeBenchHistory, type PracticeLiquidSnapshot } from './benchHistoryEvents.ts'
+import { isBenchLiquidContainer } from '../lib/benchLiquids.ts'
+import { vesselOver } from '../lib/benchHeating.ts'
 
 export interface PlacementPreview {
   id: string
@@ -24,7 +28,7 @@ export interface PlacementPreview {
   message: string
 }
 
-/** L3: the bench layout that undo/redo restores (never chemistry). */
+/** Layout only; practice-container payloads are small, separate history patches. */
 export interface BenchSnapshot {
   placedIds: readonly string[]
   positions: Record<string, Point2D>
@@ -35,6 +39,10 @@ export interface BenchSnapshot {
 export interface BenchHistoryEntry {
   label: string
   snapshot: BenchSnapshot
+  liquids?: PracticeLiquidSnapshot
+  /** A pour must not overwrite later, unrecorded evaporation or chemistry. */
+  expectedLiquids?: PracticeLiquidSnapshot
+  blockedReason?: string
 }
 
 export const MAX_BENCH_HISTORY = 20
@@ -127,9 +135,17 @@ function snapshotOf(state: BenchSnapshot): BenchSnapshot {
 }
 
 /** History update for a committed bench action; clears the redo stack. */
-function record(state: LabSceneState, label: string) {
+function record(state: LabSceneState, label: string, vesselIds: readonly string[] = []) {
+  const liquids = useBenchLiquidsStore.getState().captureHistory(vesselIds)
   return {
-    past: [...state.past, { label, snapshot: snapshotOf(state) }].slice(-MAX_BENCH_HISTORY),
+    past: [
+      ...state.past,
+      {
+        label,
+        snapshot: snapshotOf(state),
+        ...(Object.keys(liquids.containers).length ? { liquids } : {}),
+      },
+    ].slice(-MAX_BENCH_HISTORY),
     future: [] as readonly BenchHistoryEntry[],
   }
 }
@@ -153,6 +169,108 @@ function samePlacement(a: BenchSnapshot, b: BenchSnapshot) {
         (a.rotations[id] ?? 0) === (b.rotations[id] ?? 0),
     )
   )
+}
+
+function changedItems(before: BenchSnapshot, after: BenchSnapshot) {
+  return [...new Set([...before.placedIds, ...after.placedIds])].filter(
+    (id) =>
+      before.placedIds.includes(id) !== after.placedIds.includes(id) ||
+      before.positions[id]?.x !== after.positions[id]?.x ||
+      before.positions[id]?.z !== after.positions[id]?.z ||
+      (before.rotations[id] ?? 0) !== (after.rotations[id] ?? 0) ||
+      JSON.stringify(before.relationships[id]) !== JSON.stringify(after.relationships[id]),
+  )
+}
+
+function blockedHot(ids: readonly string[], state: BenchSnapshot) {
+  return ids.some((id) => useBenchLiquidsStore.getState().checkHotTouch(id, state.relationships))
+}
+
+function sameContents(a: PracticeLiquidSnapshot, b: PracticeLiquidSnapshot) {
+  return (
+    Object.keys(a.containers).every((id) => {
+      const left = a.containers[id],
+        right = b.containers[id]
+      if (!left || !right) return left === right
+      return [...new Set([...Object.keys(left.contents), ...Object.keys(right.contents)])].every(
+        (substance) =>
+          Math.abs((left.contents[substance] ?? 0) - (right.contents[substance] ?? 0)) < 1e-9,
+      )
+    }) &&
+    (a.spilledTotalMl === undefined || a.spilledTotalMl === b.spilledTotalMl)
+  )
+}
+
+function restoreEntry(state: LabSceneState, entry: BenchHistoryEntry, undo: boolean) {
+  const bench = useBenchLiquidsStore.getState()
+  if (bench.pour) return false
+  const affected = [
+    ...new Set([
+      ...changedItems(state, entry.snapshot),
+      ...Object.keys(entry.liquids?.containers ?? {}),
+    ]),
+  ]
+  if (blockedHot(affected, state)) return false
+  if (entry.blockedReason) {
+    useLabSceneStore.setState({ feedback: entry.blockedReason })
+    return false
+  }
+  const currentLiquids = entry.liquids
+    ? bench.captureHistory(
+        Object.keys(entry.liquids.containers),
+        entry.liquids.spilledTotalMl !== undefined,
+      )
+    : undefined
+  if (
+    entry.expectedLiquids &&
+    currentLiquids &&
+    !sameContents(entry.expectedLiquids, currentLiquids)
+  ) {
+    useLabSceneStore.setState({
+      feedback:
+        'The liquid changed after this action. Undo cannot restore it without changing the amount of material.',
+    })
+    return false
+  }
+  const inverse: BenchHistoryEntry = {
+    label: entry.label,
+    snapshot: snapshotOf(state),
+    ...(currentLiquids ? { liquids: currentLiquids } : {}),
+    ...(entry.expectedLiquids ? { expectedLiquids: entry.liquids } : {}),
+  }
+  // Never automatically relight a burner. A changed/removed heated vessel makes
+  // the existing flame unsafe even when the burner itself has not moved.
+  for (const burner of bench.lit) {
+    const previous = vesselOver(burner, state.relationships, bench.ids)
+    const next = vesselOver(
+      burner,
+      entry.snapshot.relationships,
+      entry.snapshot.placedIds.filter(isBenchLiquidContainer),
+    )
+    if (!entry.snapshot.placedIds.includes(burner) || next !== previous)
+      useBenchLiquidsStore.getState().setLit(burner, false, state.relationships)
+  }
+  // Restore removed stock containers directly to their saved contents, never
+  // briefly refilling from defaults before the history patch is applied.
+  if (entry.liquids)
+    useBenchLiquidsStore.getState().restoreHistory(entry.liquids, entry.snapshot.placedIds)
+  useLabSceneStore.setState({
+    ...snapshotOf(entry.snapshot),
+    ...(undo
+      ? {
+          past: state.past.slice(0, -1),
+          future: [...state.future, inverse].slice(-MAX_BENCH_HISTORY),
+        }
+      : {
+          future: state.future.slice(0, -1),
+          past: [...state.past, inverse].slice(-MAX_BENCH_HISTORY),
+        }),
+    selectedId: null,
+    selectedIds: [],
+    hoveredId: null,
+    feedback: `${undo ? 'Undid' : 'Redid'}: ${entry.label}.`,
+  })
+  return true
 }
 
 /** Removes an id from the bench; extra copies are forgotten entirely. */
@@ -215,8 +333,7 @@ export const useLabSceneStore = create<LabSceneState>((set, get) => ({
   setTiltHandleHovered: (id) => set({ tiltHandleHoveredId: id }),
   beginPlacement: (id) =>
     set((state) => {
-      if (!isKnownEquipment(id) || state.placedIds.includes(id))
-        return state
+      if (!isKnownEquipment(id) || state.placedIds.includes(id)) return state
       const position = findSuggestedPosition(id, state.positions, state.placedIds)
       return {
         selectedId: id,
@@ -269,7 +386,7 @@ export const useLabSceneStore = create<LabSceneState>((set, get) => ({
       return false
     }
     set({
-      ...record(state, `Place ${labelOf(preview.id)}`),
+      ...record(state, `Place ${labelOf(preview.id)}`, [preview.id]),
       placedIds: [...state.placedIds, preview.id],
       positions: { ...state.positions, [preview.id]: { ...preview.position } },
       rotations: { ...state.rotations, [preview.id]: state.rotations[preview.id] ?? 0 },
@@ -284,8 +401,9 @@ export const useLabSceneStore = create<LabSceneState>((set, get) => ({
   removeFromBench: (id) =>
     set((state) => {
       if (!state.placedIds.includes(id) || state.draggingId) return state
+      if (useBenchLiquidsStore.getState().pour || blockedHot([id], state)) return state
       return {
-        ...record(state, `Remove ${labelOf(id)}`),
+        ...record(state, `Remove ${labelOf(id)}`, [id]),
         ...withoutItem(state, id),
         feedback: isExtraInstance(id)
           ? `${labelOf(id)} removed from the bench.`
@@ -342,7 +460,8 @@ export const useLabSceneStore = create<LabSceneState>((set, get) => ({
       if (from)
         for (const child of snappedChildren(id, state.relationships)) {
           const at = state.positions[child]
-          if (at) positions[child] = { x: at.x + requested.x - from.x, z: at.z + requested.z - from.z }
+          if (at)
+            positions[child] = { x: at.x + requested.x - from.x, z: at.z + requested.z - from.z }
         }
       return {
         // Drag samples are committed once in finishDrag; keyboard/button moves are recorded here.
@@ -398,7 +517,7 @@ export const useLabSceneStore = create<LabSceneState>((set, get) => ({
       return null
     }
     set({
-      ...record(state, `Place ${labelOf(id)}`),
+      ...record(state, `Place ${labelOf(id)}`, [id]),
       placedIds: [...state.placedIds, id],
       positions: { ...state.positions, [id]: position },
       rotations: { ...state.rotations, [id]: state.rotations[id] ?? 0 },
@@ -411,15 +530,21 @@ export const useLabSceneStore = create<LabSceneState>((set, get) => ({
   dropInWasteBin: (id) =>
     set((state) => {
       if (!state.placedIds.includes(id)) return state
+      if (useBenchLiquidsStore.getState().pour || blockedHot([id], state)) return state
       // One undo restores the item where the drag started.
       const before = state.dragStart ?? snapshotOf(state)
       return {
         ...withoutItem(state, id),
         draggingId: state.draggingId === id ? null : state.draggingId,
         dragStart: null,
-        past: [...state.past, { label: `Remove ${labelOf(id)}`, snapshot: before }].slice(
-          -MAX_BENCH_HISTORY,
-        ),
+        past: [
+          ...state.past,
+          {
+            label: `Remove ${labelOf(id)}`,
+            snapshot: before,
+            liquids: useBenchLiquidsStore.getState().captureHistory([id]),
+          },
+        ].slice(-MAX_BENCH_HISTORY),
         future: [],
         feedback: isExtraInstance(id)
           ? `${labelOf(id)} put in the waste bin.`
@@ -430,33 +555,13 @@ export const useLabSceneStore = create<LabSceneState>((set, get) => ({
     const state = get()
     const entry = state.past.at(-1)
     if (!entry || state.placement || state.draggingId || state.pressedId) return false
-    set({
-      ...snapshotOf(entry.snapshot),
-      past: state.past.slice(0, -1),
-      future: [...state.future, { label: entry.label, snapshot: snapshotOf(state) }],
-      selectedId: null,
-      selectedIds: [],
-      hoveredId: null,
-      feedback: `Undid: ${entry.label}.`,
-    })
-    return true
+    return restoreEntry(state, entry, true)
   },
   redo: () => {
     const state = get()
     const entry = state.future.at(-1)
     if (!entry || state.placement || state.draggingId || state.pressedId) return false
-    set({
-      ...snapshotOf(entry.snapshot),
-      future: state.future.slice(0, -1),
-      past: [...state.past, { label: entry.label, snapshot: snapshotOf(state) }].slice(
-        -MAX_BENCH_HISTORY,
-      ),
-      selectedId: null,
-      selectedIds: [],
-      hoveredId: null,
-      feedback: `Redid: ${entry.label}.`,
-    })
-    return true
+    return restoreEntry(state, entry, false)
   },
   snapTo: (id, holderId, position) =>
     set((state) =>
@@ -484,8 +589,14 @@ export const useLabSceneStore = create<LabSceneState>((set, get) => ({
     set((state) => {
       if (state.placement || state.draggingId || state.pressedId) return state
       const initial = initialState()
+      if (useBenchLiquidsStore.getState().pour || blockedHot(changedItems(state, initial), state))
+        return state
       return {
-        ...record(state, 'Reset bench'),
+        ...record(
+          state,
+          'Reset bench',
+          state.placedIds.filter((id) => !initial.placedIds.includes(id)),
+        ),
         placedIds: initial.placedIds,
         positions: initial.positions,
         rotations: initial.rotations,
@@ -496,3 +607,33 @@ export const useLabSceneStore = create<LabSceneState>((set, get) => ({
       }
     }),
 }))
+
+// Keep removal/restoration atomic from the caller's point of view, including Node
+// actions without a mounted Canvas. The liquid controller only owns the clocks.
+const unsubscribeLayout = useLabSceneStore.subscribe((state, previous) => {
+  if (state.placedIds !== previous.placedIds) useBenchLiquidsStore.getState().sync(state.placedIds)
+})
+const unsubscribeHistory = subscribeBenchHistory((event) => {
+  if (event.kind === 'reset') {
+    useLabSceneStore.setState({ past: [], future: [] })
+    return
+  }
+  useLabSceneStore.setState((state) => ({
+    past: [
+      ...state.past,
+      {
+        label: event.label,
+        snapshot: snapshotOf(state),
+        liquids: event.before,
+        expectedLiquids: event.after,
+        ...(event.blockedReason ? { blockedReason: event.blockedReason } : {}),
+      },
+    ].slice(-MAX_BENCH_HISTORY),
+    future: [],
+  }))
+})
+if (import.meta.hot)
+  import.meta.hot.dispose(() => {
+    unsubscribeLayout()
+    unsubscribeHistory()
+  })

@@ -70,7 +70,7 @@ The reusable hazard catalog is draft guidance requiring academic review. No haza
 ## L5 limitations (8 November 2026)
 
 - Practice pouring covers library vessels and practice copies only; the guided salt experiment keeps its own validated pour.
-- Liquid is discarded when a vessel leaves the bench, and undo/redo do not restore liquids.
+- Practice history is in memory for the current lab visit. A pour entry is blocked if evaporation occurred during the pour or later unrecorded evaporation/chemistry changed its amounts; undo cannot recreate lost material. Restart clears that history. Fresh placement uses stock defaults; use Undo to recover a removed vessel's contents. See LIQUIDS_POURING.md (I2).
 - The burette and separating-funnel taps come with L8.
 - The catalogue liquids are colourless, so mixtures look clear; pH is the visible result for now.
 - Tilting uses a tilt control and buttons in the panel, not a 3D grab-and-tip gesture.
@@ -91,7 +91,7 @@ The reusable hazard catalog is draft guidance requiring academic review. No haza
 
 - Heating works only through a tripod (burner under it, vessel on it). There is no heating over a flame with tongs or in a clamp, and no water bath.
 - Heating and boiling run at teaching speed. Water boils away at 0.25 mL/s, and there is no tongs tool yet for moving hot glassware.
-- Undo and redo can still move a hot item; they restore layout only.
+- At 375px, the existing Bench controls overlay can cover part of a hot-surface alert; simultaneous goggles and hot-surface alerts can also overlap. I2 reuses the same hot-touch warning; alert layout was not redesigned.
 - Thermometer readings are shown on vessel tags and in panels; the thermometer as an instrument comes with L8.
 - The guided salt experiment is unchanged and has no heating.
 - See HEATING.md.

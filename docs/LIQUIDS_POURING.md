@@ -32,7 +32,7 @@ The chemistry runs on the **L1 engine**. The guided salt experiment keeps its ow
 | Pouring a mixture               | `pourLiquid` in `engine/core/state.ts`. Every liquid and dissolved species leaves in proportion, and settled solids and gases stay behind. Overflow spills and is reported. Source loss = target gain + spill (exact; a full pour leaves no float residue). |
 | Bench containers and substances | `lib/benchLiquids.ts`: which ids hold liquid, capacities, flow limits, initial contents, and the substances (water; 1.0 M HCl as one liquid, so the engine's pH model gives pH 0 for the stock and pH 1 for 10 mL in 100 mL).                               |
 | Tilt → flow                     | `pourStartAngle(fill) = 0.22 + (1 − fill) × 1.05` rad. `flowRateMlPerS = max × t²`, where `t` rises from 0 to 1 over the next 0.45 rad. The maximum flow comes from the mouth radius (a beaker pours faster than a test tube).                              |
-| State and clock                 | `state/useBenchLiquidsStore.ts`, driven by `three/BenchLiquidsController.tsx` (rAF; it syncs containers with the bench).                                                                                                                                    |
+| State and clock                 | `state/useBenchLiquidsStore.ts`, driven by `three/BenchLiquidsController.tsx` (rAF); `useLabSceneStore` synchronizes container presence and owns history.                                                                                                      |
 | Pose                            | `getPourPose` (`equipmentPose.ts`) accepts dimension overrides. The source lip moves over the receiver centre, above its rim, and allows for a holder's snap height.                                                                                        |
 | Visuals                         | `three/BenchPourEffects.tsx`: stream (width follows the flow) with falling droplets, the falling drop, the spill puddle, and the readout (`Html`, `aria-live`).                                                                                             |
 | Liquid level                    | The L4 fill model: the liquid follows each vessel's inner shape, and its colour comes from `readColor` (L1).                                                                                                                                                |
@@ -40,11 +40,29 @@ The chemistry runs on the **L1 engine**. The guided salt experiment keeps its ow
 
 ## Rules and limits
 
-- Grabbing items and bench undo/redo are paused while a practice pour is tilted. Undo/redo restore layout only, not liquids (as in L3).
-- When a vessel leaves the bench (waste bin, removal, restart), its liquid is discarded. When it comes back, it starts with its initial contents only: the HCl bottle is refilled, other vessels are empty.
+- Grabbing items and bench undo/redo are paused while a practice pour is tilted. A completed or interrupted practice pour records one history action, including its source and receiver contents, temperatures and spill total.
+- Undoing a removal or waste-bin drop restores the affected vessel with its substances, amounts and temperature. Redo removes it again. A fresh placement still starts from its stock defaults; use Undo to restore a removed vessel. Restarting/closing the laboratory clears practice history and liquids.
 - The burette and the separating funnel are not pour sources yet (their taps come with L8). The spirit lamp is not a container.
 - The catalogue's liquids (water, dilute HCl) are both colourless, so mixtures look clear. The engine's colour blending is verified with a test dye; coloured reagents come with the L11 experiments. pH is the visible chemistry result for now.
 - Pouring is a teaching model (volume flow, not fluid simulation). In the browser pane, a hidden page gets no animation frames, so a pour pauses until the page is visible.
+
+## I2 — Practice-liquid history (10 November 2026)
+
+The scene store owns the same 20-action history. `benchHistoryEvents.ts` passes completed practice actions from the liquid store to that timeline, without importing the scene store into the liquid store or creating a second history. The scene store also synchronizes vessel presence immediately, so removal/restore works without relying on a mounted Canvas.
+
+- Animated tilt/amount pours are recorded once, after the source straightens. A cancelled pour records only what actually moved. Dropper fills and individual drops use the same timeline.
+- Liquid patches contain only affected containers (two for a pour, one for removal), their substance maps and temperatures. Pour patches also include the spill accounting, so undo restores source + receiver + spill together. Ordinary layout moves preserve live contents and temperature; they do not rewind cooling or unrelated vessels.
+- Undo/redo is blocked while pouring and checks current hot items before changing history or quantities (see HEATING.md). Restoring a heating layout never automatically lights a burner.
+- If unrecorded engine activity such as evaporation changed a pour's amounts afterward, that stale pour cannot be undone/redone. If evaporation occurred during the pour, the history entry also refuses undo: it compares the engine-read source/receiver volume plus spill accounting before and after, rather than recreating evaporated material. The bench explains the conflict and keeps the history pointer unchanged. Continuous heating/cooling is not a history action. This conservative limitation also prevents undoing through that entry; restart clears history.
+- The guided salt experiment's validated pours, chemistry, workflow and receipts are outside practice-liquid history and are unchanged.
+
+Node coverage: `tests/benchLiquidHistory.test.mjs` checks removal/waste/reset restoration, multi-substance contents, temperatures, pour/spill/dropper conservation within 0.1 mL, snapshot scope, the 20-action limit, redo invalidation, hot blocking, burner safety and isolation from guided salt state. Final verification results are recorded with the delivery.
+
+I2 verification: **15 focused history tests and all 512 Node tests passed**, along with typecheck, lint and the production build. The existing Three.js deprecation and large-chunk warnings remain. Real Chromium keyboard checks against the final development source passed at **1440×900** and **375×812**: a 10 mL practice pour was undone/redone, the filled beaker was removed and restored with 10 mL, and the lit-burner history guard retained both history stacks. Turning off the burner allowed undo, and redo did not relight it. No page errors or horizontal overflow were observed. Evidence: `output/playwright/i2-browser.json`, `i2-{1440,375}-restored.png` and `i2-{1440,375}-hot-block.png`. These are local checks, not a deployment or a mobile hardware performance measurement.
+
+Required salt regression: `python tests/browserSmartTransfers.py` ran in **790.085 s**. Of **251 assertions, 248 passed and 3 failed**: the known stream-render timing checks for `material-transfer-2` (animated stream), `material-transfer-4` and `material-transfer-12` (stream outside flow). The full guided salt workflow reached verified completion with 100 mL water and 5 g salt; selection/cancellation (45 assertions) and reset/stale-tick protection (16 assertions) passed. A second full workflow was skipped because of the harness time budget. No page errors, no case exceptions, no source changes during that run, and port cleanup succeeded. **The overall browser suite is failed, not passed.** Evidence: `artifacts/i2-smart-transfers.log`, `artifacts/smart-summary.json`, `artifacts/smart-report.md`, and the `smart-*` screenshots/observations from this run.
+
+That salt run preceded the final practice-only guard for evaporation during a pour. The guard does not enter the guided salt path; it is covered by the final Node suite and the repeated focused history UI check. The long salt suite was not repeated after that guard, and its saved source hashes identify exactly the version tested.
 
 ## Verification
 

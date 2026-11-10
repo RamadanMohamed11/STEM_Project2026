@@ -33,6 +33,7 @@ import { useReactionEffectsStore } from './useReactionEffectsStore.ts'
 import { useLabSafetyStore } from './useLabSafetyStore.ts'
 import { vesselOver } from '../lib/benchHeating.ts'
 import type { SubstanceView } from '../lib/safetyRules.ts'
+import { publishBenchHistory, type PracticeLiquidSnapshot } from './benchHistoryEvents.ts'
 
 export interface BenchPour {
   sourceId: string
@@ -81,8 +82,12 @@ interface BenchLiquidsState {
   lit: readonly string[]
   /** L7: last hot-surface warning (the student tried to handle a hot item). */
   hotTouch: { itemId: string; message: string; seq: number } | null
+  pourHistory: PracticeLiquidSnapshot | null
 
-  sync: (placedIds: readonly string[]) => void
+  captureHistory: (ids: readonly string[], includeSpill?: boolean) => PracticeLiquidSnapshot
+  restoreHistory: (snapshot: PracticeLiquidSnapshot, placedIds: readonly string[]) => void
+
+  sync: (placedIds: readonly string[], restore?: PracticeLiquidSnapshot) => void
   /** Tilt the source over the target (0 straightens it). */
   setTilt: (sourceId: string, targetId: string, angle: number) => boolean
   /** Keyboard alternative: pour exactly `ml` (unless the source runs out or it overflows). */
@@ -124,6 +129,7 @@ const emptyState = () => ({
   clockS: 0,
   lit: [] as readonly string[],
   hotTouch: null,
+  pourHistory: null,
 })
 
 /** Below this gap to room temperature (and with no heating) the engine has nothing to do. */
@@ -215,22 +221,85 @@ function validPair(state: BenchLiquidsState, sourceId: string, targetId: string)
   )
 }
 
+function capture(
+  state: BenchLiquidsState,
+  ids: readonly string[],
+  includeSpill = false,
+): PracticeLiquidSnapshot {
+  return {
+    containers: Object.fromEntries(
+      ids.filter(isBenchLiquidContainer).map((id) => {
+        const container = state.lab.containers[id]
+        return [
+          id,
+          container
+            ? { contents: { ...container.contents }, temperatureC: container.temperatureC }
+            : null,
+        ]
+      }),
+    ),
+    ...(includeSpill
+      ? {
+          spilledTotalMl: state.spilledTotalMl,
+          volumeMl: ids.reduce((sum, id) => sum + benchVolumeMl(state, id), 0),
+        }
+      : {}),
+  }
+}
+
+function publishPour(before: PracticeLiquidSnapshot, after: PracticeLiquidSnapshot) {
+  // A tilted but empty/straightened vessel is not an undoable material action.
+  if (
+    JSON.stringify(Object.values(before.containers).map((container) => container?.contents)) ===
+      JSON.stringify(Object.values(after.containers).map((container) => container?.contents)) &&
+    before.spilledTotalMl === after.spilledTotalMl
+  )
+    return
+  const changedVolume =
+    before.volumeMl !== undefined &&
+    after.volumeMl !== undefined &&
+    Math.abs(
+      before.volumeMl + (before.spilledTotalMl ?? 0) - after.volumeMl - (after.spilledTotalMl ?? 0),
+    ) > 1e-6
+  publishBenchHistory({
+    kind: 'pour',
+    label: 'Pour practice liquid',
+    before,
+    after,
+    ...(changedVolume
+      ? {
+          blockedReason:
+            'Material changed during the pour, for example through evaporation. Undo cannot recreate that material. Restart to clear this history.',
+        }
+      : {}),
+  })
+}
+
 export const useBenchLiquidsStore = create<BenchLiquidsState>()((set, get) => ({
   ...emptyState(),
 
-  sync: (placedIds) => {
+  captureHistory: (ids, includeSpill) => capture(get(), ids, includeSpill),
+  restoreHistory: (snapshot, placedIds) => get().sync(placedIds, snapshot),
+
+  sync: (placedIds, restore) => {
     const state = get()
-    const lit = state.lit.filter((id) => placedIds.includes(id))
-    if (lit.length !== state.lit.length) set({ lit })
+    for (const id of state.lit) if (!placedIds.includes(id)) get().setLit(id, false)
     const ids = placedIds.filter(isBenchLiquidContainer)
-    if (ids.length === state.ids.length && ids.every((id, i) => id === state.ids[i])) return
+    if (!restore && ids.length === state.ids.length && ids.every((id, i) => id === state.ids[i]))
+      return
     const definition = buildBenchDefinition(ids)
     const containers: Record<string, ContainerState> = {}
     for (const container of definition.containers) {
+      const saved = restore?.containers[container.id]
       const existing = state.lab.containers[container.id]
-      if (existing) containers[container.id] = existing
+      if (saved)
+        containers[container.id] = {
+          contents: { ...saved.contents },
+          temperatureC: saved.temperatureC,
+        }
+      else if (existing) containers[container.id] = existing
       else {
-        // New on the bench (or back from the waste bin): starts with its initial contents only.
+        // A fresh placement uses stock defaults; history restoration replaces only affected vessels.
         const contents: Record<string, number> = {}
         for (const entry of container.initialContents ?? [])
           contents[entry.substanceId] = (contents[entry.substanceId] ?? 0) + entry.amount
@@ -245,6 +314,18 @@ export const useBenchLiquidsStore = create<BenchLiquidsState>()((set, get) => ({
       pour:
         state.pour && keep(state.pour.sourceId) && keep(state.pour.targetId) ? state.pour : null,
       readout: state.readout && keep(state.readout.targetId) ? state.readout : null,
+      ...(restore
+        ? {
+            ...(restore.spilledTotalMl === undefined
+              ? {}
+              : { spilledTotalMl: restore.spilledTotalMl }),
+            pour: null,
+            pourHistory: null,
+            readout: null,
+            spill: null,
+            drop: null,
+          }
+        : {}),
     })
   },
 
@@ -258,6 +339,11 @@ export const useBenchLiquidsStore = create<BenchLiquidsState>()((set, get) => ({
       if (current.angle > 0.02) return false
     }
     const same = current?.sourceId === sourceId && current.targetId === targetId
+    if (!same && state.pourHistory)
+      publishPour(
+        state.pourHistory,
+        capture(state, Object.keys(state.pourHistory.containers), true),
+      )
     if (!same && requestedAngle > 0) reportPour(state, sourceId, targetId)
     set({
       pour: {
@@ -272,33 +358,46 @@ export const useBenchLiquidsStore = create<BenchLiquidsState>()((set, get) => ({
       // A new pour counts "poured" from zero.
       readout: same ? state.readout : null,
       message: null,
+      pourHistory:
+        same && state.pourHistory ? state.pourHistory : capture(state, [sourceId, targetId], true),
     })
     return true
   },
 
   pourAmount: (sourceId, targetId, ml) => {
     const state = get()
-    if (!validPair(state, sourceId, targetId) || !(ml > 0)) return false
+    if (
+      !validPair(state, sourceId, targetId) ||
+      !Number.isFinite(ml) ||
+      !(ml > 0) ||
+      (state.pour && state.pour.angle > 0.02)
+    )
+      return false
     const available = benchVolumeMl(state, sourceId)
     if (available <= AMOUNT_EPSILON) {
       set({ message: `${labelOf(sourceId)} is empty.` })
       return false
     }
-    if (state.pour && state.pour.angle > 0.02 && state.pour.sourceId !== sourceId) return false
     const fill = available / capacityOf(sourceId)
+    if (state.pourHistory)
+      publishPour(
+        state.pourHistory,
+        capture(state, Object.keys(state.pourHistory.containers), true),
+      )
     reportPour(state, sourceId, targetId)
     set({
       pour: {
         sourceId,
         targetId,
         requestedAngle: steadyPourAngle(fill),
-        angle: state.pour?.sourceId === sourceId ? state.pour.angle : 0,
+        angle: 0,
         remainingMl: ml,
         rateMlPerS: 0,
       },
       spill: null,
       readout: null,
       message: null,
+      pourHistory: capture(state, [sourceId, targetId], true),
     })
     return true
   },
@@ -330,7 +429,9 @@ export const useBenchLiquidsStore = create<BenchLiquidsState>()((set, get) => ({
         : pour.requestedAngle
     const angle = pour.angle + (requestedAngle - pour.angle) * blend
     if (requestedAngle === 0 && angle < 0.02) {
-      set({ clockS, pour: null })
+      const history = state.pourHistory
+      set({ clockS, pour: null, pourHistory: null })
+      if (history) publishPour(history, capture(get(), Object.keys(history.containers), true))
       return
     }
     const rate = flowRateMlPerS(angle, fill, type?.maxFlowMlPerS ?? 0)
@@ -476,6 +577,7 @@ export const useBenchLiquidsStore = create<BenchLiquidsState>()((set, get) => ({
   fillDropper: (sourceId, dropperId) => {
     const state = get()
     if (
+      state.pour ||
       instanceTypeId(dropperId) !== 'dropper' ||
       sourceId === dropperId ||
       !state.ids.includes(sourceId) ||
@@ -493,14 +595,17 @@ export const useBenchLiquidsStore = create<BenchLiquidsState>()((set, get) => ({
       return false
     }
     reportPour(state, sourceId, dropperId)
+    const before = capture(state, [sourceId, dropperId], true)
     const result = pourLiquid(state.definition, state.lab, sourceId, dropperId, amount)
     set({ lab: result.state, message: `Dropper filled with ${formatMl(result.pouredMl)}.` })
+    publishPour(before, capture(get(), [sourceId, dropperId], true))
     return true
   },
 
   addDrop: (dropperId, targetId) => {
     const state = get()
     if (
+      state.pour ||
       instanceTypeId(dropperId) !== 'dropper' ||
       dropperId === targetId ||
       !state.ids.includes(dropperId) ||
@@ -513,6 +618,7 @@ export const useBenchLiquidsStore = create<BenchLiquidsState>()((set, get) => ({
       return false
     }
     reportPour(state, dropperId, targetId)
+    const before = capture(state, [dropperId, targetId], true)
     const result = pourLiquid(state.definition, state.lab, dropperId, targetId, DROP_ML)
     const spilled = result.spilledMl > AMOUNT_EPSILON
     set({
@@ -532,8 +638,12 @@ export const useBenchLiquidsStore = create<BenchLiquidsState>()((set, get) => ({
           }
         : {}),
     })
+    publishPour(before, capture(get(), [dropperId, targetId], true))
     return true
   },
 
-  reset: () => set(emptyState()),
+  reset: () => {
+    set(emptyState())
+    publishBenchHistory({ kind: 'reset' })
+  },
 }))
