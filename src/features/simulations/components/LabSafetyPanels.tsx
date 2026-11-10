@@ -40,6 +40,38 @@ export function LabModeToggle({ touch = false }: { touch?: boolean } = {}) {
   )
 }
 
+/** Acknowledging a paused workflow is separate from modifying its scientific evidence. */
+export function GuidedWorkflowNotice({ onReset }: { onReset: () => void }) {
+  const mode = useLabSafetyStore((state) => state.mode)
+  const issue = useSaltSimulationStore((state) => state.guidedResumeIssue)
+  if (mode === 'free')
+    return (
+      <p
+        role="status"
+        className="shrink-0 border-b border-white/10 bg-[#071d29] px-3 py-1 text-[11px] text-white/80 sm:px-5"
+      >
+        Free mode: guided steps are paused.
+      </p>
+    )
+  if (!issue) return null
+  return (
+    <section
+      role="status"
+      aria-label="Guided experiment paused"
+      className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-amber-300/30 bg-[#4a3410] px-3 py-2 text-xs text-amber-50 sm:px-5"
+    >
+      <p className="min-w-0 flex-1 basis-56">{issue}</p>
+      <button
+        type="button"
+        onClick={onReset}
+        className="min-h-11 rounded-lg border border-amber-200/50 px-3 font-semibold hover:bg-white/10"
+      >
+        Reset experiment
+      </button>
+    </section>
+  )
+}
+
 /** Goggles worn (from the Safety page, or put on here). */
 export function GogglesToggle({ touch = false }: { touch?: boolean } = {}) {
   const goggles = useLabReadinessStore((state) => state.goggles)

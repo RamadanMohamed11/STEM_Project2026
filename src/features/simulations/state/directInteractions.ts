@@ -1,6 +1,7 @@
 import { findSpatialAffordance } from '../engine/spatialInteractions.ts'
 import { useLabSceneStore } from './useLabSceneStore.ts'
 import { useSaltSimulationStore } from './useSaltSimulationStore.ts'
+import { useLabSafetyStore } from './useLabSafetyStore.ts'
 
 /** Trusted renderer-detected intent: proximity and circular-path evidence are
  * not present in this legacy payload and must be validated by its producer. */
@@ -96,6 +97,7 @@ export function handlePhysicalInteraction({
   if (!affordance || !Number.isFinite(magnitude) || magnitude < 0.65 || magnitude > 1) return false
   if (elapsedMs !== undefined && gesture !== 'stir') return false
   const simulation = useSaltSimulationStore.getState()
+  const guided = useLabSafetyStore.getState().mode === 'guided'
   const scene = useLabSceneStore.getState()
   const heldStir =
     affordance.relation === 'insertion' && elapsedMs !== undefined && scene.draggingId === actorId
@@ -126,13 +128,16 @@ export function handlePhysicalInteraction({
     })
   }
   if (affordance.relation === 'balance-contact') {
-    if (simulation.workflow.stepIndex !== 4 || simulation.experiment.saltOnBoatG !== 5) return false
+    if (guided && (simulation.workflow.stepIndex !== 4 || simulation.experiment.saltOnBoatG !== 5))
+      return false
     const previousRelationships = scene.relationships
     scene.setRelationship({
       actorId,
       targetId: affordance.target,
       kind: affordance.relation,
     })
+    // A physical reading/contact is allowed in Free mode, but is not a guided measurement.
+    if (!guided) return true
     const recorded = simulation.emit({
       type: 'MASS_MEASUREMENT_RECORDED',
       sourceId: actorId,
@@ -159,7 +164,9 @@ export function handlePhysicalInteraction({
     return stirred
   }
   if (affordance.relation === 'solid-receiver') {
-    const measured = simulation.workflow.measurements.saltG
+    const measured = guided
+      ? simulation.workflow.measurements.saltG
+      : simulation.experiment.saltOnBoatG
     if (measured === null || simulation.experiment.saltOnBoatG !== measured) return false
     return simulation.execute({
       kind: 'add-substance',

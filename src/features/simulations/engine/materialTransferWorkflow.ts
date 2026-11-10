@@ -45,12 +45,13 @@ export function advanceMaterialTransferWorkflow(
   previous: TransferOperation,
   next: TransferOperation,
   placedIds: readonly string[],
+  guided = true,
 ): { chemistry: SaltExperimentState; workflow: WorkflowState } | null {
   const stepId = definition.steps[workflow.stepIndex]?.id
   if (
     previous.operationId !== next.operationId ||
-    previous.stepId !== stepId ||
-    !sameTransferChemistry(before, workflow.chemistryCheckpoint)
+    (guided &&
+      (previous.stepId !== stepId || !sameTransferChemistry(before, workflow.chemistryCheckpoint)))
   )
     return null
   const expectedBefore = chemistryForTransfer(previous)
@@ -67,6 +68,7 @@ export function advanceMaterialTransferWorkflow(
     before,
     workflow,
     placedIds,
+    guided,
   ).find(
     (item) =>
       item.sourceId === next.sourceId &&
@@ -81,14 +83,16 @@ export function advanceMaterialTransferWorkflow(
   const started = previousUnits === 0
   return {
     chemistry: expectedAfter,
-    workflow: {
-      ...workflow,
-      chemistryCheckpoint: expectedAfter,
-      commandEvidence: {
-        ...workflow.commandEvidence,
-        [stepId]: (workflow.commandEvidence[stepId] ?? 0) + (started ? 1 : 0),
-      },
-    },
+    workflow: guided
+      ? {
+          ...workflow,
+          chemistryCheckpoint: expectedAfter,
+          commandEvidence: {
+            ...workflow.commandEvidence,
+            [stepId]: (workflow.commandEvidence[stepId] ?? 0) + (started ? 1 : 0),
+          },
+        }
+      : workflow,
   }
 }
 

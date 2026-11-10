@@ -109,7 +109,8 @@ The reusable hazard catalog is draft guidance requiring academic review. No haza
 ## L9 limitations (9 November 2026)
 
 - The current catalogue has no concentrated acid, bleach or sealed container, so "water into concentrated acid", "incompatible chemicals" and "heating a closed container" fire only for experiments whose data defines them (L11). They are covered by the unit tests.
-- Free mode hides the salt steps, but the salt workflow still runs underneath. Doing the salt steps in free mode still advances it silently.
+- Returning from Free mode with changed salt quantities or missing previously placed equipment needed by the saved step requires an explicit experiment reset before Guided mode can continue. Saved guided evidence is never inferred from practice actions; see GUIDED_FREE_SAFETY.md (I1).
+- I1 verification: the required browser transfer run completed the guided salt workflow but retained two known stream-render timing failures and exceeded its audit time budget during the reset case. The final browser suite is not a pass; no fresh final JSON export was produced. The separate 375px/1440px Free-mode/reset UI checks and all 497 Node tests passed. See GUIDED_FREE_SAFETY.md for exact evidence and limits.
 - Mistakes are kept in memory for the session, like the measurement log.
 - Goggles are a session flag (Safety page activity or the lab toggle), not a 3D avatar.
 - The completion summary inside `ExperimentResults` was not seen at full completion in the browser; it was checked in the in-progress results section and by type checks.

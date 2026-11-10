@@ -158,14 +158,16 @@ function conserved(chemistry: SaltExperimentState): boolean {
   return water(chemistry) === water(initial) && salt(chemistry) === salt(initial)
 }
 
+/** Free practice keeps scientific invariants but does not move the saved guided checkpoint. */
 export function transferStateIsValid(
   chemistry: SaltExperimentState,
   workflow: WorkflowState,
+  guided = true,
 ): boolean {
   return (
     isValidSaltExperimentState(chemistry) &&
     conserved(chemistry) &&
-    sameTransferChemistry(chemistry, workflow.chemistryCheckpoint) &&
+    (!guided || sameTransferChemistry(chemistry, workflow.chemistryCheckpoint)) &&
     chemistry.operations < Number.MAX_SAFE_INTEGER
   )
 }
@@ -203,6 +205,7 @@ function resolveRoute(
   chemistry: SaltExperimentState,
   workflow: WorkflowState,
   placedIds: readonly string[],
+  guided: boolean,
 ): ResolvedTransfer {
   const source = transferEquipment[route.sourceId]
   const target = transferEquipment[route.targetId]
@@ -221,17 +224,26 @@ function resolveRoute(
   )
   let maxUnits = Math.max(0, Math.min(units(available), units(freeCapacity)))
   const stepId = definition.steps[workflow.stepIndex]?.id
-  let reason = route.restriction ?? null
+  let reason = route.restriction
+    ? guided
+      ? route.restriction
+      : 'Use the spatula and weighing boat to transfer solid salt.'
+    : null
   if (
+    guided &&
     !reason &&
     (!workflow.safetyAcknowledged || !workflow.eventEvidence?.['prepare:SAFETY_ACKNOWLEDGED::'])
   )
     reason = 'Acknowledge laboratory safety before transferring materials.'
-  if (!reason && !workflow.eventEvidence?.['place-beaker:EQUIPMENT_PLACEMENT_VALIDATED:beaker:'])
+  if (
+    guided &&
+    !reason &&
+    !workflow.eventEvidence?.['place-beaker:EQUIPMENT_PLACEMENT_VALIDATED:beaker:']
+  )
     reason = 'Validate the beaker placement before transferring materials.'
-  if (!reason && workflow.completed)
+  if (guided && !reason && workflow.completed)
     reason = 'The experiment is complete; restart before transferring materials.'
-  if (!reason && !transferStateIsValid(chemistry, workflow))
+  if (!reason && !transferStateIsValid(chemistry, workflow, guided))
     reason = 'Scientific quantities or the workflow checkpoint are invalid or stale.'
   if (!reason && ![route.sourceId, route.targetId].every((id) => placedIds.includes(id)))
     reason = 'Place both selected items on the workbench first.'
@@ -240,18 +252,20 @@ function resolveRoute(
       !reason &&
       (chemistry.saltInBeakerG > 0 ||
         chemistry.dissolvedSaltG > 0 ||
-        !['measure-water', 'transfer-water'].includes(stepId ?? ''))
+        (guided && !['measure-water', 'transfer-water'].includes(stepId ?? '')))
     )
       reason =
         'Water transfers are limited to the pure-water measurement stage; solution transfers would require unsupported solute partitioning.'
     if (
       !reason &&
+      guided &&
       stepId === 'measure-water' &&
       !(route.sourceId === 'water' && route.targetId === 'graduated-cylinder')
     )
       reason = 'Measure water from the water container into the graduated cylinder first.'
     if (
       !reason &&
+      guided &&
       stepId === 'transfer-water' &&
       !(
         ['graduated-cylinder', 'beaker'].includes(route.sourceId) &&
@@ -262,23 +276,25 @@ function resolveRoute(
         'Transfer only the measured pure water between the cylinder and beaker at this stage.'
     if (
       !reason &&
+      guided &&
       stepId === 'transfer-water' &&
       workflow.measurements.waterMl !== definition.measurementRequirements.waterMl.exact
     )
       reason = 'Record the required 100 mL cylinder measurement first.'
   } else {
     const adding = route.sourceId === 'weighing-boat' && route.targetId === 'beaker'
-    if (!reason && stepId !== (adding ? 'add-salt' : 'measure-salt'))
+    if (guided && !reason && stepId !== (adding ? 'add-salt' : 'measure-salt'))
       reason = adding
         ? 'Weigh the required 5 g on the balance before adding salt.'
         : 'Scoop and deposit salt during the salt measurement step.'
     const required = adding
       ? ['weighing-boat', 'beaker', 'digital-balance']
       : ['sodium-chloride', 'spatula', 'weighing-boat', 'digital-balance']
-    if (!reason && !required.every((id) => placedIds.includes(id)))
+    if (guided && !reason && !required.every((id) => placedIds.includes(id)))
       reason = 'Place the salt jar, spatula, weighing boat and required balance on the bench.'
     if (
       !reason &&
+      guided &&
       adding &&
       (workflow.measurements.saltG !== definition.measurementRequirements.saltG.exact ||
         !workflow.eventEvidence?.[
@@ -288,12 +304,13 @@ function resolveRoute(
       reason = 'Physically weigh and record the required 5 g boat load on the balance first.'
     if (
       !reason &&
+      guided &&
       adding &&
       (chemistry.waterMl.beaker !== definition.measurementRequirements.waterMl.exact ||
         chemistry.waterMl['graduated-cylinder'] !== 0)
     )
       reason = 'The beaker must contain the previously measured 100 mL water.'
-    if (route.method === 'scoop') {
+    if (guided && route.method === 'scoop') {
       const remaining =
         units(definition.measurementRequirements.saltG.exact) -
         units(chemistry.saltOnSpatulaG) -
@@ -327,6 +344,7 @@ export function resolvePairInteractions(
   chemistry: SaltExperimentState,
   workflow: WorkflowState,
   placedIds: readonly string[],
+  guided = true,
 ): readonly ResolvedTransfer[] {
   if (
     !isValidSaltExperimentState(chemistry) ||
@@ -347,7 +365,7 @@ export function resolvePairInteractions(
       )
         routes.push({ sourceId, targetId, materialId: 'water', method: 'pour' })
     }
-  return routes.map((route) => resolveRoute(route, chemistry, workflow, placedIds))
+  return routes.map((route) => resolveRoute(route, chemistry, workflow, placedIds, guided))
 }
 
 export type TransferValidation =
@@ -358,6 +376,7 @@ export function validateTransferRequest(
   chemistry: SaltExperimentState,
   workflow: WorkflowState,
   placedIds: readonly string[],
+  guided = true,
 ): TransferValidation {
   const no = (message: string): TransferValidation => ({ ok: false, message })
   if (
@@ -384,6 +403,7 @@ export function validateTransferRequest(
     chemistry,
     workflow,
     placedIds,
+    guided,
   ).find(
     (item) =>
       item.sourceId === request.sourceId &&
@@ -489,7 +509,7 @@ export function createTransferOperation(
     returnMs: 600,
     cancelled: false,
     beforeChemistry: { ...chemistry, waterMl: { ...chemistry.waterMl } },
-    stepId: definition.steps[workflow.stepIndex].id,
+    stepId: definition.steps[workflow.stepIndex]?.id ?? 'review',
     sessionRevision,
   }
 }

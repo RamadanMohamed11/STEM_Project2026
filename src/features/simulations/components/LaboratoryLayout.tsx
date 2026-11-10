@@ -29,6 +29,7 @@ import { useLabSafetyStore } from '../state/useLabSafetyStore'
 import {
   GogglesToggle,
   GuidedMistakeRecorder,
+  GuidedWorkflowNotice,
   LabModeToggle,
   SafetyAlertToast,
 } from './LabSafetyPanels'
@@ -78,6 +79,7 @@ export function LaboratoryLayout({
   const livePour = useSaltSimulationStore((state) => state.livePour)
   const transferActive = useSaltSimulationStore((state) => state.transfer !== null)
   const validation = useSaltSimulationStore((state) => state.validation)
+  const guidedResumeIssue = useSaltSimulationStore((state) => state.guidedResumeIssue)
   const latestSemanticEvent = useSaltSimulationStore(
     (state) => state.events[state.events.length - 1]?.type ?? null,
   )
@@ -387,6 +389,8 @@ export function LaboratoryLayout({
         </div>
       </header>
 
+      <GuidedWorkflowNotice onReset={onRestart} />
+
       <div className="relative min-h-0 flex-1">
         <MaterialTransferController />
         <BenchLiquidsController />
@@ -523,7 +527,7 @@ export function LaboratoryLayout({
           )}
         </div>
 
-        {guided && (
+        {guided && !guidedResumeIssue && (
           <ContextualInstruction
             key={resetRevision}
             inventoryOpen={inventoryOpen}

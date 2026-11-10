@@ -1,6 +1,10 @@
 import { create } from 'zustand'
 import { saltExperimentDefinition } from '../data/saltExperimentDefinition.ts'
-import { executeSaltCommand, initialSaltExperimentState } from '../engine/saltExperiment.ts'
+import {
+  CAPACITIES_ML,
+  executeSaltCommand,
+  initialSaltExperimentState,
+} from '../engine/saltExperiment.ts'
 import { initialWorkflowState, transitionWorkflow } from '../engine/workflow.ts'
 import {
   applySimulationEvent,
@@ -13,6 +17,7 @@ import {
   cancelTransferOperation,
   createTransferOperation,
   validateTransferRequest,
+  sameTransferChemistry,
   type TransferOperation,
   type TransferRequest,
 } from '../engine/materialTransfers.ts'
@@ -25,6 +30,7 @@ export type { TransferOperation, TransferRequest } from '../engine/materialTrans
 import type { WorkflowValidation, WorkflowAction, WorkflowState } from '../engine/workflowTypes.ts'
 import type { SaltExperimentState, SimulationCommand, SimulationEffect } from '../engine/types.ts'
 import { useLabSceneStore } from './useLabSceneStore.ts'
+import { useLabSafetyStore } from './useLabSafetyStore.ts'
 
 export type ManualWorkflowAction = Exclude<WorkflowAction, { kind: 'command' }>
 
@@ -38,6 +44,10 @@ interface SaltSimulationStore {
   validation: WorkflowValidation | null
   effect: SimulationEffect | null
   transfer: TransferOperation | null
+  /** A transfer that touched Free mode can never produce guided receipts. */
+  transferGuided: boolean
+  guidedResumeIssue: string | null
+  pausedEquipmentIds: readonly string[] | null
   beginTransfer: (request: TransferRequest) => { ok: boolean; message: string }
   /** Optional identity guards queued ticks; captured action references are also operation-bound. */
   advanceTransfer: (deltaMs: number, operationId?: string) => void
@@ -71,6 +81,9 @@ const initialSession = () => ({
   validation: null,
   effect: null,
   transfer: null,
+  transferGuided: false,
+  guidedResumeIssue: null,
+  pausedEquipmentIds: null,
   advanceTransfer: (() => {}) as SaltSimulationStore['advanceTransfer'],
   cancelTransfer: (() => {}) as SaltSimulationStore['cancelTransfer'],
   livePour: null,
@@ -116,12 +129,14 @@ function tickTransfer(deltaMs: number, operationId: string): void {
   )
     return
   const next = advanceTransferOperation(previous, deltaMs)
+  const guided = current.transferGuided && useLabSafetyStore.getState().mode === 'guided'
   const advanced = advanceMaterialTransferWorkflow(
     current.workflow,
     current.experiment,
     previous,
     next,
     useLabSceneStore.getState().placedIds,
+    guided,
   )
   if (!advanced) {
     useSaltSimulationStore.setState({
@@ -139,6 +154,19 @@ function tickTransfer(deltaMs: number, operationId: string): void {
       transfer: next,
       experiment: advanced.chemistry,
       workflow: advanced.workflow,
+    })
+    return
+  }
+  if (!guided) {
+    // Physical quantities still commit, but no Free-mode action creates workflow evidence.
+    useSaltSimulationStore.setState({
+      transfer: null,
+      transferGuided: false,
+      experiment: advanced.chemistry,
+      feedback: {
+        ok: true,
+        message: 'Transfer ended; guided steps remain paused at their saved position.',
+      },
     })
     return
   }
@@ -162,6 +190,7 @@ function tickTransfer(deltaMs: number, operationId: string): void {
   )
   useSaltSimulationStore.setState({
     transfer: null,
+    transferGuided: false,
     experiment: advanced.chemistry,
     workflow: finished.state,
     events: finished.validation.valid ? [...current.events, receipt] : current.events,
@@ -191,10 +220,12 @@ export const useSaltSimulationStore = create<SaltSimulationStore>((set, get) => 
   resetRevision: 0,
   beginTransfer: (request) => {
     const current = get()
+    const guided = useLabSafetyStore.getState().mode === 'guided'
     const fail = (message: string) => {
       set({ feedback: { ok: false, message } })
       return { ok: false, message }
     }
+    if (guided && current.guidedResumeIssue) return fail(current.guidedResumeIssue)
     const busy = busyFeedback(current)
     if (busy) return fail(busy.message)
     if (request && acceptedTransferRequests.has(request.requestId))
@@ -206,6 +237,7 @@ export const useSaltSimulationStore = create<SaltSimulationStore>((set, get) => 
       current.experiment,
       current.workflow,
       useLabSceneStore.getState().placedIds,
+      guided,
     )
     if (!validated.ok) return fail(validated.message)
     const transfer = createTransferOperation(
@@ -219,8 +251,9 @@ export const useSaltSimulationStore = create<SaltSimulationStore>((set, get) => 
     acceptedTransferRequests.add(request.requestId)
     set({
       transfer,
+      transferGuided: guided,
       feedback: { ok: true, message: 'Transfer started; equipment is locked until safe return.' },
-      validation: null,
+      ...(guided ? { validation: null } : {}),
       advanceTransfer: (deltaMs, expectedId) => {
         if (expectedId !== undefined && expectedId !== transfer.operationId) return
         tickTransfer(deltaMs, transfer.operationId)
@@ -247,13 +280,16 @@ export const useSaltSimulationStore = create<SaltSimulationStore>((set, get) => 
 
   streamTick: (source, target, angle, deltaMs) => {
     const current = get()
+    const guided = useLabSafetyStore.getState().mode === 'guided'
+    if (guided && current.guidedResumeIssue) return false
     const scene = useLabSceneStore.getState()
     const stage = saltExperimentDefinition.steps[current.workflow.stepIndex]
     const rule = stage?.commands?.find((command) => command.kind === 'pour')
-    const expected = rule?.kind === 'pour' && rule.source === source && rule.target === target
+    const expected =
+      !guided || (rule?.kind === 'pour' && rule.source === source && rule.target === target)
     if (
       !expected ||
-      current.workflow.completed ||
+      (guided && current.workflow.completed) ||
       current.transfer ||
       current.effect ||
       !Number.isFinite(deltaMs) ||
@@ -280,7 +316,8 @@ export const useSaltSimulationStore = create<SaltSimulationStore>((set, get) => 
       (samePair ? current.streamRemainderMl : 0) + (45 * speedFactor * elapsed) / 1000
     const wholeMl = Math.floor(accumulated)
     const remainingTarget =
-      rule.kind === 'pour' ? rule.amountMl - current.experiment.waterMl[target] : 0
+      (guided && rule?.kind === 'pour' ? rule.amountMl : CAPACITIES_ML[target]) -
+      current.experiment.waterMl[target]
     const sourceAvailable = current.experiment.waterMl[source]
     const amount = Math.max(0, Math.min(wholeMl, remainingTarget, sourceAvailable))
     const livePour = { sourceId: source, targetId: target, angle }
@@ -301,6 +338,15 @@ export const useSaltSimulationStore = create<SaltSimulationStore>((set, get) => 
     if (!result.ok) {
       set({ livePour: null, streamRemainderMl: 0 })
       return false
+    }
+    if (!guided) {
+      set({
+        experiment: result.state,
+        livePour: amount >= remainingTarget ? null : livePour,
+        streamRemainderMl: amount >= remainingTarget ? 0 : accumulated - amount,
+        feedback: null,
+      })
+      return true
     }
     const validated = transitionWorkflow(
       saltExperimentDefinition,
@@ -344,10 +390,18 @@ export const useSaltSimulationStore = create<SaltSimulationStore>((set, get) => 
     ),
   execute: (command) => {
     const current = get()
+    const guided = useLabSafetyStore.getState().mode === 'guided'
+    if (guided && current.guidedResumeIssue) {
+      set({ feedback: { ok: false, message: current.guidedResumeIssue } })
+      return false
+    }
     const timedStir = command?.kind === 'stir' && command.elapsedMs !== undefined
     const busy = busyFeedback(current, timedStir ? 'stirring-rod' : undefined)
     if (busy) {
-      set({ validation: busy, feedback: { ok: false, message: busy.message } })
+      set({
+        ...(guided ? { validation: busy } : {}),
+        feedback: { ok: false, message: busy.message },
+      })
       return false
     }
     const placedIds = useLabSceneStore.getState().placedIds
@@ -360,8 +414,19 @@ export const useSaltSimulationStore = create<SaltSimulationStore>((set, get) => 
         stepId: saltExperimentDefinition.steps[current.workflow.stepIndex]?.id ?? 'review',
         message: result.message,
       }
-      set({ validation, feedback: { ok: false, message: result.message } })
+      set({ ...(guided ? { validation } : {}), feedback: { ok: false, message: result.message } })
       return false
+    }
+    if (!guided) {
+      set({
+        experiment: result.state,
+        feedback: { ok: true, message: result.message },
+        effect:
+          result.effect && !timedStir
+            ? { ...result.effect, id: ++nextEffectId, startedAt: performance.now() }
+            : null,
+      })
+      return true
     }
     const workflowResult = transitionWorkflow(
       saltExperimentDefinition,
@@ -430,6 +495,7 @@ export const useSaltSimulationStore = create<SaltSimulationStore>((set, get) => 
   },
   emit: (event) => {
     const current = get()
+    if (useLabSafetyStore.getState().mode === 'free' || current.guidedResumeIssue) return false
     if (current.transfer) {
       const busy = busyFeedback(current)!
       set({ validation: busy, feedback: { ok: false, message: busy.message } })
@@ -494,6 +560,7 @@ export const useSaltSimulationStore = create<SaltSimulationStore>((set, get) => 
   },
   dispatch: (action) => {
     const current = get()
+    if (useLabSafetyStore.getState().mode === 'free' || current.guidedResumeIssue) return false
     if (action.kind === 'record-salt-measurement' && !boatOnBalance()) {
       const stepId = saltExperimentDefinition.steps[current.workflow.stepIndex]?.id ?? 'review'
       const warning = {
@@ -534,3 +601,53 @@ export const useSaltSimulationStore = create<SaltSimulationStore>((set, get) => 
     useLabSceneStore.setState({ relationships: {} })
   },
 }))
+
+// A mode change is a pause boundary, not a workflow action. Preserve the exact
+// checkpoint, measurements and evidence; never catch up from Free-mode chemistry.
+const unsubscribeMode = useLabSafetyStore.subscribe((safety, previous) => {
+  if (safety.mode === previous.mode) return
+  const state = useSaltSimulationStore.getState()
+  const placed = useLabSceneStore.getState().placedIds
+  const step = saltExperimentDefinition.steps[state.workflow.stepIndex]
+  // Flow can reach the cumulative goal before safe return emits its receipt.
+  // Cancelling at that point must not leave a full receiver with no way to
+  // perform the saved step again, nor credit an unseen completion on resume.
+  const interruptedResult =
+    safety.mode === 'free' &&
+    state.transferGuided &&
+    state.transfer &&
+    step?.commands?.some((command) =>
+      command.kind === 'pour'
+        ? state.experiment.waterMl[command.target] === command.amountMl
+        : command.kind === 'add-substance' &&
+          state.experiment.saltInBeakerG ===
+            (command.massG === 'recorded-salt' ? state.workflow.measurements.saltG : command.massG),
+    )
+  const needed = new Set([
+    ...(step?.commands?.flatMap((command) => command.requiredPlacedIds) ?? []),
+    ...(step?.requirements.flatMap((rule) => (rule.kind === 'placed' ? rule.ids : [])) ?? []),
+  ])
+  const issue =
+    state.guidedResumeIssue ||
+    (!sameTransferChemistry(state.experiment, state.workflow.chemistryCheckpoint) ||
+    state.pausedEquipmentIds?.some((id) => !placed.includes(id))
+      ? 'The bench changed in Free mode. Reset the experiment to follow the saved guided steps safely.'
+      : null)
+  useSaltSimulationStore.setState({
+    pausedEquipmentIds: safety.mode === 'free' ? placed.filter((id) => needed.has(id)) : null,
+    guidedResumeIssue:
+      safety.mode === 'guided'
+        ? issue
+        : state.guidedResumeIssue ||
+          (interruptedResult
+            ? 'The transfer stopped before its guided result was recorded. Reset the experiment to follow the saved step.'
+            : null),
+    // Finish only the safe return. A queued tick/receipt cannot cross this boundary.
+    transfer: state.transfer ? cancelTransferOperation(state.transfer) : null,
+    transferGuided: false,
+    livePour: null,
+    streamRemainderMl: 0,
+    effect: null,
+  })
+})
+if (import.meta.hot) import.meta.hot.dispose(unsubscribeMode)

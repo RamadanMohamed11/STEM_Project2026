@@ -25,6 +25,7 @@ import {
 import type { SaltExperimentState } from '../engine/types'
 import { useLabSceneStore } from '../state/useLabSceneStore'
 import { useSaltSimulationStore } from '../state/useSaltSimulationStore'
+import { useLabSafetyStore } from '../state/useLabSafetyStore'
 
 type Unit = TransferRequest['unit']
 const unitScale: Record<Unit, number> = { mL: 1, L: 0.001, g: 1, mg: 1000 }
@@ -146,6 +147,7 @@ function TransferForm({ resolved, active }: { resolved: ResolvedTransfer; active
   const submitting = useRef(false)
   const chemistry = useSaltSimulationStore((state) => state.experiment)
   const workflow = useSaltSimulationStore((state) => state.workflow)
+  const guided = useLabSafetyStore((state) => state.mode === 'guided')
   const activeExperimentId = useSaltSimulationStore((state) => state.activeExperimentId)
   const resetRevision = useSaltSimulationStore((state) => state.resetRevision)
   const placedIds = useLabSceneStore((state) => state.placedIds)
@@ -157,7 +159,7 @@ function TransferForm({ resolved, active }: { resolved: ResolvedTransfer; active
     amount: amount.trim() === '' ? Number.NaN : Number(amount),
     unit,
   }
-  const validation = validateTransferRequest(request, chemistry, workflow, placedIds)
+  const validation = validateTransferRequest(request, chemistry, workflow, placedIds, guided)
   const invalidAmount = edited && !validation.ok && resolved.enabled && !active
   const error = !active ? (submitError ?? (invalidAmount ? validation.message : null)) : null
   const step = inUnit(10 ** -resolved.precision, unit)
@@ -182,6 +184,7 @@ function TransferForm({ resolved, active }: { resolved: ResolvedTransfer; active
         session.experiment,
         session.workflow,
         useLabSceneStore.getState().placedIds,
+        useLabSafetyStore.getState().mode === 'guided',
       )
       if (!currentValidation.ok) {
         setSubmitError(currentValidation.message)
@@ -298,9 +301,10 @@ function PairActions({
 }) {
   const chemistry = useSaltSimulationStore((state) => state.experiment)
   const workflow = useSaltSimulationStore((state) => state.workflow)
+  const guided = useLabSafetyStore((state) => state.mode === 'guided')
   const placedIds = useLabSceneStore((state) => state.placedIds)
   const [chosenId, setChosenId] = useState<string | null>(null)
-  const interactions = resolvePairInteractions(ids, chemistry, workflow, placedIds)
+  const interactions = resolvePairInteractions(ids, chemistry, workflow, placedIds, guided)
   const resolved =
     interactions.find((item) =>
       operation
