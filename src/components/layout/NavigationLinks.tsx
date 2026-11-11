@@ -4,12 +4,14 @@ import { getActiveNavigationId, navigationSections } from '@/app/navigation'
 
 interface NavigationLinksProps {
   variant: 'sidebar' | 'drawer'
+  isCollapsed?: boolean
   onNavigate?: () => void
 }
 
-export function NavigationLinks({ variant, onNavigate }: NavigationLinksProps) {
+export function NavigationLinks({ variant, isCollapsed = false, onNavigate }: NavigationLinksProps) {
   const { pathname } = useLocation()
   const activeId = getActiveNavigationId(pathname)
+  const isDesktopCollapsed = variant === 'sidebar' && isCollapsed
 
   return (
     <nav aria-label={variant === 'sidebar' ? 'Main navigation' : 'Mobile main navigation'}>
@@ -20,7 +22,9 @@ export function NavigationLinks({ variant, onNavigate }: NavigationLinksProps) {
         >
           {sectionIndex > 0 && (
             <p
-              className={`mb-2 px-4 text-[10px] font-bold uppercase tracking-[0.14em] text-white/50 ${variant === 'sidebar' ? 'max-xl:sr-only' : ''}`}
+              className={`mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-white/50 ${
+                isDesktopCollapsed ? 'sr-only' : 'block'
+              }`}
             >
               {section.label}
             </p>
@@ -28,18 +32,19 @@ export function NavigationLinks({ variant, onNavigate }: NavigationLinksProps) {
           <ul className="space-y-1.5">
             {section.items.map(({ id, label, to, icon: Icon }) => {
               const active = id === activeId
-              const desktop = variant === 'sidebar'
 
               return (
                 <li key={id}>
                   <Link
                     to={to}
                     onClick={onNavigate}
-                    title={desktop ? label : undefined}
-                    aria-label={desktop ? label : undefined}
+                    title={label}
+                    aria-label={label}
                     aria-current={active ? 'page' : undefined}
-                    className={`group relative flex min-h-12 items-center gap-3 rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-2 focus-visible:outline-teal-light focus-visible:outline-offset-2 active:scale-[0.98] ${
-                      desktop ? 'justify-center px-3 xl:justify-start xl:px-4' : 'px-4'
+                    className={`group relative flex min-h-12 items-center gap-3 rounded-xl text-sm font-medium transition-all duration-200 focus-visible:outline-2 focus-visible:outline-teal-light focus-visible:outline-offset-2 active:scale-[0.98] ${
+                      isDesktopCollapsed
+                        ? 'justify-center px-2'
+                        : 'justify-start px-3.5'
                     } ${
                       active
                         ? 'bg-white/14 font-semibold text-white shadow-sm'
@@ -58,7 +63,7 @@ export function NavigationLinks({ variant, onNavigate }: NavigationLinksProps) {
                       className="shrink-0 transition-transform duration-200 group-hover:scale-110 group-active:scale-95"
                       aria-hidden="true"
                     />
-                    <span className={desktop ? 'hidden xl:inline' : undefined}>{label}</span>
+                    <span className={isDesktopCollapsed ? 'sr-only' : 'truncate'}>{label}</span>
                   </Link>
                 </li>
               )
@@ -66,7 +71,7 @@ export function NavigationLinks({ variant, onNavigate }: NavigationLinksProps) {
           </ul>
         </div>
       ))}
-      <AuthAccountControl />
+      <AuthAccountControl isCollapsed={isDesktopCollapsed} />
     </nav>
   )
 }
