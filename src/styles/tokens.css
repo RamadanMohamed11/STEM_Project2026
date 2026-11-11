@@ -1,31 +1,31 @@
 @theme {
   --font-sans: 'Segoe UI', Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
 
-  --color-navy: #162635;
-  --color-ink: #203342;
-  --color-teal: #0e7772;
-  --color-teal-dark: #0d6f6a;
-  --color-teal-light: #76d5cb;
-  --color-teal-soft: #e4f4f1;
-  --color-canvas: #f4f6f7;
-  --color-slate: #546572;
-  --color-line: #e4e9ed;
-  --color-line-strong: #cdd7dd;
-  --color-surface-muted: #edf1f3;
+  --color-navy: #0d1b2a;
+  --color-ink: #0d1b2a;
+  --color-teal: #1b3a6b;
+  --color-teal-dark: #0d1b2a;
+  --color-teal-light: #a8c5e0;
+  --color-teal-soft: #e8f1fa;
+  --color-canvas: #e8f1fa;
+  --color-slate: #3d5a80;
+  --color-line: #cde1f2;
+  --color-line-strong: #6b8cae;
+  --color-surface-muted: #cde1f2;
   --color-warning: #dc8a38;
   --color-warning-soft: #fff2e3;
   --color-warning-dark: #995312;
   --color-success: #196f55;
   --color-danger: #b44848;
-  --color-info: #2a6886;
+  --color-info: #1b3a6b;
 
   --spacing: 0.25rem;
   --radius-sm: 0.375rem;
   --radius-md: 0.625rem;
   --radius-lg: 0.875rem;
   --radius-xl: 1.25rem;
-  --shadow-card: 0 4px 20px -8px rgba(22, 38, 53, 0.12);
-  --shadow-elevated: 0 16px 40px -20px rgba(22, 38, 53, 0.25);
+  --shadow-card: 0 4px 20px -8px rgba(13, 27, 42, 0.12);
+  --shadow-elevated: 0 16px 40px -20px rgba(13, 27, 42, 0.25);
 
   --breakpoint-sm: 40rem;
   --breakpoint-md: 48rem;

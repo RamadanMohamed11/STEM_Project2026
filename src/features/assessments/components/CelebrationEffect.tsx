@@ -7,13 +7,13 @@ export function CelebrationEffect({ active }: CelebrationEffectProps) {
 
   // 8 subtle particle shapes positioned around the card header
   const particles = [
-    { id: 1, cx: 20, cy: 30, r: 4, color: '#138b85', delay: '0ms' },
+    { id: 1, cx: 20, cy: 30, r: 4, color: '#1b3a6b', delay: '0ms' },
     { id: 2, cx: 45, cy: 15, r: 3, color: '#dc8a38', delay: '100ms' },
-    { id: 3, cx: 70, cy: 25, r: 4.5, color: '#76d5cb', delay: '150ms' },
-    { id: 4, cx: 90, cy: 10, r: 3.5, color: '#138b85', delay: '50ms' },
+    { id: 3, cx: 70, cy: 25, r: 4.5, color: '#a8c5e0', delay: '150ms' },
+    { id: 4, cx: 90, cy: 10, r: 3.5, color: '#1b3a6b', delay: '50ms' },
     { id: 5, cx: 115, cy: 22, r: 4, color: '#dc8a38', delay: '200ms' },
-    { id: 6, cx: 140, cy: 12, r: 3, color: '#138b85', delay: '120ms' },
-    { id: 7, cx: 165, cy: 28, r: 4.5, color: '#76d5cb', delay: '80ms' },
+    { id: 6, cx: 140, cy: 12, r: 3, color: '#1b3a6b', delay: '120ms' },
+    { id: 7, cx: 165, cy: 28, r: 4.5, color: '#a8c5e0', delay: '80ms' },
     { id: 8, cx: 185, cy: 18, r: 3.5, color: '#dc8a38', delay: '160ms' },
   ]
 
@@ -75,7 +75,7 @@ export function CelebrationEffect({ active }: CelebrationEffectProps) {
         />
         <path
           d="M145 22 L146.5 25.5 L150 26.5 L147.5 28.5 L148.5 32 L145 30.5 L141.5 32 L142.5 28.5 L140 26.5 L143.5 25.5 Z"
-          fill="#76d5cb"
+          fill="#a8c5e0"
           className="particle-item"
           style={{ animationDelay: '180ms', transformOrigin: '145px 26px' }}
         />

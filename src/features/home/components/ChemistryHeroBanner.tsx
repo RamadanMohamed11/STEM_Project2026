@@ -5,7 +5,7 @@ export function ChemistryHeroBanner() {
     <div
       role="img"
       aria-label="Interactive chemistry laboratory visualization showing glassware, solutions, and molecular structures"
-      className="relative flex h-full min-h-[320px] w-full flex-col justify-between overflow-hidden bg-gradient-to-br from-[#162635] via-[#122230] to-[#0d1822] p-5 text-white sm:min-h-[380px] sm:p-7 lg:min-h-[460px] lg:p-8"
+      className="relative flex h-full min-h-[320px] w-full flex-col justify-between overflow-hidden bg-gradient-to-br from-[#0d1b2a] via-[#10233b] to-[#08121d] p-5 text-white sm:min-h-[380px] sm:p-7 lg:min-h-[460px] lg:p-8"
     >
       {/* Ambient background glow orbs */}
       <div className="pointer-events-none absolute -left-20 -top-20 size-60 rounded-full bg-teal/15 blur-3xl animate-pulse-glow" aria-hidden="true" />
@@ -36,9 +36,9 @@ export function ChemistryHeroBanner() {
 
           {/* Liquid Gradient */}
           <linearGradient id="liquidGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#76d5cb" stopOpacity="0.85" />
-            <stop offset="35%" stopColor="#138b85" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#0d6f6a" stopOpacity="0.9" />
+            <stop offset="0%" stopColor="#a8c5e0" stopOpacity="0.85" />
+            <stop offset="35%" stopColor="#1b3a6b" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#0d1b2a" stopOpacity="0.9" />
           </linearGradient>
 
           {/* Amber Solute Gradient */}
@@ -56,8 +56,8 @@ export function ChemistryHeroBanner() {
 
           {/* Radial Glow */}
           <radialGradient id="glow" cx="50%" cy="55%" r="45%">
-            <stop offset="0%" stopColor="#138b85" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#138b85" stopOpacity="0" />
+            <stop offset="0%" stopColor="#1b3a6b" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#1b3a6b" stopOpacity="0" />
           </radialGradient>
         </defs>
 
@@ -67,12 +67,12 @@ export function ChemistryHeroBanner() {
 
         {/* Ambient floating chemical ions/sparkles in background */}
         <g opacity="0.6">
-          <circle cx="95" cy="85" r="2" fill="#76d5cb" className="animate-float-particle" style={{ animationDelay: '0s' }} />
+          <circle cx="95" cy="85" r="2" fill="#a8c5e0" className="animate-float-particle" style={{ animationDelay: '0s' }} />
           <circle cx="165" cy="120" r="1.5" fill="#fbbf24" className="animate-float-particle-slow" style={{ animationDelay: '1s' }} />
-          <circle cx="340" cy="90" r="2.5" fill="#76d5cb" className="animate-float-particle" style={{ animationDelay: '2s' }} />
+          <circle cx="340" cy="90" r="2.5" fill="#a8c5e0" className="animate-float-particle" style={{ animationDelay: '2s' }} />
           <circle cx="485" cy="105" r="1.8" fill="#fbbf24" className="animate-float-particle-slow" style={{ animationDelay: '1.5s' }} />
-          <circle cx="495" cy="230" r="2" fill="#76d5cb" className="animate-float-particle" style={{ animationDelay: '3s' }} />
-          <circle cx="50" cy="260" r="1.5" fill="#76d5cb" className="animate-float-particle-slow" style={{ animationDelay: '2.5s' }} />
+          <circle cx="495" cy="230" r="2" fill="#a8c5e0" className="animate-float-particle" style={{ animationDelay: '3s' }} />
+          <circle cx="50" cy="260" r="1.5" fill="#a8c5e0" className="animate-float-particle-slow" style={{ animationDelay: '2.5s' }} />
         </g>
 
         {/* Workbench Bench Line */}
@@ -84,7 +84,7 @@ export function ChemistryHeroBanner() {
           {/* Hexagon 1 */}
           <polygon
             points="420,80 445,95 445,125 420,140 395,125 395,95"
-            stroke="#76d5cb"
+            stroke="#a8c5e0"
             strokeWidth="1.5"
             strokeDasharray="4 2"
             fill="none"
@@ -93,28 +93,28 @@ export function ChemistryHeroBanner() {
           {/* Hexagon 2 connected */}
           <polygon
             points="445,125 470,140 470,170 445,185 420,170 420,140"
-            stroke="#76d5cb"
+            stroke="#a8c5e0"
             strokeWidth="1.5"
             fill="none"
             opacity="0.45"
           />
           {/* Atomic Nodes */}
-          <circle cx="420" cy="80" r="4.5" fill="#76d5cb" />
+          <circle cx="420" cy="80" r="4.5" fill="#a8c5e0" />
           <circle cx="445" cy="95" r="3.5" fill="#ffffff" opacity="0.8" />
-          <circle cx="445" cy="125" r="4.5" fill="#76d5cb" />
+          <circle cx="445" cy="125" r="4.5" fill="#a8c5e0" />
           <circle cx="420" cy="140" r="3.5" fill="#ffffff" opacity="0.8" />
-          <circle cx="395" cy="125" r="4.5" fill="#76d5cb" />
+          <circle cx="395" cy="125" r="4.5" fill="#a8c5e0" />
           <circle cx="395" cy="95" r="3.5" fill="#ffffff" opacity="0.8" />
-          <circle cx="470" cy="140" r="3.5" fill="#76d5cb" />
+          <circle cx="470" cy="140" r="3.5" fill="#a8c5e0" />
           <circle cx="470" cy="170" r="4.5" fill="#fbbf24" />
-          <circle cx="445" cy="185" r="3.5" fill="#76d5cb" />
+          <circle cx="445" cy="185" r="3.5" fill="#a8c5e0" />
           <circle cx="420" cy="170" r="4" fill="#ffffff" opacity="0.9" />
 
           {/* Chemical labels near molecule */}
           <text x="478" y="174" fill="#fbbf24" fontSize="10" fontFamily="monospace" fontWeight="600">
             Na⁺
           </text>
-          <text x="375" y="93" fill="#76d5cb" fontSize="10" fontFamily="monospace" fontWeight="600">
+          <text x="375" y="93" fill="#a8c5e0" fontSize="10" fontFamily="monospace" fontWeight="600">
             Cl⁻
           </text>
         </g>
@@ -124,14 +124,14 @@ export function ChemistryHeroBanner() {
           {/* Beaker Body */}
           <path
             d="M20 20 L20 140 Q20 152 32 152 L98 152 Q110 152 110 140 L110 20"
-            stroke="#e7f8f5"
+            stroke="#e8f1fa"
             strokeWidth="2.5"
             strokeLinecap="round"
             fill="none"
             opacity="0.85"
           />
           {/* Spout on Left */}
-          <path d="M14 20 L20 20" stroke="#e7f8f5" strokeWidth="2.5" strokeLinecap="round" />
+          <path d="M14 20 L20 20" stroke="#e8f1fa" strokeWidth="2.5" strokeLinecap="round" />
 
           {/* Beaker Liquid */}
           <path
@@ -141,7 +141,7 @@ export function ChemistryHeroBanner() {
           />
 
           {/* Liquid Meniscus Highlight */}
-          <path d="M22 75 Q65 71 108 75" stroke="#76d5cb" strokeWidth="2" fill="none" opacity="0.9" />
+          <path d="M22 75 Q65 71 108 75" stroke="#a8c5e0" strokeWidth="2" fill="none" opacity="0.9" />
 
           {/* Graduation markings on beaker */}
           <line x1="94" y1="50" x2="104" y2="50" stroke="#ffffff" strokeOpacity="0.6" strokeWidth="1.2" />
@@ -171,7 +171,7 @@ export function ChemistryHeroBanner() {
             y1="-25"
             x2="90"
             y2="148"
-            stroke="#76d5cb"
+            stroke="#a8c5e0"
             strokeOpacity="0.5"
             strokeWidth="1.5"
             strokeLinecap="round"
@@ -186,10 +186,10 @@ export function ChemistryHeroBanner() {
 
         {/* Reaction Vapor Sparkles rising from flask neck */}
         <g opacity="0.85">
-          <circle cx="268" cy="98" r="2" fill="#76d5cb" className="animate-bubble-rise" style={{ animationDelay: '0.2s', animationDuration: '3s' }} />
+          <circle cx="268" cy="98" r="2" fill="#a8c5e0" className="animate-bubble-rise" style={{ animationDelay: '0.2s', animationDuration: '3s' }} />
           <circle cx="274" cy="78" r="1.5" fill="#fbbf24" className="animate-bubble-rise" style={{ animationDelay: '1.2s', animationDuration: '2.6s' }} />
-          <circle cx="265" cy="58" r="2.2" fill="#76d5cb" className="animate-bubble-rise" style={{ animationDelay: '2.1s', animationDuration: '3.4s' }} />
-          <path d="M272 45 L273 48 L276 49 L273 50 L272 53 L271 50 L268 49 L271 48 Z" fill="#76d5cb" className="animate-sparkle-twinkle" style={{ transformOrigin: '272px 49px' }} />
+          <circle cx="265" cy="58" r="2.2" fill="#a8c5e0" className="animate-bubble-rise" style={{ animationDelay: '2.1s', animationDuration: '3.4s' }} />
+          <path d="M272 45 L273 48 L276 49 L273 50 L272 53 L271 50 L268 49 L271 48 Z" fill="#a8c5e0" className="animate-sparkle-twinkle" style={{ transformOrigin: '272px 49px' }} />
         </g>
 
         {/* 2. CENTER APPARATUS: Erlenmeyer Conical Flask */}
@@ -197,7 +197,7 @@ export function ChemistryHeroBanner() {
           {/* Flask Neck & Outer Shell */}
           <path
             d="M50 25 H80 M56 25 V75 L12 185 Q4 205 28 205 H102 Q126 205 118 185 L74 75 V25"
-            stroke="#e7f8f5"
+            stroke="#e8f1fa"
             strokeWidth="2.8"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -206,7 +206,7 @@ export function ChemistryHeroBanner() {
           />
 
           {/* Flask Rim Lip */}
-          <ellipse cx="65" cy="25" rx="15" ry="3.5" stroke="#e7f8f5" strokeWidth="2.5" fill="none" opacity="0.9" />
+          <ellipse cx="65" cy="25" rx="15" ry="3.5" stroke="#e8f1fa" strokeWidth="2.5" fill="none" opacity="0.9" />
 
           {/* Liquid Fill with Wave */}
           <path
@@ -216,7 +216,7 @@ export function ChemistryHeroBanner() {
           />
 
           {/* Liquid Surface Meniscus Line */}
-          <path d="M34 140 Q65 131 96 140" stroke="#76d5cb" strokeWidth="2.5" fill="none" opacity="0.95" />
+          <path d="M34 140 Q65 131 96 140" stroke="#a8c5e0" strokeWidth="2.5" fill="none" opacity="0.95" />
 
           {/* Glass Highlights / Reflection */}
           <path
@@ -247,9 +247,9 @@ export function ChemistryHeroBanner() {
             cx="50"
             cy="180"
             r="3.5"
-            stroke="#d0f5ef"
+            stroke="#cde1f2"
             strokeWidth="1"
-            fill="#76d5cb"
+            fill="#a8c5e0"
             fillOpacity="0.4"
             className="animate-bubble-rise"
             style={{ animationDelay: '0s', animationDuration: '3.2s' }}
@@ -258,9 +258,9 @@ export function ChemistryHeroBanner() {
             cx="68"
             cy="165"
             r="4"
-            stroke="#d0f5ef"
+            stroke="#cde1f2"
             strokeWidth="1.2"
-            fill="#76d5cb"
+            fill="#a8c5e0"
             fillOpacity="0.4"
             className="animate-bubble-rise"
             style={{ animationDelay: '0.8s', animationDuration: '2.8s' }}
@@ -269,9 +269,9 @@ export function ChemistryHeroBanner() {
             cx="58"
             cy="150"
             r="2.5"
-            stroke="#d0f5ef"
+            stroke="#cde1f2"
             strokeWidth="1"
-            fill="#76d5cb"
+            fill="#a8c5e0"
             fillOpacity="0.5"
             className="animate-bubble-rise"
             style={{ animationDelay: '1.6s', animationDuration: '3.5s' }}
@@ -280,9 +280,9 @@ export function ChemistryHeroBanner() {
             cx="78"
             cy="178"
             r="2"
-            stroke="#d0f5ef"
+            stroke="#cde1f2"
             strokeWidth="0.8"
-            fill="#76d5cb"
+            fill="#a8c5e0"
             fillOpacity="0.4"
             className="animate-bubble-rise"
             style={{ animationDelay: '2.3s', animationDuration: '2.7s' }}
@@ -291,9 +291,9 @@ export function ChemistryHeroBanner() {
             cx="64"
             cy="130"
             r="2"
-            stroke="#d0f5ef"
+            stroke="#cde1f2"
             strokeWidth="0.8"
-            fill="#76d5cb"
+            fill="#a8c5e0"
             fillOpacity="0.4"
             className="animate-bubble-rise"
             style={{ animationDelay: '0.4s', animationDuration: '3.1s' }}
@@ -305,9 +305,9 @@ export function ChemistryHeroBanner() {
           {/* Heavy Base */}
           <path
             d="M8 180 L22 170 H48 L62 180 Z"
-            stroke="#e7f8f5"
+            stroke="#e8f1fa"
             strokeWidth="2.2"
-            fill="#122230"
+            fill="#10233b"
             fillOpacity="0.7"
             opacity="0.85"
           />
@@ -319,14 +319,14 @@ export function ChemistryHeroBanner() {
             width="22"
             height="150"
             rx="2"
-            stroke="#e7f8f5"
+            stroke="#e8f1fa"
             strokeWidth="2.2"
             fill="none"
             opacity="0.9"
           />
 
           {/* Spout Lip at top */}
-          <path d="M22 20 L24 20 M46 20 L50 18" stroke="#e7f8f5" strokeWidth="2.2" strokeLinecap="round" />
+          <path d="M22 20 L24 20 M46 20 L50 18" stroke="#e8f1fa" strokeWidth="2.2" strokeLinecap="round" />
 
           {/* Cylinder Liquid Column (e.g. 100 mL calibrated) */}
           <rect
@@ -364,17 +364,17 @@ export function ChemistryHeroBanner() {
             width="106"
             height="32"
             rx="8"
-            fill="#162635"
+            fill="#0d1b2a"
             fillOpacity="0.9"
-            stroke="#76d5cb"
+            stroke="#a8c5e0"
             strokeOpacity="0.45"
             strokeWidth="1.2"
           />
-          <circle cx="16" cy="16" r="4" fill="#138b85" className="animate-pulse" />
+          <circle cx="16" cy="16" r="4" fill="#1b3a6b" className="animate-pulse" />
           <text x="27" y="15" fill="#ffffff" fontSize="9" fontWeight="600">
             H₂O + NaCl
           </text>
-          <text x="27" y="24" fill="#76d5cb" fontSize="7.5" fontFamily="monospace">
+          <text x="27" y="24" fill="#a8c5e0" fontSize="7.5" fontFamily="monospace">
             Solute: 5.0 g
           </text>
         </g>

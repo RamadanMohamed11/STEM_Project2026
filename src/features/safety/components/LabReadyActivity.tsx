@@ -16,7 +16,7 @@ const DRAG_TYPE = 'text/plain'
 /** Original illustrated student; each equipped slot changes the drawing. */
 function StudentFigure({ slots }: { slots: ReadonlySet<GearSlot> }) {
   const has = (slot: GearSlot) => slots.has(slot)
-  const hand = has('gloves') ? '#3f86c9' : SKIN
+  const hand = has('gloves') ? '#3d5a80' : SKIN
   return (
     <svg viewBox="0 0 200 320" className="h-full w-full" aria-hidden="true">
       {/* Loose hair sits behind the head; tied hair becomes a bun. */}
@@ -30,27 +30,27 @@ function StudentFigure({ slots }: { slots: ReadonlySet<GearSlot> }) {
       )}
       <circle cx="100" cy="60" r="30" fill={SKIN} />
       <path d="M70 52 Q74 28 100 28 Q126 28 130 52 Q116 40 100 41 Q84 40 70 52 Z" fill="#3b2a20" />
-      <circle cx="89" cy="62" r="3" fill="#203342" />
-      <circle cx="111" cy="62" r="3" fill="#203342" />
+      <circle cx="89" cy="62" r="3" fill="#0d1b2a" />
+      <circle cx="111" cy="62" r="3" fill="#0d1b2a" />
       <path
         d="M92 76 Q100 82 108 76"
-        stroke="#203342"
+        stroke="#0d1b2a"
         strokeWidth="2.5"
         fill="none"
         strokeLinecap="round"
       />
       {has('goggles') && (
         <g>
-          <rect x="68" y="53" width="64" height="5" rx="2.5" fill="#203342" />
+          <rect x="68" y="53" width="64" height="5" rx="2.5" fill="#0d1b2a" />
           <rect
             x="76"
             y="51"
             width="22"
             height="18"
             rx="7"
-            fill="#76d5cb"
+            fill="#a8c5e0"
             fillOpacity="0.55"
-            stroke="#0d6f6a"
+            stroke="#1b3a6b"
             strokeWidth="3"
           />
           <rect
@@ -59,9 +59,9 @@ function StudentFigure({ slots }: { slots: ReadonlySet<GearSlot> }) {
             width="22"
             height="18"
             rx="7"
-            fill="#76d5cb"
+            fill="#a8c5e0"
             fillOpacity="0.55"
-            stroke="#0d6f6a"
+            stroke="#1b3a6b"
             strokeWidth="3"
           />
         </g>
@@ -74,8 +74,8 @@ function StudentFigure({ slots }: { slots: ReadonlySet<GearSlot> }) {
         width="18"
         height="86"
         rx="9"
-        fill={has('coat') ? '#ffffff' : '#7d9fc8'}
-        stroke={has('coat') ? '#cdd7dd' : 'none'}
+        fill={has('coat') ? '#ffffff' : '#6b8cae'}
+        stroke={has('coat') ? '#a8c5e0' : 'none'}
         strokeWidth="2"
       />
       <rect
@@ -84,29 +84,29 @@ function StudentFigure({ slots }: { slots: ReadonlySet<GearSlot> }) {
         width="18"
         height="86"
         rx="9"
-        fill={has('coat') ? '#ffffff' : '#7d9fc8'}
-        stroke={has('coat') ? '#cdd7dd' : 'none'}
+        fill={has('coat') ? '#ffffff' : '#6b8cae'}
+        stroke={has('coat') ? '#a8c5e0' : 'none'}
         strokeWidth="2"
       />
       <circle cx="57" cy="196" r="10" fill={hand} />
       <circle cx="143" cy="196" r="10" fill={hand} />
       {/* Legs and torso */}
-      <rect x="74" y="196" width="22" height="92" rx="6" fill="#162635" />
-      <rect x="104" y="196" width="22" height="92" rx="6" fill="#162635" />
-      <rect x="64" y="98" width="72" height="104" rx="14" fill="#7d9fc8" />
+      <rect x="74" y="196" width="22" height="92" rx="6" fill="#0d1b2a" />
+      <rect x="104" y="196" width="22" height="92" rx="6" fill="#0d1b2a" />
+      <rect x="64" y="98" width="72" height="104" rx="14" fill="#6b8cae" />
       {has('coat') && (
         <g>
           <path
             d="M62 100 Q62 96 70 96 L130 96 Q138 96 138 100 L140 236 L60 236 Z"
             fill="#ffffff"
-            stroke="#cdd7dd"
+            stroke="#a8c5e0"
             strokeWidth="2"
           />
-          <path d="M84 96 L100 132 L116 96" fill="none" stroke="#cdd7dd" strokeWidth="2.5" />
-          <line x1="100" y1="132" x2="100" y2="236" stroke="#cdd7dd" strokeWidth="2" />
-          <circle cx="106" cy="150" r="2.5" fill="#cdd7dd" />
-          <circle cx="106" cy="175" r="2.5" fill="#cdd7dd" />
-          <circle cx="106" cy="200" r="2.5" fill="#cdd7dd" />
+          <path d="M84 96 L100 132 L116 96" fill="none" stroke="#a8c5e0" strokeWidth="2.5" />
+          <line x1="100" y1="132" x2="100" y2="236" stroke="#a8c5e0" strokeWidth="2" />
+          <circle cx="106" cy="150" r="2.5" fill="#a8c5e0" />
+          <circle cx="106" cy="175" r="2.5" fill="#a8c5e0" />
+          <circle cx="106" cy="200" r="2.5" fill="#a8c5e0" />
           <rect
             x="70"
             y="160"
@@ -114,13 +114,13 @@ function StudentFigure({ slots }: { slots: ReadonlySet<GearSlot> }) {
             height="14"
             rx="2"
             fill="none"
-            stroke="#cdd7dd"
+            stroke="#a8c5e0"
             strokeWidth="2"
           />
         </g>
       )}
       {has('shoes') ? (
-        <g fill="#203342">
+        <g fill="#0d1b2a">
           <path d="M70 284 L98 284 L98 300 L62 300 Q62 288 70 284 Z" />
           <path d="M102 284 L130 284 Q138 288 138 300 L102 300 Z" />
         </g>

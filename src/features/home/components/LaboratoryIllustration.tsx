@@ -26,34 +26,34 @@ export function LaboratoryIllustration() {
         {/* Illustrative laboratory glassware; no sample readings are implied. */}
         <path
           d="M218 72H273M232 72V144L165 235Q154 252 175 252H316Q337 252 325 235L259 144V72"
-          stroke="#e7f8f5"
+          stroke="#e8f1fa"
           strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         <path
           d="M197 204C225 191 264 218 296 198L324 238Q330 247 315 247H176Q166 247 174 237Z"
-          fill="#138b85"
+          fill="#1b3a6b"
           fillOpacity=".68"
-          stroke="#76d5cb"
+          stroke="#a8c5e0"
           strokeOpacity=".7"
           strokeWidth="1.5"
         />
-        <path d="M229 99H263" stroke="#76d5cb" strokeOpacity=".7" strokeWidth="1.5" />
+        <path d="M229 99H263" stroke="#a8c5e0" strokeOpacity=".7" strokeWidth="1.5" />
         <path
           d="M283 174H313M283 184H305M283 194H310"
           stroke="#fff"
           strokeOpacity=".5"
           strokeWidth="1.4"
         />
-        <circle cx="229" cy="222" r="5" stroke="#d0f5ef" strokeOpacity=".8" />
-        <circle cx="256" cy="232" r="3.5" stroke="#d0f5ef" strokeOpacity=".8" />
-        <circle cx="271" cy="217" r="2.5" stroke="#d0f5ef" strokeOpacity=".8" />
+        <circle cx="229" cy="222" r="5" stroke="#cde1f2" strokeOpacity=".8" />
+        <circle cx="256" cy="232" r="3.5" stroke="#cde1f2" strokeOpacity=".8" />
+        <circle cx="271" cy="217" r="2.5" stroke="#cde1f2" strokeOpacity=".8" />
 
-        <path d="M173 183H104V153H73" stroke="#76d5cb" strokeOpacity=".65" strokeWidth="1.2" />
-        <circle cx="173" cy="183" r="3" fill="#76d5cb" />
-        <path d="M293 119H352V103H394" stroke="#76d5cb" strokeOpacity=".65" strokeWidth="1.2" />
-        <circle cx="293" cy="119" r="3" fill="#76d5cb" />
+        <path d="M173 183H104V153H73" stroke="#a8c5e0" strokeOpacity=".65" strokeWidth="1.2" />
+        <circle cx="173" cy="183" r="3" fill="#a8c5e0" />
+        <path d="M293 119H352V103H394" stroke="#a8c5e0" strokeOpacity=".65" strokeWidth="1.2" />
+        <circle cx="293" cy="119" r="3" fill="#a8c5e0" />
         <path d="M103 266H163M329 266H383" stroke="#fff" strokeOpacity=".25" />
         <path
           d="M100 262V270M163 262V270M329 262V270M386 262V270"
