@@ -108,7 +108,7 @@ function TemperatureTag({ id }: { id: string }) {
         className={`whitespace-nowrap rounded-md border px-1.5 py-0.5 text-[10px] font-semibold tabular-nums shadow ${
           hot
             ? 'border-orange-300/70 bg-[#5a2a10]/90 text-orange-50'
-            : 'border-white/25 bg-[#082a37]/85 text-white'
+            : 'border-white/25 bg-[#0d1b2a]/90 text-white'
         }`}
       >
         {temperature} °C{boiling ? ' · boiling' : heated ? ' · heating' : ''}

@@ -45,7 +45,7 @@ export function WeighingBoat({ selected, saltG = 0 }: WeighingBoatProps) {
     <group>
       <mesh geometry={dish} castShadow receiveShadow>
         <meshPhysicalMaterial
-          color={selected ? '#fbfcf2' : '#eceee3'}
+          color={selected ? '#a8c5e0' : '#e8f1fa'}
           roughness={0.48}
           metalness={0}
           clearcoat={0.2}
@@ -57,7 +57,7 @@ export function WeighingBoat({ selected, saltG = 0 }: WeighingBoatProps) {
         <group position={[0, 0.029, 0]} scale={portionScale}>
           <mesh castShadow receiveShadow position={[0, 0.004, 0]} scale={[0.1, 0.038, 0.07]}>
             <sphereGeometry args={[1, 32, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
-            <meshStandardMaterial color="#f4f4eb" roughness={0.94} />
+            <meshStandardMaterial color="#ffffff" roughness={0.94} />
           </mesh>
           <SaltCrystalCluster crystals={grains} count={Math.ceil(fraction * grains.length)} />
         </group>

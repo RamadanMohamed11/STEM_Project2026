@@ -15,7 +15,7 @@ export function StirringRod({ selected }: StirringRodProps) {
       <mesh position={[lean / 2, 0.5625, 0]} rotation={[0, 0, incline]}>
         <capsuleGeometry args={[0.024, length, 6, 24]} />
         <meshPhysicalMaterial
-          color="#e2ede5"
+          color="#e8f1fa"
           roughness={0.12}
           clearcoat={1}
           clearcoatRoughness={0.06}
@@ -24,7 +24,7 @@ export function StirringRod({ selected }: StirringRodProps) {
           onBeforeCompile={glassEdgeOpacity}
           depthWrite={false}
           envMapIntensity={0.9}
-          emissive={selected ? '#497c71' : '#000000'}
+          emissive={selected ? '#3d5a80' : '#000000'}
           emissiveIntensity={selected ? 0.06 : 0}
         />
       </mesh>
@@ -32,7 +32,7 @@ export function StirringRod({ selected }: StirringRodProps) {
       <mesh position={[0.143, 0.94, 0]} rotation={[0, 0, incline]}>
         <cylinderGeometry args={[0.0242, 0.0242, 0.043, 24, 1, true]} />
         <meshStandardMaterial
-          color="#b5c9be"
+          color="#a8c5e0"
           roughness={0.72}
           transparent
           opacity={0.44}

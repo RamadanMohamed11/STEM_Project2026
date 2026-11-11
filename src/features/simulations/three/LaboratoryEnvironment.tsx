@@ -4,16 +4,16 @@ import { LaboratoryWorkbench } from './LaboratoryWorkbench'
 const BOX = new BoxGeometry(1, 1, 1)
 const PLANE = new PlaneGeometry(1, 1)
 const ROOM = {
-  floor: new MeshStandardMaterial({ color: '#c7ccc4', roughness: 0.9, metalness: 0 }),
-  backWall: new MeshStandardMaterial({ color: '#e7e6dc', roughness: 0.94, metalness: 0 }),
-  sideWall: new MeshStandardMaterial({ color: '#d9ded3', roughness: 0.94, metalness: 0 }),
-  dado: new MeshStandardMaterial({ color: '#c1cbc0', roughness: 0.8, metalness: 0 }),
-  trim: new MeshStandardMaterial({ color: '#a6b5a7', roughness: 0.65, metalness: 0.08 }),
-  frame: new MeshStandardMaterial({ color: '#aab5a8', roughness: 0.4, metalness: 0.48 }),
-  board: new MeshStandardMaterial({ color: '#eef0e5', roughness: 0.64, metalness: 0 }),
-  safetyCard: new MeshStandardMaterial({ color: '#f6f9f7', roughness: 0.88, metalness: 0 }),
-  safetyAccent: new MeshBasicMaterial({ color: '#6aaba5' }),
-  safetyRule: new MeshBasicMaterial({ color: '#b4c7c8' }),
+  floor: new MeshStandardMaterial({ color: '#cde1f2', roughness: 0.9, metalness: 0 }),
+  backWall: new MeshStandardMaterial({ color: '#e8f1fa', roughness: 0.94, metalness: 0 }),
+  sideWall: new MeshStandardMaterial({ color: '#cde1f2', roughness: 0.94, metalness: 0 }),
+  dado: new MeshStandardMaterial({ color: '#a8c5e0', roughness: 0.8, metalness: 0 }),
+  trim: new MeshStandardMaterial({ color: '#6b8cae', roughness: 0.65, metalness: 0.08 }),
+  frame: new MeshStandardMaterial({ color: '#3d5a80', roughness: 0.4, metalness: 0.48 }),
+  board: new MeshStandardMaterial({ color: '#e8f1fa', roughness: 0.64, metalness: 0 }),
+  safetyCard: new MeshStandardMaterial({ color: '#ffffff', roughness: 0.88, metalness: 0 }),
+  safetyAccent: new MeshBasicMaterial({ color: '#1b3a6b' }),
+  safetyRule: new MeshBasicMaterial({ color: '#6b8cae' }),
 } as const
 
 // Room panels are environmental geometry, never targets for lab selection,
@@ -23,7 +23,7 @@ const ignoreRaycast = () => {}
 export function LaboratoryEnvironment() {
   return (
     <group dispose={null}>
-      <color attach="background" args={['#e6e9df']} />
+      <color attach="background" args={['#e8f1fa']} />
 
       {/* Matte floor grounds the frame and receives the table's soft shadows. */}
       <mesh

@@ -8,13 +8,13 @@ export function CelebrationEffect({ active }: CelebrationEffectProps) {
   // 8 subtle particle shapes positioned around the card header
   const particles = [
     { id: 1, cx: 20, cy: 30, r: 4, color: '#1b3a6b', delay: '0ms' },
-    { id: 2, cx: 45, cy: 15, r: 3, color: '#dc8a38', delay: '100ms' },
+    { id: 2, cx: 45, cy: 15, r: 3, color: '#6b8cae', delay: '100ms' },
     { id: 3, cx: 70, cy: 25, r: 4.5, color: '#a8c5e0', delay: '150ms' },
     { id: 4, cx: 90, cy: 10, r: 3.5, color: '#1b3a6b', delay: '50ms' },
-    { id: 5, cx: 115, cy: 22, r: 4, color: '#dc8a38', delay: '200ms' },
+    { id: 5, cx: 115, cy: 22, r: 4, color: '#3d5a80', delay: '200ms' },
     { id: 6, cx: 140, cy: 12, r: 3, color: '#1b3a6b', delay: '120ms' },
     { id: 7, cx: 165, cy: 28, r: 4.5, color: '#a8c5e0', delay: '80ms' },
-    { id: 8, cx: 185, cy: 18, r: 3.5, color: '#dc8a38', delay: '160ms' },
+    { id: 8, cx: 185, cy: 18, r: 3.5, color: '#cde1f2', delay: '160ms' },
   ]
 
   return (

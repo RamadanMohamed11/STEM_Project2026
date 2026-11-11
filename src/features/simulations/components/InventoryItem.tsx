@@ -32,7 +32,7 @@ export function InventoryItem({
             : 'border-transparent bg-white hover:border-line-strong hover:bg-surface-muted/70 hover:shadow-xs'
         }`}
       >
-        <span className="flex size-13 shrink-0 items-center justify-center rounded-md border border-line bg-[#eaf1f1] transition-transform duration-200 group-hover:scale-105">
+        <span className="flex size-13 shrink-0 items-center justify-center rounded-md border border-line bg-[#e8f1fa] transition-transform duration-200 group-hover:scale-105">
           <LaboratoryEquipmentPreview visual={item.visual} className="h-12 w-12" />
         </span>
         <span className="min-w-0 flex-1">

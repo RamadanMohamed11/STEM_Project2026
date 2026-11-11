@@ -22,7 +22,7 @@ const s = (
 const SUBSTANCES: readonly SubstanceDefinition[] = [
   // The engine blends colour by amount × opacity, so clear water gets a low weight; otherwise
   // 15 mL of water would swamp 0.4 g of an intensely coloured complex.
-  s('water', 'Water', 'H₂O', 'liquid', '#d5e9e9', { opacity: 0.02, densityGPerMl: 1 }),
+  s('water', 'Water', 'H₂O', 'liquid', '#cde1f2', { opacity: 0.02, densityGPerMl: 1 }),
   // colorChange — iron(III) thiocyanate
   s('fecl3', 'Iron(III) chloride', 'FeCl₃(aq)', 'aqueous', '#e8b450', { opacity: 0.35 }),
   s('kscn', 'Potassium thiocyanate', 'KSCN(aq)', 'aqueous', '#ffffff', { opacity: 0 }),

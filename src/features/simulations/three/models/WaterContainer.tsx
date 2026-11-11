@@ -53,7 +53,7 @@ export function WaterContainer({ selected, waterMl = 0, pouring = false }: Water
         <mesh key={y} position={[0, y, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <torusGeometry args={[0.21, 0.0025, 6, 56]} />
           <meshPhysicalMaterial
-            color="#d8e5df"
+            color="#cde1f2"
             transparent
             opacity={0.32}
             depthWrite={false}
@@ -67,8 +67,8 @@ export function WaterContainer({ selected, waterMl = 0, pouring = false }: Water
           width={0.3}
           height={0.18}
           radius={0.213}
-          color="#356b6d"
-          background="#f0f1e9"
+          color="#0d1b2a"
+          background="#ffffff"
         />
       </group>
       {/* Neck threads remain visible when the existing pour state removes the closure. */}
@@ -76,7 +76,7 @@ export function WaterContainer({ selected, waterMl = 0, pouring = false }: Water
         <mesh key={y} position={[0, y, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <torusGeometry args={[0.088, 0.003, 6, 40]} />
           <meshPhysicalMaterial
-            color="#e5ede5"
+            color="#cde1f2"
             transparent
             opacity={0.55}
             depthWrite={false}
@@ -89,19 +89,19 @@ export function WaterContainer({ selected, waterMl = 0, pouring = false }: Water
           <mesh castShadow receiveShadow position={[0, 0.922, 0]}>
             <cylinderGeometry args={[0.101, 0.104, 0.092, 48]} />
             <meshStandardMaterial
-              color={selected ? '#478a86' : '#527f7c'}
+              color={selected ? '#1b3a6b' : '#3d5a80'}
               roughness={0.44}
               metalness={0}
             />
           </mesh>
           <mesh position={[0, 0.969, 0]}>
             <cylinderGeometry args={[0.095, 0.1, 0.009, 48]} />
-            <meshStandardMaterial color="#739691" roughness={0.5} />
+            <meshStandardMaterial color="#6b8cae" roughness={0.5} />
           </mesh>
           {capGrooves.map(({ x, z, angle }) => (
             <mesh key={angle} position={[x, 0.919, z]} rotation={[0, angle, 0]}>
               <boxGeometry args={[0.0035, 0.064, 0.0025]} />
-              <meshStandardMaterial color="#86a49d" roughness={0.55} />
+              <meshStandardMaterial color="#6b8cae" roughness={0.55} />
             </mesh>
           ))}
         </group>

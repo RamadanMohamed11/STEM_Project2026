@@ -86,13 +86,13 @@ export function BenchToolbar() {
   }, [])
 
   const button =
-    'flex size-10 items-center justify-center rounded-lg text-white/85 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-35 focus-visible:outline-2 focus-visible:outline-[#55d6c4]'
+    'flex size-10 items-center justify-center rounded-lg text-white/85 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-35 focus-visible:outline-2 focus-visible:outline-[#a8c5e0]'
 
   return (
     <div
       role="toolbar"
       aria-label="Bench tools"
-      className="pointer-events-auto absolute bottom-2 left-1/2 z-20 flex -translate-x-1/2 items-center gap-0.5 rounded-xl border border-white/20 bg-[#071d29]/90 p-1 shadow-xl backdrop-blur-md sm:bottom-3"
+      className="pointer-events-auto absolute bottom-2 left-1/2 z-20 flex -translate-x-1/2 items-center gap-0.5 rounded-xl border border-white/20 bg-[#0d1b2a]/90 p-1 shadow-xl backdrop-blur-md sm:bottom-3"
     >
       <button
         type="button"
@@ -165,7 +165,7 @@ export function BenchToolbar() {
           Reset layout?
           <button
             type="button"
-            className="rounded-md bg-[#b4544c] px-2 py-1.5 font-semibold hover:bg-[#c8645b]"
+            className="rounded-md bg-[#b44848] px-2 py-1.5 font-semibold hover:bg-[#ef4444]"
             onClick={() => {
               useLabSceneStore.getState().resetBench()
               setConfirmReset(false)

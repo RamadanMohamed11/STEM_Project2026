@@ -380,7 +380,7 @@ export function useEquipmentManipulation(entry: EquipmentRegistryEntry) {
         preview.current.visible = !inside
         preview.current.position.set(requested.x, BENCH_TOP + 0.025, requested.z)
       }
-      previewMaterial.current?.color.set(check.valid ? '#159f8a' : '#cf5d55')
+      previewMaterial.current?.color.set(check.valid ? '#6b8cae' : '#b44848')
       if (!inside) {
         const safe = constrainDragMovement(
           entry.id,

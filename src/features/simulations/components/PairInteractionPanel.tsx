@@ -31,7 +31,7 @@ type Unit = TransferRequest['unit']
 const unitScale: Record<Unit, number> = { mL: 1, L: 0.001, g: 1, mg: 1000 }
 const unitPrecision: Record<Unit, number> = { mL: 1, L: 4, g: 3, mg: 0 }
 const controlClass =
-  'rounded-lg border border-white/20 bg-[#061b26] px-2.5 py-2 text-sm text-white outline-none focus-visible:border-[#69dec8] focus-visible:ring-2 focus-visible:ring-[#69dec8]/30 disabled:cursor-not-allowed disabled:opacity-50'
+  'rounded-lg border border-white/20 bg-[#0d1b2a] px-2.5 py-2 text-sm text-white outline-none focus-visible:border-[#a8c5e0] focus-visible:ring-2 focus-visible:ring-[#a8c5e0]/30 disabled:cursor-not-allowed disabled:opacity-50'
 
 function inUnit(value: number, unit: Unit): number {
   return Number((value * unitScale[unit]).toFixed(unitPrecision[unit]))
@@ -94,8 +94,8 @@ function TransferProgress({ operation }: { operation: TransferOperation }) {
         : 'Returning safely'
   const progress = (operation.transferred / operation.amount) * 100
   return (
-    <div className="rounded-lg border border-[#69dec8]/25 bg-[#69dec8]/10 p-2.5">
-      <div role="status" aria-live="polite" className="text-[11px] font-semibold text-[#a6f3df]">
+    <div className="rounded-lg border border-[#6b8cae]/30 bg-[#1b3a6b]/20 p-2.5">
+      <div role="status" aria-live="polite" className="text-[11px] font-semibold text-[#cde1f2]">
         {phase}
       </div>
       <div className="mt-1 flex items-baseline justify-between gap-2 text-xs tabular-nums">
@@ -113,7 +113,7 @@ function TransferProgress({ operation }: { operation: TransferOperation }) {
         aria-valuetext={`${operation.transferred} of ${operation.amount} ${operation.unit} delivered`}
         className="mt-2 h-1 overflow-hidden rounded-full bg-white/15"
       >
-        <div className="h-full rounded-full bg-[#69dec8]" style={{ width: `${progress}%` }} />
+        <div className="h-full rounded-full bg-[#6b8cae]" style={{ width: `${progress}%` }} />
       </div>
       <button
         type="button"
@@ -124,7 +124,7 @@ function TransferProgress({ operation }: { operation: TransferOperation }) {
           if (session.transfer?.operationId === operation.operationId)
             session.cancelTransfer(operation.operationId)
         }}
-        className="mt-2 min-h-9 w-full rounded-lg border border-white/20 text-xs font-semibold hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-[#69dec8] disabled:cursor-wait disabled:text-white/50"
+        className="mt-2 min-h-9 w-full rounded-lg border border-white/20 text-xs font-semibold hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-[#a8c5e0] disabled:cursor-wait disabled:text-white/50"
       >
         {operation.cancelled ? 'Waiting for safe return…' : 'Cancel transfer'}
       </button>
@@ -272,7 +272,7 @@ function TransferForm({ resolved, active }: { resolved: ResolvedTransfer; active
         <button
           type="submit"
           aria-label={`${resolved.method} ${resolved.materialId} from ${resolved.sourceLabel} to ${resolved.targetLabel}`}
-          className="flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#62dfca] px-3 py-2 text-xs font-bold text-[#062b30] hover:bg-[#a6f3df] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#69dec8] disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#1b3a6b] px-3 py-2 text-xs font-bold text-[#e8f1fa] hover:bg-[#3d5a80] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a8c5e0] disabled:cursor-not-allowed disabled:opacity-40"
         >
           <ArrowRight size={14} aria-hidden="true" />
           {resolved.method === 'scoop'
@@ -331,7 +331,7 @@ function PairActions({
                   aria-describedby={item.reason && !operation ? `${item.id}-reason` : undefined}
                   disabled={Boolean(operation) || !item.enabled}
                   onClick={() => setChosenId(item.id)}
-                  className={`flex min-h-10 w-full items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-[11px] leading-snug focus-visible:outline-2 focus-visible:outline-[#69dec8] disabled:cursor-not-allowed ${item.id === resolved.id ? 'border-[#69dec8]/60 bg-[#69dec8]/10 text-[#bcfff0]' : 'border-white/15 text-white/75 hover:bg-white/5'} ${!item.enabled && !operation ? 'opacity-60' : ''}`}
+                  className={`flex min-h-10 w-full items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-[11px] leading-snug focus-visible:outline-2 focus-visible:outline-[#a8c5e0] disabled:cursor-not-allowed ${item.id === resolved.id ? 'border-[#6b8cae]/60 bg-[#1b3a6b]/30 text-[#cde1f2]' : 'border-white/15 text-white/75 hover:bg-white/5'} ${!item.enabled && !operation ? 'opacity-60' : ''}`}
                 >
                   <span className="min-w-0 flex-1">{item.sourceLabel}</span>
                   <ArrowRight size={14} className="shrink-0" aria-hidden="true" />
@@ -361,7 +361,7 @@ function PairActions({
             select a source and receiver.
           </p>
           {ids.includes('stirring-rod') && (
-            <p className="text-[11px] leading-relaxed text-[#a6e9df]">
+            <p className="text-[11px] leading-relaxed text-[#a8c5e0]">
               To stir, drag the rod inside the beaker and draw complete circles with the mouse.
             </p>
           )}
@@ -387,10 +387,10 @@ export function PairInteractionPanel({ inventoryOpen = false }: { inventoryOpen?
     <section
       aria-label="Object interaction"
       aria-busy={Boolean(operation)}
-      className="pointer-events-auto absolute bottom-14 left-3 right-3 z-20 max-h-[calc(100%-5rem)] overflow-y-auto overscroll-contain rounded-2xl border border-white/20 bg-[#071d29]/95 p-3 text-white shadow-2xl backdrop-blur-xl sm:bottom-16 sm:left-4 sm:right-auto sm:w-[300px]"
+      className="pointer-events-auto absolute bottom-14 left-3 right-3 z-20 max-h-[calc(100%-5rem)] overflow-y-auto overscroll-contain rounded-2xl border border-white/20 bg-[#0d1b2a]/95 p-3 text-white shadow-2xl backdrop-blur-xl sm:bottom-16 sm:left-4 sm:right-auto sm:w-[300px]"
     >
       <header className="mb-2.5 flex items-center justify-between gap-2">
-        <h2 className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#69dec8]">
+        <h2 className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#a8c5e0]">
           <ArrowRightLeft size={13} aria-hidden="true" />
           {ids.length === 1
             ? 'Selected object'
@@ -407,7 +407,7 @@ export function PairInteractionPanel({ inventoryOpen = false }: { inventoryOpen?
           onClick={() => {
             if (!useSaltSimulationStore.getState().transfer) clearSelection()
           }}
-          className="-mr-1 -mt-1 flex size-8 items-center justify-center rounded-lg text-white/60 hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-[#69dec8] disabled:cursor-not-allowed disabled:opacity-30"
+          className="-mr-1 -mt-1 flex size-8 items-center justify-center rounded-lg text-white/60 hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-[#a8c5e0] disabled:cursor-not-allowed disabled:opacity-30"
         >
           <X size={15} aria-hidden="true" />
         </button>

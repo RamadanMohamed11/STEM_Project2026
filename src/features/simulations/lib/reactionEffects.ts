@@ -63,14 +63,14 @@ export const EXPLOSION_S = 1.4
 const VISIBLE_EPSILON = 0.01
 
 export const DEFAULT_EFFECT_COLORS: Readonly<Record<EffectKind, string>> = {
-  colorChange: '#7aa7ff',
-  precipitate: '#f2f2ee',
-  gas: '#eef6f8',
+  colorChange: '#a8c5e0',
+  precipitate: '#ffffff',
+  gas: '#e8f1fa',
   flame: '#ff9a2e',
-  smoke: '#d9dcdf',
+  smoke: '#6b8cae',
   heat: '#ff6a2a',
   explosion: '#fff2b0',
-  dissolve: '#cfe7f2',
+  dissolve: '#cde1f2',
 }
 
 /** Which product state gives each effect its colour. */

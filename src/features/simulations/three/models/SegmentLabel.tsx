@@ -30,7 +30,7 @@ interface SegmentLabelProps {
 export function SegmentLabel({
   value,
   height = 0.044,
-  color = '#315d70',
+  color = '#0d1b2a',
   emissive = '#000000',
   glow = 0,
 }: SegmentLabelProps) {

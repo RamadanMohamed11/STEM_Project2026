@@ -82,7 +82,7 @@ export function ExperimentsPage({ curriculumData }: ExperimentsPageProps = {}) {
                 term: activeContext.term.id,
                 view: 'catalog',
               })}`}
-              className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-line bg-white px-3.5 text-xs font-semibold text-navy shadow-xs transition-colors hover:bg-slate-50 focus-visible:outline-teal"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-line bg-white px-3.5 text-xs font-semibold text-navy shadow-xs transition-colors hover:bg-canvas focus-visible:outline-teal"
             >
               <LayoutGrid size={14} aria-hidden="true" />
               <span>Catalog View</span>

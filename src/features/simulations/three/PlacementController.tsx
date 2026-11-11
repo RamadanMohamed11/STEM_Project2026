@@ -258,7 +258,7 @@ export function PlacementController() {
       >
         <div
           role="status"
-          className="w-60 rounded-lg border border-amber-400/70 bg-[#092631]/95 px-3 py-2 text-center text-xs text-amber-100 shadow-xl"
+          className="w-60 rounded-lg border border-amber-400/70 bg-[#0d1b2a]/95 px-3 py-2 text-center text-xs text-amber-100 shadow-xl"
         >
           {placement.message}
         </div>
@@ -271,7 +271,7 @@ export function PlacementController() {
       <mesh raycast={() => undefined} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 0]}>
         <ringGeometry args={[entry.footprintRadius + 0.035, entry.footprintRadius + 0.085, 64]} />
         <meshBasicMaterial
-          color={placement.valid ? '#12b8a6' : '#e25b4e'}
+          color={placement.valid ? '#196f55' : '#b44848'}
           transparent
           opacity={placement.valid ? 0.92 : 0.96}
           depthWrite={false}
@@ -280,7 +280,7 @@ export function PlacementController() {
       <mesh raycast={() => undefined} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.014, 0]}>
         <circleGeometry args={[entry.footprintRadius + 0.03, 64]} />
         <meshBasicMaterial
-          color={placement.valid ? '#12b8a6' : '#e25b4e'}
+          color={placement.valid ? '#196f55' : '#b44848'}
           transparent
           opacity={0.11}
           depthWrite={false}
@@ -306,8 +306,8 @@ export function PlacementController() {
           role="status"
           className={`w-48 rounded-lg border px-2.5 py-1.5 text-center text-[11px] leading-4 shadow-xl ${
             placement.valid
-              ? 'border-[#5ae0c8] bg-[#073b40]/95 text-[#c8fff3]'
-              : 'border-[#f5a276] bg-[#42231d]/95 text-[#ffe6dc]'
+              ? 'border-[#6b8cae] bg-[#0d1b2a]/95 text-[#cde1f2]'
+              : 'border-[#b44848] bg-[#0d1b2a]/95 text-amber-200'
           }`}
         >
           <strong className="block text-xs">{entry.label}</strong>

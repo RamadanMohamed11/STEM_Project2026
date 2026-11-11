@@ -176,12 +176,12 @@ export function LaboratoryLayout({
   return (
     <div
       ref={viewportRef}
-      className="relative flex h-dvh w-full flex-col overflow-hidden bg-[#071d29] text-white"
+      className="relative flex h-dvh w-full flex-col overflow-hidden bg-[#0d1b2a] text-white"
       aria-label="Immersive laboratory workspace"
       data-lab-workspace
     >
       <LaboratoryHazards experiment={experiment} workflow={workflow} />
-      <header className="relative z-[25] flex h-[60px] shrink-0 items-center justify-between gap-2 border-b border-white/10 bg-[#071d29] px-3 sm:z-30 sm:px-5">
+      <header className="relative z-[25] flex h-[60px] shrink-0 items-center justify-between gap-2 border-b border-white/10 bg-[#0d1b2a] px-3 sm:z-30 sm:px-5">
         <div className="flex min-w-0 items-center gap-2.5">
           <Link
             to={paths.details}
@@ -192,7 +192,7 @@ export function LaboratoryLayout({
             <ArrowLeft size={18} />
           </Link>
           <div className="min-w-0">
-            <p className="truncate text-[10px] font-bold uppercase tracking-[0.2em] text-[#55d6c4]">
+            <p className="truncate text-[10px] font-bold uppercase tracking-[0.2em] text-[#a8c5e0]">
               STEM Virtual Lab · Live simulation
             </p>
             <h1 className="truncate text-sm font-semibold sm:text-base">{experiment.title}</h1>
@@ -211,7 +211,7 @@ export function LaboratoryLayout({
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-white/15">
               <div
-                className="h-full rounded-full bg-[#31c7b3] transition-[width]"
+                className="h-full rounded-full bg-[#1b3a6b] transition-[width]"
                 style={{ width: progress + '%' }}
               />
             </div>
@@ -423,7 +423,7 @@ export function LaboratoryLayout({
           <button
             type="button"
             onClick={() => setInventoryOpen(true)}
-            className="absolute left-3 top-4 z-20 flex items-center gap-1.5 rounded-xl border border-white/25 bg-[#082a37]/90 px-3 py-2 text-xs font-semibold text-white shadow-lg sm:left-4"
+            className="absolute left-3 top-4 z-20 flex items-center gap-1.5 rounded-xl border border-white/25 bg-[#0d1b2a]/90 px-3 py-2 text-xs font-semibold text-white shadow-lg sm:left-4"
           >
             <ChevronRight size={15} /> Inventory
           </button>
@@ -433,7 +433,7 @@ export function LaboratoryLayout({
           className={`pointer-events-none absolute right-3 top-3 z-10 flex w-[min(185px,43vw)] flex-col gap-2 sm:right-4 sm:top-4 sm:w-[195px] ${helpOpen ? 'max-sm:hidden' : ''}`}
         >
           <div
-            className="pointer-events-auto rounded-xl border border-white/25 bg-[#071d29]/88 p-2.5 shadow-xl backdrop-blur-md"
+            className="pointer-events-auto rounded-xl border border-white/25 bg-[#0d1b2a]/90 p-2.5 shadow-xl backdrop-blur-md"
             aria-label="Live measurements"
           >
             <button
@@ -441,7 +441,7 @@ export function LaboratoryLayout({
               onClick={() => setMeasurementsExpanded((open) => !open)}
               aria-label={measurementsExpanded ? 'Collapse measurements' : 'Expand measurements'}
               aria-expanded={measurementsExpanded}
-              className="mb-2 flex w-full items-center justify-between gap-2 text-left text-[10px] font-bold uppercase tracking-[0.1em] text-[#68d5c4]"
+              className="mb-2 flex w-full items-center justify-between gap-2 text-left text-[10px] font-bold uppercase tracking-[0.1em] text-[#a8c5e0]"
             >
               <span>Live measurements</span>
               {measurementsExpanded ? (
@@ -504,7 +504,7 @@ export function LaboratoryLayout({
               </p>
             )}
             {measurementsExpanded && (
-              <p className="mt-1 text-[10px] font-medium text-[#8ddfcb]" aria-live="polite">
+              <p className="mt-1 text-[10px] font-medium text-[#cde1f2]" aria-live="polite">
                 {latestSemanticEvent
                   ? `Verified · ${semanticEventLabels[latestSemanticEvent]}`
                   : 'Awaiting verified physical action'}
@@ -514,7 +514,7 @@ export function LaboratoryLayout({
           {livePour && (
             <p
               role="status"
-              className="rounded-lg bg-[#073845]/90 px-3 py-2 text-[11px] font-semibold text-[#b2f3e4]"
+              className="rounded-lg bg-[#1b3a6b]/90 px-3 py-2 text-[11px] font-semibold text-[#cde1f2]"
             >
               Flowing: {livePour.sourceId} → {livePour.targetId} · straighten or move away to stop
             </p>
@@ -522,7 +522,7 @@ export function LaboratoryLayout({
           {effect && (
             <p
               role="status"
-              className="rounded-lg bg-[#073845]/90 px-3 py-2 text-[11px] font-semibold text-[#b2f3e4]"
+              className="rounded-lg bg-[#1b3a6b]/90 px-3 py-2 text-[11px] font-semibold text-[#cde1f2]"
             >
               Visualizing {effect.kind.replaceAll('-', ' ')}…
             </p>
@@ -548,15 +548,15 @@ export function LaboratoryLayout({
         {guideOpen && (
           <aside
             aria-label="Scientific instructions"
-            className="absolute inset-y-3 right-3 z-30 w-[min(350px,calc(100vw-24px))] overflow-y-auto overscroll-contain rounded-xl bg-white text-[#102b3a] shadow-2xl sm:inset-y-4 sm:right-4"
+            className="absolute inset-y-3 right-3 z-30 w-[min(350px,calc(100vw-24px))] overflow-y-auto overscroll-contain rounded-xl bg-white text-navy shadow-2xl sm:inset-y-4 sm:right-4"
           >
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#dce6e7] bg-white px-3 py-2">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-white px-3 py-2">
               <span className="text-xs font-bold">Detailed scientific guide</span>
               <button
                 type="button"
                 onClick={() => setGuideOpen(false)}
                 aria-label="Close guide"
-                className="rounded-md p-2 hover:bg-[#e8efef]"
+                className="rounded-md p-2 hover:bg-canvas"
               >
                 <X size={17} />
               </button>
@@ -578,16 +578,16 @@ export function LaboratoryLayout({
           id="lab-ai-tutor"
           aria-label="AI tutor"
           hidden={!tutorOpen}
-          className="absolute inset-y-3 right-3 z-30 w-[min(380px,calc(100vw-24px))] overflow-hidden rounded-xl bg-white text-[#102b3a] shadow-2xl sm:inset-y-4 sm:right-4"
+          className="absolute inset-y-3 right-3 z-30 w-[min(380px,calc(100vw-24px))] overflow-hidden rounded-xl bg-white text-navy shadow-2xl sm:inset-y-4 sm:right-4"
         >
           <div className="flex h-full min-h-0 flex-col">
-            <div className="flex items-center justify-between border-b border-[#dce6e7] bg-white px-3 py-2">
+            <div className="flex items-center justify-between border-b border-line bg-white px-3 py-2">
               <span className="text-xs font-bold">AI tutor</span>
               <button
                 type="button"
                 onClick={() => setTutorOpen(false)}
                 aria-label="Close AI tutor"
-                className="rounded-md p-2 hover:bg-[#e8efef]"
+                className="rounded-md p-2 hover:bg-canvas"
               >
                 <X size={17} />
               </button>
@@ -613,14 +613,14 @@ export function LaboratoryLayout({
           <div className="absolute left-3 top-16 z-40 w-[min(340px,calc(100vw-24px))] sm:left-4">
             <section
               aria-label="Laboratory controls help"
-              className="max-h-[min(76dvh,520px)] overflow-y-auto overscroll-contain rounded-xl border border-[#cee7e4] bg-white/97 p-3 text-[#102b3a] shadow-2xl backdrop-blur-md"
+              className="max-h-[min(76dvh,520px)] overflow-y-auto overscroll-contain rounded-xl border border-line bg-white/97 p-3 text-navy shadow-2xl backdrop-blur-md"
             >
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-bold">Selection & direct manipulation</h2>
                 <button
                   onClick={() => setHelpOpen(false)}
                   aria-label="Close help"
-                  className="rounded-md p-2 hover:bg-[#e9f3f2]"
+                  className="rounded-md p-2 hover:bg-canvas"
                 >
                   <X size={18} />
                 </button>
@@ -661,7 +661,7 @@ export function LaboratoryLayout({
                   delivered is retained. Reset camera and Restart experiment are in the toolbar.
                 </li>
               </ul>
-              <p className="mt-3 rounded-lg bg-[#e7f7f4] p-2 text-[11px] leading-relaxed">
+              <p className="mt-3 rounded-lg bg-canvas p-2 text-[11px] leading-relaxed">
                 The simulator conserves modelled quantities. The tared digital balance display is
                 derived from the actual virtual mass deposited in the boat; no calibrated hardware
                 or computational fluid dynamics are simulated.
@@ -675,8 +675,8 @@ export function LaboratoryLayout({
         )}
 
         {workflow.completed && (
-          <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#031521]/75 p-3 sm:p-6">
-            <div className="max-h-full w-full max-w-[870px] overflow-y-auto overscroll-contain rounded-2xl text-[#102b3a] shadow-2xl">
+          <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#0d1b2a]/80 p-3 sm:p-6">
+            <div className="max-h-full w-full max-w-[870px] overflow-y-auto overscroll-contain rounded-2xl text-navy shadow-2xl">
               <nav
                 aria-label="Completed experiment navigation"
                 className="flex flex-wrap gap-4 bg-white px-5 py-3 text-sm font-semibold text-teal-dark"
@@ -704,7 +704,7 @@ export function LaboratoryLayout({
           </div>
         )}
       </div>
-      <div className="pointer-events-none absolute bottom-2 right-3 z-10 hidden items-center gap-1.5 text-[10px] font-medium text-[#092733]/55 sm:flex">
+      <div className="pointer-events-none absolute bottom-2 right-3 z-10 hidden items-center gap-1.5 text-[10px] font-medium text-white/60 sm:flex">
         <FlaskConical size={12} /> Independent educational simulation · physical dissolution
       </div>
     </div>

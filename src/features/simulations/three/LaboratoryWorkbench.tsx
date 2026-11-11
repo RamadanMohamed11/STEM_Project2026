@@ -24,47 +24,47 @@ stipple.needsUpdate = true
 
 const MATERIALS = {
   worktop: new MeshStandardMaterial({
-    color: '#52665f',
+    color: '#3d5a80',
     roughness: 0.67,
     metalness: 0,
     bumpMap: stipple,
     bumpScale: 0.0003,
   }),
   edge: new MeshStandardMaterial({
-    color: '#acb7ad',
+    color: '#6b8cae',
     roughness: 0.38,
     metalness: 0.65,
   }),
   frame: new MeshStandardMaterial({
-    color: '#58665f',
+    color: '#1b3a6b',
     roughness: 0.56,
     metalness: 0.34,
   }),
   underframe: new MeshStandardMaterial({
-    color: '#7c8a7e',
+    color: '#3d5a80',
     roughness: 0.57,
     metalness: 0.22,
   }),
   feet: new MeshStandardMaterial({
-    color: '#343e38',
+    color: '#0d1b2a',
     roughness: 0.92,
     metalness: 0.02,
   }),
   zones: [
     new MeshBasicMaterial({
-      color: '#879da5',
+      color: '#6b8cae',
       transparent: true,
       opacity: 0.2,
       depthWrite: false,
     }),
     new MeshBasicMaterial({
-      color: '#5eaaa5',
+      color: '#3d5a80',
       transparent: true,
       opacity: 0.29,
       depthWrite: false,
     }),
     new MeshBasicMaterial({
-      color: '#bea37c',
+      color: '#a8c5e0',
       transparent: true,
       opacity: 0.29,
       depthWrite: false,

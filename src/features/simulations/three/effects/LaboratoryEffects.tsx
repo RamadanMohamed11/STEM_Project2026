@@ -134,7 +134,7 @@ function WaterJet({
     >
       <sphereGeometry args={[1, 8, 6]} />
       <meshPhysicalMaterial
-        color="#8cdfee"
+        color="#a8c5e0"
         transparent
         opacity={live ? 0.69 : 0.57}
         roughness={0.1}
@@ -227,7 +227,7 @@ export function SaltGranules(props: SaltGranulesProps) {
       raycast={() => undefined}
     >
       <boxGeometry args={[0.009, 0.009, 0.009]} />
-      <meshStandardMaterial color="#f5f7f5" roughness={0.83} metalness={0} />
+      <meshStandardMaterial color="#ffffff" roughness={0.83} metalness={0} />
     </instancedMesh>
   )
 }
@@ -252,7 +252,7 @@ export function StirRipples({ center, progress, radius = 0.2 }: StirRipplesProps
           <mesh key={index} rotation={[-Math.PI / 2, 0, 0]} scale={[scale, scale, 1]}>
             <torusGeometry args={[r, 0.003, 5, 32]} />
             <meshStandardMaterial
-              color="#b2edf4"
+              color="#a8c5e0"
               transparent
               opacity={(1 - phase) * 0.44}
               depthWrite={false}
@@ -313,7 +313,7 @@ export function DissolutionHaze({
     <instancedMesh ref={mesh} args={[undefined, undefined, HAZE_COUNT]} visible={p > 0 && p < 1}>
       <sphereGeometry args={[0.006, 6, 4]} />
       <meshPhysicalMaterial
-        color="#d6e8ee"
+        color="#cde1f2"
         transparent
         opacity={0.43 * Math.sin(Math.PI * p)}
         roughness={0.42}

@@ -63,12 +63,12 @@ function RecordButton({
           )
           setSaved(`Recorded ${formatReading(quantity, row.value)} at ${row.timeS.toFixed(1)} s.`)
         }}
-        className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#13a593] px-3 py-2 text-xs font-semibold text-white hover:bg-[#119384] disabled:opacity-40"
+        className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#1b3a6b] px-3 py-2 text-xs font-semibold text-[#e8f1fa] hover:bg-[#3d5a80] disabled:opacity-40"
       >
         <ClipboardPlus size={14} aria-hidden="true" /> Record measurement
       </button>
       {saved && (
-        <p role="status" className="text-[11px] text-[#9ff0e1]">
+        <p role="status" className="text-[11px] text-[#a8c5e0]">
           {saved}{' '}
           <button
             type="button"
@@ -97,7 +97,7 @@ export function BalancePanel({ id }: { id: string }) {
       <p
         role="status"
         aria-live="polite"
-        className="rounded-lg bg-[#c9e7d4] px-3 py-2 text-right font-mono text-lg tabular-nums text-[#203e31]"
+        className="rounded-lg bg-[#cde1f2] px-3 py-2 text-right font-mono text-lg tabular-nums text-[#0d1b2a]"
       >
         {reading.toFixed(2)} g
       </p>

@@ -32,15 +32,15 @@ export function GraduatedCylinder({ selected, waterMl = 0 }: GraduatedCylinderPr
     <group>
       <mesh castShadow receiveShadow position={[0, 0.027, 0]} rotation={[0, Math.PI / 4, 0]}>
         <cylinderGeometry args={[0.221, 0.23, 0.054, 6, 1]} />
-        <meshStandardMaterial color="#c4ceca" roughness={0.52} metalness={0} />
+        <meshStandardMaterial color="#6b8cae" roughness={0.52} metalness={0} />
       </mesh>
       <mesh receiveShadow position={[0, 0.059, 0]} rotation={[0, Math.PI / 4, 0]}>
         <cylinderGeometry args={[0.195, 0.209, 0.022, 6]} />
-        <meshStandardMaterial color="#e4e9e4" roughness={0.4} metalness={0} />
+        <meshStandardMaterial color="#cde1f2" roughness={0.4} metalness={0} />
       </mesh>
       <mesh castShadow receiveShadow position={[0, 0.121, 0]}>
         <cylinderGeometry args={[0.061, 0.075, 0.116, 40]} />
-        <meshPhysicalMaterial color="#e0e8e2" roughness={0.3} clearcoat={0.25} />
+        <meshPhysicalMaterial color="#cde1f2" roughness={0.3} clearcoat={0.25} />
       </mesh>
       <GlassVesselShell profile={tubeProfile} selected={selected} />
       <VesselContents
@@ -53,7 +53,7 @@ export function GraduatedCylinder({ selected, waterMl = 0 }: GraduatedCylinderPr
       <mesh position={[0, 1.123, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.113, 0.0045, 8, 56]} />
         <meshPhysicalMaterial
-          color="#deece7"
+          color="#e8f1fa"
           roughness={0.12}
           transparent
           opacity={0.65}

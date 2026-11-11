@@ -43,7 +43,7 @@ export function BeakerSaltContent({ undissolvedG }: { undissolvedG: number }) {
       visible={count > 0}
     >
       <boxGeometry args={[0.02, 0.02, 0.02]} />
-      <meshStandardMaterial color="#edf6f4" roughness={0.76} />
+      <meshStandardMaterial color="#ffffff" roughness={0.76} />
     </instancedMesh>
   )
 }

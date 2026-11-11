@@ -39,7 +39,7 @@ function VesselLine({ id, role }: { id: string; role: string }) {
   return (
     <div className="flex items-center justify-between gap-2">
       <dt className="truncate text-white/65">
-        <span className="text-[10px] uppercase tracking-wider text-[#69dec8]">{role}</span>{' '}
+        <span className="text-[10px] uppercase tracking-wider text-[#a8c5e0]">{role}</span>{' '}
         {labelOf(id)}
       </dt>
       <dd className="shrink-0 tabular-nums">
@@ -95,7 +95,7 @@ export function BenchPourPanel({ ids }: { ids: readonly string[] }) {
           type="button"
           disabled={disabled}
           onClick={() => liquids().addDrop(sourceId, targetId)}
-          className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#13a593] px-3 py-2 font-semibold text-white hover:bg-[#119384] disabled:opacity-40"
+          className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#1b3a6b] px-3 py-2 font-semibold text-[#e8f1fa] hover:bg-[#3d5a80] disabled:opacity-40"
         >
           <Droplet size={14} aria-hidden="true" /> Add 1 drop ({DROP_ML} mL)
         </button>
@@ -104,7 +104,7 @@ export function BenchPourPanel({ ids }: { ids: readonly string[] }) {
           type="button"
           disabled={disabled}
           onClick={() => liquids().fillDropper(sourceId, targetId)}
-          className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#13a593] px-3 py-2 font-semibold text-white hover:bg-[#119384] disabled:opacity-40"
+          className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#1b3a6b] px-3 py-2 font-semibold text-[#e8f1fa] hover:bg-[#3d5a80] disabled:opacity-40"
         >
           <Droplets size={14} aria-hidden="true" /> Fill dropper (up to 1 mL)
         </button>
@@ -134,7 +134,7 @@ export function BenchPourPanel({ ids }: { ids: readonly string[] }) {
                 liquids().setTilt(sourceId, targetId, Number(event.target.value) / DEG)
               }
               aria-valuetext={`${tiltDeg} degrees`}
-              className="w-full accent-[#13a593]"
+              className="w-full accent-[#1b3a6b]"
             />
             <p className="mt-0.5 text-[10px] text-white/50">
               Tip further to pour faster. A fuller vessel starts pouring sooner.
@@ -147,7 +147,7 @@ export function BenchPourPanel({ ids }: { ids: readonly string[] }) {
                 type="button"
                 disabled={disabled || !!thisPour}
                 onClick={() => liquids().pourAmount(sourceId, targetId, ml)}
-                className="rounded-lg bg-[#13a593] px-2.5 py-1.5 font-semibold text-white hover:bg-[#119384] disabled:opacity-40"
+                className="rounded-lg bg-[#1b3a6b] px-2.5 py-1.5 font-semibold text-[#e8f1fa] hover:bg-[#3d5a80] disabled:opacity-40"
               >
                 Pour {ml} mL
               </button>
@@ -170,7 +170,7 @@ export function BenchPourPanel({ ids }: { ids: readonly string[] }) {
               <button
                 type="submit"
                 disabled={disabled || !!thisPour}
-                className="rounded-lg border border-[#13a593] px-2 py-1.5 font-semibold text-[#9ff0e1] hover:bg-[#13a593]/20 disabled:opacity-40"
+                className="rounded-lg border border-[#3d5a80] px-2 py-1.5 font-semibold text-[#cde1f2] hover:bg-[#3d5a80]/30 disabled:opacity-40"
               >
                 mL
               </button>

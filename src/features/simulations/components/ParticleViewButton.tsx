@@ -17,7 +17,7 @@ export function ParticleViewButton({ id }: { id: string }) {
         if (open) view.close()
         else view.open(id)
       }}
-      className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#69dec8]/50 px-3 py-1.5 text-xs font-semibold text-[#bcfff0] hover:bg-[#69dec8]/10"
+      className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#6b8cae]/50 px-3 py-1.5 text-xs font-semibold text-[#cde1f2] hover:bg-[#6b8cae]/15"
     >
       <Atom size={13} aria-hidden="true" /> {open ? 'Hide particle view' : 'Particle view'}
     </button>

@@ -41,8 +41,8 @@ export function MeasurementChart({
         Record temperature or pH readings to see them plotted over time.
       </p>
     )
-  const ink = theme === 'dark' ? 'rgba(255,255,255,0.65)' : '#33475b'
-  const grid = theme === 'dark' ? 'rgba(255,255,255,0.12)' : '#dfe6ec'
+  const ink = theme === 'dark' ? 'rgba(255,255,255,0.65)' : '#3d5a80'
+  const grid = theme === 'dark' ? 'rgba(255,255,255,0.12)' : '#cde1f2'
   const charts = (['temperature', 'pH'] as const)
     .map((quantity) => ({ quantity, list: series.filter((s) => s.quantity === quantity) }))
     .filter((chart) => chart.list.length)
@@ -256,7 +256,7 @@ function Stopwatch() {
     'flex items-center gap-1 rounded-lg border border-white/20 px-2 py-1 text-[11px] hover:bg-white/10 disabled:opacity-40'
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      <Timer size={14} aria-hidden="true" className="text-[#69dec8]" />
+      <Timer size={14} aria-hidden="true" className="text-[#a8c5e0]" />
       <span className="min-w-[64px] font-mono text-sm tabular-nums" aria-label="Stopwatch">
         {formatStopwatch(seconds)}
       </span>
@@ -327,7 +327,7 @@ function AutoRecordControl() {
         value={chosen}
         disabled={!!auto}
         onChange={(event) => setTarget(event.target.value)}
-        className="rounded border border-white/20 bg-[#061b26] px-1 py-0.5"
+        className="rounded border border-white/20 bg-[#0d1b2a] px-1 py-0.5"
       >
         {ids.map((id) => (
           <option key={id} value={id}>
@@ -379,10 +379,10 @@ export function MeasurementLogPanel() {
   return (
     <section
       aria-label="Data log"
-      className="pointer-events-auto absolute right-3 top-16 z-20 flex max-h-[calc(100%-8rem)] w-[min(92vw,340px)] flex-col gap-2.5 overflow-y-auto rounded-2xl border border-white/20 bg-[#071d29]/95 p-3 text-white shadow-2xl backdrop-blur-xl"
+      className="pointer-events-auto absolute right-3 top-16 z-20 flex max-h-[calc(100%-8rem)] w-[min(92vw,340px)] flex-col gap-2.5 overflow-y-auto rounded-2xl border border-white/20 bg-[#0d1b2a]/95 p-3 text-white shadow-2xl backdrop-blur-xl"
     >
       <header className="flex items-center justify-between">
-        <h2 className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#69dec8]">
+        <h2 className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#a8c5e0]">
           <ClipboardList size={13} aria-hidden="true" /> Data log · {rows.length}
         </h2>
         <button

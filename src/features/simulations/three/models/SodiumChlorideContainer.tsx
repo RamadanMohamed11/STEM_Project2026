@@ -86,7 +86,7 @@ export function SodiumChlorideContainer({
         <group>
           <mesh position={[0, 0.065 + height / 2, 0]} scale={[1, height, 1]} receiveShadow>
             <cylinderGeometry args={[0.205, 0.205, 1, 56]} />
-            <meshStandardMaterial color="#eeeee5" roughness={0.94} />
+            <meshStandardMaterial color="#ffffff" roughness={0.94} />
           </mesh>
           <group position={[0, 0.065 + height, 0]} scale={[1, Math.min(1, height / 0.02), 1]}>
             <SaltCrystalCluster crystals={crystals} count={crystals.length} />
@@ -100,15 +100,15 @@ export function SodiumChlorideContainer({
           width={0.36}
           height={0.19}
           radius={0.237}
-          color="#476359"
-          background="#f1f0e6"
+          color="#0d1b2a"
+          background="#ffffff"
         />
       </group>
       {[0.717, 0.735].map((y) => (
         <mesh key={y} position={[0, y, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <torusGeometry args={[0.229, 0.003, 6, 48]} />
           <meshPhysicalMaterial
-            color="#d7e3da"
+            color="#cde1f2"
             transparent
             opacity={0.52}
             roughness={0.21}
@@ -119,16 +119,16 @@ export function SodiumChlorideContainer({
       <group ref={lid} position={[0, 0.778, 0]}>
         <mesh castShadow receiveShadow>
           <cylinderGeometry args={[0.255, 0.259, 0.085, 56]} />
-          <meshStandardMaterial color={selected ? '#648073' : '#728076'} roughness={0.52} />
+          <meshStandardMaterial color={selected ? '#1b3a6b' : '#3d5a80'} roughness={0.52} />
         </mesh>
         <mesh position={[0, 0.044, 0]}>
           <cylinderGeometry args={[0.245, 0.254, 0.009, 56]} />
-          <meshStandardMaterial color="#9ba69a" roughness={0.58} />
+          <meshStandardMaterial color="#6b8cae" roughness={0.58} />
         </mesh>
         {lidGrooves.map(({ x, z, angle }) => (
           <mesh key={angle} position={[x, 0, z]} rotation={[0, angle, 0]}>
             <boxGeometry args={[0.0035, 0.063, 0.003]} />
-            <meshStandardMaterial color="#a1aea0" roughness={0.59} />
+            <meshStandardMaterial color="#6b8cae" roughness={0.59} />
           </mesh>
         ))}
       </group>

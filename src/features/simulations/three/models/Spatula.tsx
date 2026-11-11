@@ -44,19 +44,19 @@ export function Spatula({ selected, saltG = 0 }: SpatulaProps) {
       {/* The handle and shaft actually join the scoop; the working end stays at X≈.286. */}
       <mesh castShadow receiveShadow position={[-0.027, 0.0945, 0]} rotation={[0, 0, shaftAngle]}>
         <cylinderGeometry args={[0.008, 0.012, shaftLength, 16]} />
-        <meshStandardMaterial color="#c4ceca" metalness={0.88} roughness={0.29} />
+        <meshStandardMaterial color="#cde1f2" metalness={0.88} roughness={0.29} />
       </mesh>
       <mesh castShadow receiveShadow position={[-0.224, 0.15, 0]} rotation={[0, 0, shaftAngle]}>
         <capsuleGeometry args={[0.017, 0.106, 4, 16]} />
         <meshStandardMaterial
-          color={selected ? '#597f75' : '#566c63'}
+          color={selected ? '#1b3a6b' : '#3d5a80'}
           roughness={0.56}
           metalness={0.05}
         />
       </mesh>
       <mesh castShadow receiveShadow position={[0.25, 0, 0]} scale={[1, 1, 0.65]}>
         <latheGeometry args={[scoopProfile, 48]} />
-        <meshStandardMaterial color="#cdd5ce" metalness={0.9} roughness={0.26} />
+        <meshStandardMaterial color="#cde1f2" metalness={0.9} roughness={0.26} />
       </mesh>
       {fraction > 0 && (
         <group position={[0.251, 0.008, 0]} scale={portionScale}>

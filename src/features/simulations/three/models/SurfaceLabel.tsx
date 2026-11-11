@@ -16,7 +16,7 @@ export function SurfaceLabel({
   lines,
   width,
   height,
-  color = '#304f50',
+  color = '#0d1b2a',
   background,
   radius,
 }: SurfaceLabelProps) {

@@ -45,7 +45,7 @@ export function Beaker({ selected, waterMl = 0 }: BeakerProps) {
       <mesh position={[0, 0.769, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.281, 0.005, 8, 64]} />
         <meshPhysicalMaterial
-          color="#e4efeb"
+          color="#e8f1fa"
           transparent
           opacity={0.63}
           depthWrite={false}
@@ -56,7 +56,7 @@ export function Beaker({ selected, waterMl = 0 }: BeakerProps) {
       <mesh position={[0, 0.054, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.251, 0.004, 8, 56]} />
         <meshPhysicalMaterial
-          color="#b7cdca"
+          color="#cde1f2"
           transparent
           opacity={0.38}
           roughness={0.2}

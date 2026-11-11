@@ -201,7 +201,7 @@ export function EquipmentRenderer({ entry }: { entry: EquipmentRegistryEntry }) 
                 ]}
               />
               <meshBasicMaterial
-                color={selected ? '#27cbb8' : '#c9aa77'}
+                color={selected ? '#a8c5e0' : '#6b8cae'}
                 transparent
                 opacity={selected ? 0.9 : 0.6}
                 depthWrite={false}
@@ -216,7 +216,7 @@ export function EquipmentRenderer({ entry }: { entry: EquipmentRegistryEntry }) 
           <ringGeometry args={[entry.footprintRadius + 0.04, entry.footprintRadius + 0.09, 48]} />
           <meshBasicMaterial
             ref={previewMaterial}
-            color="#159f8a"
+            color="#6b8cae"
             transparent
             opacity={0.7}
             depthWrite={false}
@@ -230,7 +230,7 @@ export function EquipmentRenderer({ entry }: { entry: EquipmentRegistryEntry }) 
             style={{ pointerEvents: 'none', userSelect: 'none' }}
             zIndexRange={[19, 0]}
           >
-            <span className="block whitespace-nowrap rounded-md bg-[#6d3332]/95 px-2 py-1 text-[10px] font-semibold text-white">
+            <span className="block whitespace-nowrap rounded-md bg-[#b44848]/95 px-2 py-1 text-[10px] font-semibold text-white">
               Blocked · move around equipment
             </span>
           </Html>

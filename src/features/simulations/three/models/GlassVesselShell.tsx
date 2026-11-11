@@ -13,14 +13,14 @@ export function GlassVesselShell({
   profile,
   segments = 56,
   selected,
-  tint = '#edf3f1',
+  tint = '#e8f1fa',
 }: GlassVesselShellProps) {
   return (
     <group>
       <mesh renderOrder={2}>
         <latheGeometry args={[profile, segments]} />
         <meshPhysicalMaterial
-          color="#cadbd7"
+          color="#cde1f2"
           side={BackSide}
           transparent
           opacity={0.06}
@@ -46,7 +46,7 @@ export function GlassVesselShell({
           clearcoat={1}
           clearcoatRoughness={0.07}
           envMapIntensity={0.85}
-          emissive={selected ? '#4b817c' : '#000000'}
+          emissive={selected ? '#3d5a80' : '#000000'}
           emissiveIntensity={selected ? 0.055 : 0}
         />
       </mesh>

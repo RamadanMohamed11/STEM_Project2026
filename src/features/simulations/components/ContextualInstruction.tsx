@@ -141,9 +141,9 @@ export function ContextualInstruction({
       aria-label="Current experiment instruction"
       className={`pointer-events-none absolute left-1/2 z-10 w-[min(92vw,470px)] -translate-x-1/2 ${selectionCount || transfer ? 'top-3 sm:top-4' : 'bottom-[62px] sm:bottom-[66px]'} ${inventoryOpen ? 'max-sm:hidden' : ''}`}
     >
-      <div className="pointer-events-auto rounded-xl border border-white/20 bg-[#071d29]/90 px-3 py-2.5 text-white shadow-xl backdrop-blur-md sm:px-3.5">
+      <div className="pointer-events-auto rounded-xl border border-white/20 bg-[#0d1b2a]/90 px-3 py-2.5 text-white shadow-xl backdrop-blur-md sm:px-3.5">
         <div className="flex items-center justify-between gap-2">
-          <p className="min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.1em] text-[#69dec8]">
+          <p className="min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.1em] text-[#a8c5e0]">
             {workflow.completed
               ? 'Experiment complete'
               : `Step ${workflow.stepIndex + 1} / ${saltExperimentDefinition.steps.length} · ${guidance.stepTitle}`}
@@ -157,7 +157,7 @@ export function ContextualInstruction({
                 onClick={() => setSafetyOpen((open) => !open)}
                 className={`flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] font-semibold ${
                   safetyOpen
-                    ? 'bg-[#205d61] text-[#c0fff2]'
+                    ? 'bg-[#1b3a6b] text-[#cde1f2]'
                     : stepPrecaution.level === 'warning'
                       ? 'bg-amber-400/20 text-amber-200 hover:bg-amber-400/30'
                       : 'text-white/75 hover:bg-white/10 hover:text-white'
@@ -172,7 +172,7 @@ export function ContextualInstruction({
               aria-label={hintOpen ? 'Hide contextual hint' : 'Show contextual hint'}
               aria-expanded={hintOpen}
               onClick={() => setHintOpen((open) => !open)}
-              className={`flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] font-semibold ${hintOpen ? 'bg-[#205d61] text-[#c0fff2]' : 'text-white/70 hover:bg-white/10 hover:text-white'}`}
+              className={`flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] font-semibold ${hintOpen ? 'bg-[#1b3a6b] text-[#cde1f2]' : 'text-white/70 hover:bg-white/10 hover:text-white'}`}
             >
               <Lightbulb size={13} aria-hidden="true" /> Hint
             </button>
@@ -180,7 +180,7 @@ export function ContextualInstruction({
               <button
                 type="button"
                 onClick={acknowledgeLabSafety}
-                className="flex shrink-0 items-center gap-1 rounded-md bg-[#26bda9] px-2 py-1.5 text-[10px] font-bold text-[#062b30] hover:bg-[#62dfca]"
+                className="flex shrink-0 items-center gap-1 rounded-md bg-[#1b3a6b] px-2 py-1.5 text-[10px] font-bold text-[#e8f1fa] hover:bg-[#3d5a80]"
               >
                 <ShieldCheck size={13} /> Confirm safety
               </button>
@@ -192,10 +192,10 @@ export function ContextualInstruction({
           <div
             role="status"
             data-safety-level={stepPrecaution.level}
-            className="mt-1.5 flex items-start justify-between gap-2 rounded-lg border border-white/15 bg-white/10 px-2.5 py-1.5 text-[11px] leading-relaxed text-[#d9f7f2]"
+            className="mt-1.5 flex items-start justify-between gap-2 rounded-lg border border-white/15 bg-white/10 px-2.5 py-1.5 text-[11px] leading-relaxed text-[#e8f1fa]"
           >
             <div>
-              <p className="font-semibold text-[#7cebd6]">{stepPrecaution.title}</p>
+              <p className="font-semibold text-[#cde1f2]">{stepPrecaution.title}</p>
               <p className="mt-0.5 text-white/90">{stepPrecaution.message}</p>
             </div>
             <button
@@ -209,13 +209,13 @@ export function ContextualInstruction({
           </div>
         )}
         {showInteractionHint && (
-          <p className="mt-1.5 flex items-start gap-1.5 text-[11px] leading-relaxed text-[#a6e9df]">
+          <p className="mt-1.5 flex items-start gap-1.5 text-[11px] leading-relaxed text-[#a8c5e0]">
             <Lightbulb size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
             <span>{interactionHint}</span>
           </p>
         )}
         {hintOpen && !interactionHint && !transfer && (
-          <p className="mt-1.5 text-[11px] leading-relaxed text-[#a6e9df]">
+          <p className="mt-1.5 text-[11px] leading-relaxed text-[#a8c5e0]">
             {guidance.actorId
               ? `Select the ${presentation.inventory.find((item) => item.id === guidance.actorId)?.title ?? 'required apparatus'} and follow the current step.`
               : 'Follow the current safety or observation instruction. Hints never perform an action.'}
@@ -247,7 +247,7 @@ export function ContextualInstruction({
           </div>
         )}
         {visibleSuccess && (
-          <p role="status" className="mt-1.5 flex items-center gap-1.5 text-[11px] text-[#85efd4]">
+          <p role="status" className="mt-1.5 flex items-center gap-1.5 text-[11px] text-[#a8c5e0]">
             <CheckCircle2 size={13} aria-hidden="true" /> {visibleSuccess}
           </p>
         )}
@@ -256,7 +256,7 @@ export function ContextualInstruction({
           className="mt-2 h-1 overflow-hidden rounded-full bg-white/15 md:hidden"
         >
           <div
-            className="h-full rounded-full bg-[#31c7b3] transition-[width]"
+            className="h-full rounded-full bg-[#3d5a80] transition-[width]"
             style={{ width: guidance.progress + '%' }}
           />
         </div>

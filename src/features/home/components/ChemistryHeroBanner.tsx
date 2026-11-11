@@ -5,7 +5,7 @@ export function ChemistryHeroBanner() {
     <div
       role="img"
       aria-label="Interactive chemistry laboratory visualization showing glassware, solutions, and molecular structures"
-      className="relative flex h-full min-h-[320px] w-full flex-col justify-between overflow-hidden bg-gradient-to-br from-[#0d1b2a] via-[#10233b] to-[#08121d] p-5 text-white sm:min-h-[380px] sm:p-7 lg:min-h-[460px] lg:p-8"
+      className="relative flex h-full min-h-[320px] w-full flex-col justify-between overflow-hidden bg-gradient-to-br from-[#0d1b2a] via-[#1b3a6b] to-[#0d1b2a] p-5 text-white sm:min-h-[380px] sm:p-7 lg:min-h-[460px] lg:p-8"
     >
       {/* Ambient background glow orbs */}
       <div className="pointer-events-none absolute -left-20 -top-20 size-60 rounded-full bg-teal/15 blur-3xl animate-pulse-glow" aria-hidden="true" />
@@ -307,7 +307,7 @@ export function ChemistryHeroBanner() {
             d="M8 180 L22 170 H48 L62 180 Z"
             stroke="#e8f1fa"
             strokeWidth="2.2"
-            fill="#10233b"
+            fill="#1b3a6b"
             fillOpacity="0.7"
             opacity="0.85"
           />

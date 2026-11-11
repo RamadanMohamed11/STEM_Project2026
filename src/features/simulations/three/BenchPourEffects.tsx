@@ -73,7 +73,7 @@ function PourStream() {
     scratch.d.subVectors(top, bottom).normalize()
     mesh.quaternion.copy(scratch.q.setFromUnitVectors(UP, scratch.d))
     const color =
-      benchColor(liquids, pour.sourceId) ?? benchColor(liquids, pour.targetId) ?? '#d5e9e9'
+      benchColor(liquids, pour.sourceId) ?? benchColor(liquids, pour.targetId) ?? '#cde1f2'
     material.current?.color.set(color)
     // Falling droplets inside the column show the direction and speed of flow.
     const group = droplets.current
@@ -93,7 +93,7 @@ function PourStream() {
         <cylinderGeometry args={[1, 1, 1, 10, 1, true]} />
         <meshBasicMaterial
           ref={material}
-          color="#d5e9e9"
+          color="#cde1f2"
           transparent
           opacity={0.55}
           depthWrite={false}
@@ -103,7 +103,7 @@ function PourStream() {
         {[0, 1, 2, 3, 4, 5].map((i) => (
           <mesh key={i} raycast={() => undefined} renderOrder={6}>
             <sphereGeometry args={[1, 8, 6]} />
-            <meshBasicMaterial color="#e8f4f4" transparent opacity={0.7} depthWrite={false} />
+            <meshBasicMaterial color="#e8f1fa" transparent opacity={0.7} depthWrite={false} />
           </mesh>
         ))}
       </group>
@@ -143,7 +143,7 @@ function FallingDrop() {
   return (
     <mesh ref={drop} visible={false} raycast={() => undefined} renderOrder={6}>
       <sphereGeometry args={[0.014, 10, 8]} />
-      <meshStandardMaterial color="#cfe8ee" transparent opacity={0.8} roughness={0.1} />
+      <meshStandardMaterial color="#cde1f2" transparent opacity={0.8} roughness={0.1} />
     </mesh>
   )
 }
@@ -175,7 +175,7 @@ function SpillPuddle() {
       <circleGeometry args={[radius, 40]} />
       <meshBasicMaterial
         ref={material}
-        color="#bcd9e2"
+        color="#a8c5e0"
         transparent
         opacity={0.45}
         depthWrite={false}
@@ -211,12 +211,12 @@ function PourReadout() {
         className={`whitespace-nowrap rounded-lg border px-2 py-1 text-[11px] font-semibold tabular-nums shadow-lg ${
           overflowed
             ? 'border-red-300/70 bg-[#5b2324]/95 text-red-50'
-            : 'border-white/25 bg-[#082a37]/92 text-white'
+            : 'border-white/25 bg-[#0d1b2a]/92 text-white'
         }`}
       >
-        <span className="text-[#7fe3d0]">poured</span> {formatMl(readout.pouredMl)}
+        <span className="text-[#a8c5e0]">poured</span> {formatMl(readout.pouredMl)}
         <span className="mx-1 text-white/40">/</span>
-        <span className="text-[#7fe3d0]">total</span> {formatMl(readout.totalMl)}
+        <span className="text-[#a8c5e0]">total</span> {formatMl(readout.totalMl)}
         {readout.ph !== null && readout.ph < 6.5 && (
           <span className="ml-1.5 text-amber-200">pH {readout.ph.toFixed(1)}</span>
         )}

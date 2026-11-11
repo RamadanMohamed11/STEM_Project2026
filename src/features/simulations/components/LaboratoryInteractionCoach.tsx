@@ -61,7 +61,7 @@ export function LaboratoryInteractionCoach() {
 
   return (
     <div
-      className={`pointer-events-none absolute bottom-2 left-1/2 z-10 flex w-[min(92vw,560px)] -translate-x-1/2 items-center justify-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-center text-[10px] leading-relaxed font-medium shadow-lg backdrop-blur-md sm:bottom-3 sm:text-[11px] ${warning || placement?.valid === false ? 'border-amber-300/50 bg-[#3b2715]/95 text-amber-100' : 'border-white/15 bg-[#071d29]/90 text-white'}`}
+      className={`pointer-events-none absolute bottom-2 left-1/2 z-10 flex w-[min(92vw,560px)] -translate-x-1/2 items-center justify-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-center text-[10px] leading-relaxed font-medium shadow-lg backdrop-blur-md sm:bottom-3 sm:text-[11px] ${warning || placement?.valid === false ? 'border-amber-300/50 bg-[#3b2715]/95 text-amber-100' : 'border-white/15 bg-[#0d1b2a]/90 text-white'}`}
       role="status"
     >
       <MousePointer2 size={13} className="shrink-0" aria-hidden="true" />

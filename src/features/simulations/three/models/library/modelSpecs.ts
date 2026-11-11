@@ -599,7 +599,7 @@ const specs: LibraryModelSpec[] = [
       rodX(0.38, 0.006, 'thermoLiquid', [-0.15, 0.03, 0], { segments: 8 }),
       label(['-10  0  20  40  60  80  100 °C'], 0.58, 0.03, [0.02, 0.0485, 0], {
         rot: FLAT,
-        color: '#283d3f',
+        color: '#0d1b2a',
       }),
     ],
   },
@@ -624,7 +624,7 @@ const specs: LibraryModelSpec[] = [
           [0, 0.03],
         ],
       },
-      post(0.03, 0.245, 'plasticWhite', 0, 0.46, 0, { segments: 32, color: '#e4e9ea' }),
+      post(0.03, 0.245, 'plasticWhite', 0, 0.46, 0, { segments: 32, color: '#e8f1fa' }),
       post(0.48, 0.016, 'glassSolid', 0.06, 0.32),
       post(0.3, 0.005, 'thermoLiquid', 0.06, 0.34, 0, { segments: 8 }),
       {
@@ -652,10 +652,10 @@ const specs: LibraryModelSpec[] = [
       box([0.3, 0.012, 0.46], 'plasticDark', [0, 0.072, 0]),
       label(['12.00 V'], 0.24, 0.1, [0, 0.0795, -0.13], {
         rot: FLAT,
-        background: '#a7c3a0',
-        color: '#1d2a22',
+        background: '#cde1f2',
+        color: '#0d1b2a',
       }),
-      post(0.02, 0.07, 'plasticDark', 0, 0.078, 0.06, { segments: 20, color: '#1c2024' }),
+      post(0.02, 0.07, 'plasticDark', 0, 0.078, 0.06, { segments: 20, color: '#0d1b2a' }),
       box([0.012, 0.012, 0.11], 'steel', [0, 0.1, 0.06]),
       post(0.02, 0.018, 'wireRed', -0.09, 0.078, 0.19, { segments: 10 }),
       post(0.02, 0.018, 'wireBlack', 0.0, 0.078, 0.19, { segments: 10 }),
@@ -790,7 +790,7 @@ const specs: LibraryModelSpec[] = [
       part: 0,
       capacityMl: 150,
       nominalY: 0.16,
-      contents: { volumeMl: 90, color: '#d9ecf5' },
+      contents: { volumeMl: 90, color: '#cde1f2' },
     },
   },
   {
@@ -822,7 +822,7 @@ const specs: LibraryModelSpec[] = [
       post(0.004, 0.1, 'plasticDark', -0.18, 0.36, -0.04, { segments: 20 }),
       post(0.004, 0.1, 'plasticDark', 0.18, 0.36, -0.04, { segments: 20 }),
       label(['37.0 °C'], 0.18, 0.07, [-0.15, 0.2, 0.2755], {
-        background: '#1d2a22',
+        background: '#0d1b2a',
         color: '#ff6a4d',
       }),
       {
@@ -991,8 +991,8 @@ const specs: LibraryModelSpec[] = [
       },
       label(['H₂O', 'DEIONISED'], 0.22, 0.1, [0, 0.22, 0], {
         radius: 0.177,
-        background: '#e4f1fb',
-        color: '#1f5d8a',
+        background: '#e8f1fa',
+        color: '#1b3a6b',
       }),
     ],
   },
@@ -1152,13 +1152,13 @@ const specs: LibraryModelSpec[] = [
     maxInstances: 2,
     parts: [
       rodX(0.3, 0.012, 'glassSolid', [-0.1, 0.012, 0]),
-      rodX(0.18, 0.0025, 'steel', [0.14, 0.012, 0], { segments: 6, color: '#dcdcd6' }),
+      rodX(0.18, 0.0025, 'steel', [0.14, 0.012, 0], { segments: 6, color: '#cde1f2' }),
       {
         kind: 'torus',
         radius: 0.012,
         tube: 0.0025,
         material: 'steel',
-        color: '#dcdcd6',
+        color: '#cde1f2',
         segments: 12,
         at: [0.24, 0.012, 0],
         rot: [HALF_PI, 0, 0],
@@ -1223,8 +1223,8 @@ const specs: LibraryModelSpec[] = [
     height: 0.04,
     maxInstances: 1,
     parts: [
-      box([0.28, 0.022, 0.04], 'steel', [-0.1, 0.011, 0], { color: '#9aa3a9' }),
-      box([0.18, 0.006, 0.05], 'steel', [0.13, 0.006, 0.005], { color: '#e3e7ea' }),
+      box([0.28, 0.022, 0.04], 'steel', [-0.1, 0.011, 0], { color: '#6b8cae' }),
+      box([0.18, 0.006, 0.05], 'steel', [0.13, 0.006, 0.005], { color: '#e8f1fa' }),
     ],
   },
   {
@@ -1234,13 +1234,13 @@ const specs: LibraryModelSpec[] = [
     height: 0.34,
     maxInstances: 1,
     parts: [
-      box([0.62, 0.32, 0.44], 'plasticDark', [0, 0.16, 0], { color: '#3c454d' }),
+      box([0.62, 0.32, 0.44], 'plasticDark', [0, 0.16, 0], { color: '#3d5a80' }),
       label(['12.0 V'], 0.17, 0.07, [-0.17, 0.22, 0.2205], {
-        background: '#141a1f',
+        background: '#0d1b2a',
         color: '#ff5a3c',
       }),
       label(['0.50 A'], 0.17, 0.07, [0.05, 0.22, 0.2205], {
-        background: '#141a1f',
+        background: '#0d1b2a',
         color: '#ff5a3c',
       }),
       {
@@ -1382,7 +1382,7 @@ const specs: LibraryModelSpec[] = [
       post(0.08, 0.07, 'plasticDark', 0, 0.55, 0, { segments: 20 }),
       label(['HCl', '1.0 M HYDROCHLORIC ACID', 'CORROSIVE'], 0.3, 0.17, [0, 0.24, 0], {
         radius: 0.172,
-        background: '#f7f4ec',
+        background: '#ffffff',
         color: '#7a1d1d',
       }),
     ],
@@ -1390,7 +1390,7 @@ const specs: LibraryModelSpec[] = [
       part: 0,
       capacityMl: 500,
       nominalY: 0.36,
-      contents: { volumeMl: 380, color: '#f2efe2' },
+      contents: { volumeMl: 380, color: '#cde1f2' },
     },
   },
   {
@@ -1416,7 +1416,7 @@ const specs: LibraryModelSpec[] = [
       post(0.07, 0.165, 'plasticBlue', 0, 0.31, 0, { segments: 32 }),
       label(['NaOH', 'SODIUM HYDROXIDE PELLETS', 'CORROSIVE'], 0.3, 0.15, [0, 0.16, 0], {
         radius: 0.172,
-        background: '#f7f4ec',
+        background: '#ffffff',
         color: '#7a1d1d',
       }),
     ],
@@ -1454,8 +1454,8 @@ const specs: LibraryModelSpec[] = [
       },
       label(['NH₃', 'AMMONIA GAS', 'TOXIC'], 0.22, 0.15, [0, 0.4, 0], {
         radius: 0.102,
-        background: '#f7f4ec',
-        color: '#24433a',
+        background: '#ffffff',
+        color: '#0d1b2a',
       }),
     ],
   },

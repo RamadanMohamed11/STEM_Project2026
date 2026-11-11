@@ -118,7 +118,7 @@ export function CurriculumExperimentsLibrary({
           role="status"
           className="rounded-2xl border border-line bg-white p-8 text-center shadow-card sm:p-12"
         >
-          <FlaskConical className="mx-auto h-12 w-12 text-slate-300" aria-hidden="true" />
+          <FlaskConical className="mx-auto h-12 w-12 text-line-strong" aria-hidden="true" />
           <h2 className="mt-3 text-lg font-semibold text-navy">
             {hasNoUnits ? 'No Units Available' : 'No experiments available for this term'}
           </h2>
@@ -197,7 +197,7 @@ export function CurriculumExperimentsLibrary({
                                 ) : (
                                   <div className="inline-flex flex-wrap items-center gap-2">
                                     <span className="text-slate">{exp.title}</span>
-                                    <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
+                                    <span className="inline-flex items-center rounded-full bg-surface-muted px-2 py-0.5 text-xs font-medium text-slate">
                                       Coming soon
                                     </span>
                                   </div>

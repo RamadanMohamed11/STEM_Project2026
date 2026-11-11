@@ -70,7 +70,7 @@ export function substanceParticles(substance: SubstanceDefinition): readonly Sub
         key: substance.id,
         formula: substance.formula.replace(/\((s|l|aq|g)\)$/, ''),
         name: substance.name,
-        color: nearlyClear(substance.color) ? '#9aa9b3' : substance.color,
+        color: nearlyClear(substance.color) ? '#6b8cae' : substance.color,
       },
       per: 1,
       // A liquid with no particle data is drawn as a solvent.

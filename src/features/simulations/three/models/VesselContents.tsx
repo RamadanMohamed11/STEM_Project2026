@@ -45,7 +45,7 @@ export function VesselContents({
       >
         <cylinderGeometry args={[radius, radius, 1, 48, 1, true]} />
         <meshPhysicalMaterial
-          color="#d5e9e9"
+          color="#cde1f2"
           transparent
           opacity={0.2}
           depthWrite={false}
@@ -59,7 +59,7 @@ export function VesselContents({
       <mesh name="liquid-surface" position={[0, bottomY + height, 0]} renderOrder={4}>
         <latheGeometry args={[surfaceProfile, 48]} />
         <meshPhysicalMaterial
-          color="#e0efed"
+          color="#e8f1fa"
           transparent
           opacity={0.65}
           onBeforeCompile={glassEdgeOpacity}
@@ -78,7 +78,7 @@ export function VesselContents({
       >
         <torusGeometry args={[radius - 0.0015, Math.min(0.0015, height * 0.15), 6, 48]} />
         <meshStandardMaterial
-          color="#c6dcd3"
+          color="#a8c5e0"
           transparent
           opacity={0.55}
           depthWrite={false}
@@ -108,7 +108,7 @@ interface ProfiledVesselContentsProps {
 export function ProfiledVesselContents({
   volumeMl,
   fill,
-  color = '#d5e9e9',
+  color = '#cde1f2',
 }: ProfiledVesselContentsProps) {
   const profile = useMemo(() => fill.liquidProfile(volumeMl), [fill, volumeMl])
   const material = useRef<MeshPhysicalMaterial>(null)
@@ -153,7 +153,7 @@ export function ProfiledVesselContents({
         >
           <torusGeometry args={[surfaceRadius - 0.0015, 0.0015, 6, 36]} />
           <meshStandardMaterial
-            color="#c6dcd3"
+            color="#a8c5e0"
             transparent
             opacity={0.55}
             depthWrite={false}

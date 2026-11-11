@@ -155,12 +155,12 @@ export function ParticleSceneContent({
     <>
       <mesh position={[0, 0, -0.5]}>
         <planeGeometry args={[2.1, 2.1]} />
-        <meshBasicMaterial color="#0d2733" onBeforeCompile={particleCanvasColorOutput} />
+        <meshBasicMaterial color="#0d1b2a" onBeforeCompile={particleCanvasColorOutput} />
       </mesh>
       {hasLiquid && (
         <mesh position={[0, (SURFACE_Y - 1.05) / 2, -0.4]}>
           <planeGeometry args={[2.1, SURFACE_Y + 1.05]} />
-          <meshBasicMaterial color="#123c4f" onBeforeCompile={particleCanvasColorOutput} />
+          <meshBasicMaterial color="#1b3a6b" onBeforeCompile={particleCanvasColorOutput} />
         </mesh>
       )}
       {scene.species.map((view, index) => (

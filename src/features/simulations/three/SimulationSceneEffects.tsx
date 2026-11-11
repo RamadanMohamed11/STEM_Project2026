@@ -250,7 +250,7 @@ export function SimulationSceneEffects() {
         <group position={[beaker.x, BENCH_TOP + 0.82, beaker.z]}>
           <mesh rotation={[-Math.PI / 2, 0, 0]}>
             <torusGeometry args={[0.38, 0.012, 8, 48]} />
-            <meshBasicMaterial color="#0f9f93" transparent opacity={0.75} depthWrite={false} />
+            <meshBasicMaterial color="#a8c5e0" transparent opacity={0.75} depthWrite={false} />
           </mesh>
         </group>
       )}

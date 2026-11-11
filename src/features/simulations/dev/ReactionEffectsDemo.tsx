@@ -168,7 +168,7 @@ function DemoReadout({ index }: { index: number }) {
       <p className="tabular-nums text-white/70">
         {volume.toFixed(1)} mL · {temperature} °C
       </p>
-      <p className="min-h-[1.2em] text-[#9ff0e1]">{observation}</p>
+      <p className="min-h-[1.2em] text-[#a8c5e0]">{observation}</p>
     </li>
   )
 }
@@ -180,13 +180,13 @@ export function ReactionEffectsDemo() {
   useEffect(() => () => useDemoStore.getState().reset(), [])
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] min-h-[520px] flex-col bg-[#0b2230] text-white">
+    <div className="flex h-[calc(100vh-4rem)] min-h-[520px] flex-col bg-[#0d1b2a] text-white">
       <div className="flex flex-wrap items-center gap-2 border-b border-white/10 px-4 py-3 text-xs">
         <h1 className="mr-2 text-sm font-semibold">Reaction effects (dev demo · L6)</h1>
         <button
           type="button"
           onClick={runAll}
-          className="rounded-lg bg-[#13a593] px-3 py-1.5 font-semibold hover:bg-[#119384]"
+          className="rounded-lg bg-[#1b3a6b] px-3 py-1.5 font-semibold text-[#e8f1fa] hover:bg-[#3d5a80]"
         >
           Run all
         </button>
@@ -220,12 +220,12 @@ export function ReactionEffectsDemo() {
       <div className="relative flex-1">
         <SceneLabels>
           <Canvas camera={{ position: [0, 2.3, 5.4], fov: 40 }} dpr={[1, 1.5]}>
-            <color attach="background" args={['#10303f']} />
+            <color attach="background" args={['#0d1b2a']} />
             <ambientLight intensity={0.7} />
             <directionalLight position={[3, 5, 4]} intensity={1.4} />
             <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.002, 0]}>
               <planeGeometry args={[7, 4.5]} />
-              <meshStandardMaterial color="#2a4552" roughness={0.9} />
+              <meshStandardMaterial color="#3d5a80" roughness={0.9} />
             </mesh>
             <Suspense fallback={null}>
               {EFFECTS_DEMO_VESSELS.map((vessel, index) => (

@@ -282,7 +282,7 @@ export function ToolAndMaterialVisual({
         {visual === 'weighing-boat' && (
           <g>
             {/* Soft Shadow */}
-            <ellipse cx="80" cy="116" rx="46" ry="10" fill="#71818c" opacity="0.16" />
+            <ellipse cx="80" cy="116" rx="46" ry="10" fill="#3d5a80" opacity="0.16" />
             {/* Outer dish perimeter */}
             <path
               d="M34 82 L52 108 H108 L126 82 L104 64 H56 Z"

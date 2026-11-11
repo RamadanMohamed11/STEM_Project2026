@@ -39,7 +39,7 @@ export default function LaboratoryScene() {
   const clearContextListeners = useRef<(() => void) | null>(null)
 
   const onCreated = useCallback(({ gl }: RootState) => {
-    gl.setClearColor('#eaf0f2')
+    gl.setClearColor('#e8f1fa')
     // Context loss does not always throw. Keep an accessible recovery control
     // while WebGL waits to restore instead of showing a permanently blank bench.
     clearContextListeners.current?.()
@@ -131,7 +131,7 @@ export default function LaboratoryScene() {
       {contextLost && (
         <div
           role="alert"
-          className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-[#eaf0f2] px-6 text-center"
+          className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-[#e8f1fa] px-6 text-center"
         >
           <p className="text-sm font-semibold text-navy">
             The 3D graphics context was interrupted.

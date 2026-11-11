@@ -13,10 +13,10 @@ export function ParticleViewPanel() {
   return (
     <section
       aria-label={`Particle view of ${label}`}
-      className="pointer-events-auto absolute bottom-16 right-3 z-20 max-h-[calc(100%-5rem)] w-[min(92vw,300px)] overflow-y-auto overscroll-contain rounded-2xl border border-white/20 bg-[#071d29]/95 p-3 text-white shadow-2xl backdrop-blur-xl"
+      className="pointer-events-auto absolute bottom-16 right-3 z-20 max-h-[calc(100%-5rem)] w-[min(92vw,300px)] overflow-y-auto overscroll-contain rounded-2xl border border-white/20 bg-[#0d1b2a]/95 p-3 text-white shadow-2xl backdrop-blur-xl"
     >
       <header className="mb-2 flex items-center justify-between">
-        <h2 className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#69dec8]">
+        <h2 className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#a8c5e0]">
           <Atom size={13} aria-hidden="true" /> Particle view · {label}
         </h2>
         <button

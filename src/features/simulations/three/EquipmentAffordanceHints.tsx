@@ -39,7 +39,7 @@ export function EquipmentAffordanceHints() {
             style={{ pointerEvents: 'none', userSelect: 'none' }}
             zIndexRange={[19, 0]}
           >
-            <div className="whitespace-nowrap rounded-md border border-white/25 bg-[#082833]/90 px-2 py-1 text-[10px] font-semibold text-white shadow-md">
+            <div className="whitespace-nowrap rounded-md border border-white/25 bg-[#0d1b2a]/90 px-2 py-1 text-[10px] font-semibold text-white shadow-md">
               {entry.label}
             </div>
           </Html>

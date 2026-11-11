@@ -31,7 +31,7 @@ export function LabModeToggle({ touch = false }: { touch?: boolean } = {}) {
           aria-checked={mode === option.id}
           title={option.hint}
           onClick={() => useLabSafetyStore.getState().setMode(option.id)}
-          className={`rounded-md ${touch ? 'min-h-11 min-w-[88px] flex-1 px-3 text-xs' : 'px-2 py-1'} ${mode === option.id ? 'bg-[#31c7b3] text-[#062431]' : 'text-white/75 hover:bg-white/10'}`}
+          className={`rounded-md ${touch ? 'min-h-11 min-w-[88px] flex-1 px-3 text-xs' : 'px-2 py-1'} ${mode === option.id ? 'bg-[#a8c5e0] text-[#0d1b2a]' : 'text-white/75 hover:bg-white/10'}`}
         >
           {option.label}
         </button>
@@ -48,7 +48,7 @@ export function GuidedWorkflowNotice({ onReset }: { onReset: () => void }) {
     return (
       <p
         role="status"
-        className="shrink-0 border-b border-white/10 bg-[#071d29] px-3 py-1 text-[11px] text-white/80 sm:px-5"
+        className="shrink-0 border-b border-white/10 bg-[#0d1b2a] px-3 py-1 text-[11px] text-white/80 sm:px-5"
       >
         Free mode: guided steps are paused.
       </p>
@@ -83,7 +83,7 @@ export function GogglesToggle({ touch = false }: { touch?: boolean } = {}) {
       title={
         goggles ? 'Safety goggles on' : 'Safety goggles off — put them on before handling chemicals'
       }
-      className={`flex items-center gap-1 rounded-lg text-[11px] font-semibold ${touch ? 'min-h-11 w-full px-3 text-xs' : 'px-2 py-1'} ${goggles ? 'bg-[#31c7b3]/20 text-[#9ff0e1]' : 'bg-amber-400/20 text-amber-200'}`}
+      className={`flex items-center gap-1 rounded-lg text-[11px] font-semibold ${touch ? 'min-h-11 w-full px-3 text-xs' : 'px-2 py-1'} ${goggles ? 'bg-[#a8c5e0]/20 text-[#cde1f2]' : 'bg-amber-400/20 text-amber-200'}`}
     >
       <Glasses size={14} aria-hidden="true" /> {goggles ? 'Goggles on' : 'No goggles'}
     </button>

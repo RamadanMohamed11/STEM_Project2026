@@ -28,7 +28,7 @@ export function ExperimentCard({ experiment, category, index, returnTo }: Experi
       aria-label={experiment.title}
       className={`group flex min-w-0 flex-col overflow-hidden rounded-xl border border-line bg-white shadow-card transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-teal/40 hover:shadow-xl animate-card-reveal ${staggerClass}`}
     >
-      <div className="relative h-43 overflow-hidden border-b border-line bg-[#eaf2f1] sm:h-46">
+      <div className="relative h-43 overflow-hidden border-b border-line bg-[#e8f1fa] sm:h-46">
         <div className="h-full w-full transition-transform duration-500 ease-out group-hover:scale-105">
           <ExperimentIllustration illustration={experiment.illustration} />
         </div>

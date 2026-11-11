@@ -113,7 +113,7 @@ export function ExperimentResults({
           <button
             type="button"
             onClick={onRestart}
-            className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-navy px-4 text-sm font-semibold text-white hover:bg-[#263f52] focus-visible:outline-teal"
+            className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-navy px-4 text-sm font-semibold text-white hover:bg-[#1b3a6b] focus-visible:outline-teal"
           >
             <RotateCcw size={16} aria-hidden="true" /> Retry experiment
           </button>

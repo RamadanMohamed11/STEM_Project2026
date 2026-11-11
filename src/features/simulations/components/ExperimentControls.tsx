@@ -42,7 +42,7 @@ export function ExperimentControls({
           </button>
           <Link
             to="/experiments"
-            className="group/btn inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-navy px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#263f52] hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+            className="group/btn inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-navy px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#1b3a6b] hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
           >
             <ArrowLeft size={16} aria-hidden="true" className="transition-transform duration-200 group-hover/btn:-translate-x-0.5" /> All experiments
           </Link>

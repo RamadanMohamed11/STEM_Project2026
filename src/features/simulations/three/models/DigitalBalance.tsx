@@ -71,62 +71,62 @@ export function DigitalBalance({ selected, readingOverride }: DigitalBalanceProp
         [-0.181, 0.181].map((z) => (
           <mesh key={`${x}-${z}`} position={[x, 0.013, z]} castShadow receiveShadow>
             <cylinderGeometry args={[0.031, 0.033, 0.026, 20]} />
-            <meshStandardMaterial color="#343c3b" roughness={0.8} />
+            <meshStandardMaterial color="#0d1b2a" roughness={0.8} />
           </mesh>
         )),
       )}
       <mesh geometry={housing} castShadow receiveShadow>
         <meshStandardMaterial
-          color={selected ? '#b5c6c0' : '#bfc8c2'}
+          color={selected ? '#a8c5e0' : '#cde1f2'}
           roughness={0.43}
           metalness={0.12}
         />
       </mesh>
       <mesh position={[0, 0.183, -0.047]} receiveShadow>
         <cylinderGeometry args={[0.184, 0.193, 0.014, 56]} />
-        <meshStandardMaterial color="#414d4b" roughness={0.55} metalness={0.12} />
+        <meshStandardMaterial color="#3d5a80" roughness={0.55} metalness={0.12} />
       </mesh>
       <mesh position={[0, 0.198, -0.047]}>
         <cylinderGeometry args={[0.085, 0.103, 0.018, 40]} />
-        <meshStandardMaterial color="#8e9c99" metalness={0.65} roughness={0.32} />
+        <meshStandardMaterial color="#6b8cae" metalness={0.65} roughness={0.32} />
       </mesh>
       {/* Pan centre and its Y=.23 contact plane match the existing boat attachment. */}
       <mesh position={[0, 0, -0.047]} castShadow receiveShadow>
         <latheGeometry args={[panProfile, 64]} />
-        <meshStandardMaterial color="#c5cfcb" metalness={0.86} roughness={0.3} />
+        <meshStandardMaterial color="#cde1f2" metalness={0.86} roughness={0.3} />
       </mesh>
       <mesh position={[0, 0.2285, -0.047]} rotation={[-Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.213, 0.0015, 6, 64]} />
-        <meshStandardMaterial color="#e5e9e2" metalness={0.8} roughness={0.24} />
+        <meshStandardMaterial color="#e8f1fa" metalness={0.8} roughness={0.24} />
       </mesh>
       <group position={[0, 0.127, 0.211]} rotation={[-0.684, 0, 0]}>
         <mesh receiveShadow>
           <boxGeometry args={[0.38, 0.094, 0.012]} />
-          <meshStandardMaterial color="#3b4944" roughness={0.47} />
+          <meshStandardMaterial color="#1b3a6b" roughness={0.47} />
         </mesh>
         <mesh position={[0, 0, 0.007]}>
           <planeGeometry args={[0.351, 0.073]} />
           <meshStandardMaterial
-            color="#bdcda8"
+            color="#cde1f2"
             roughness={0.4}
-            emissive="#8da678"
+            emissive="#a8c5e0"
             emissiveIntensity={0.14}
           />
         </mesh>
         <group position={[-0.018, 0.002, 0.009]}>
-          <SegmentLabel value={reading} height={0.049} color="#203e31" />
+          <SegmentLabel value={reading} height={0.049} color="#0d1b2a" />
         </group>
         <group position={[0.142, -0.012, 0.01]}>
-          <SurfaceLabel lines={['g']} width={0.018} height={0.025} color="#203e31" />
+          <SurfaceLabel lines={['g']} width={0.018} height={0.025} color="#0d1b2a" />
         </group>
         <group position={[0, -0.063, 0.003]}>
-          <SurfaceLabel lines={['SIMULATED · TARED']} width={0.24} height={0.015} color="#344b43" />
+          <SurfaceLabel lines={['SIMULATED · TARED']} width={0.24} height={0.015} color="#1b3a6b" />
         </group>
         {[-0.256, 0.256].map((x) => (
           <group key={x} position={[x, 0, 0]}>
             <mesh rotation={[Math.PI / 2, 0, 0]}>
               <cylinderGeometry args={[0.025, 0.027, 0.016, 32]} />
-              <meshStandardMaterial color={x < 0 ? '#607e71' : '#e0e4d9'} roughness={0.55} />
+              <meshStandardMaterial color={x < 0 ? '#1b3a6b' : '#3d5a80'} roughness={0.55} />
             </mesh>
             <group position={[0, -0.039, 0.002]}>
               <SurfaceLabel lines={[x < 0 ? 'ON/OFF' : 'TARE']} width={0.073} height={0.013} />

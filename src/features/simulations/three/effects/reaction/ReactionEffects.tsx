@@ -347,7 +347,7 @@ function GasEffect(props: EffectViewProps) {
         kind="gas"
         shape="sphere"
         opacity={0.55}
-        color="#f4fbfd"
+        color="#e8f1fa"
         place={placeBubble}
       />
       <ParticleField {...props} kind="smoke" shape="soft" opacity={0.18} place={placeEscape} />
@@ -485,7 +485,7 @@ function HeatEffect(props: EffectViewProps) {
         kind="heat"
         shape="soft"
         opacity={0.1}
-        color="#fff6ea"
+        color="#e8f1fa"
         place={placeHeatShimmer}
       />
     </>

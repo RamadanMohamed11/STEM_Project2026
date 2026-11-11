@@ -71,7 +71,7 @@ function getStatusBadgeClasses(status: AssessmentPublicationStatus): string {
     case 'reviewed':
       return 'border-teal/30 bg-teal-soft/50 text-teal-dark'
     case 'archived':
-      return 'border-slate-300 bg-slate-100 text-slate-700'
+      return 'border-line-strong bg-surface-muted text-slate'
     default:
       return 'border-amber-200 bg-amber-50 text-amber-900'
   }
@@ -1052,7 +1052,7 @@ export function AdminQuestionsPage({ initialState }: AdminQuestionsPageProps = {
                     <button
                       type="button"
                       onClick={() => void handleSetPublicationStatus('archived')}
-                      className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                      className="rounded-lg border border-line px-3 py-1.5 text-xs font-semibold text-slate hover:bg-surface-muted"
                     >
                       Archive
                     </button>

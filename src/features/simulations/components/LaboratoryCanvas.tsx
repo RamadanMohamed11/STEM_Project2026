@@ -20,7 +20,7 @@ class SceneErrorBoundary extends Component<{ children: ReactNode }, { failed: bo
       return (
         <div
           role="alert"
-          className="flex h-full flex-col items-center justify-center gap-3 bg-[#e6eef0] px-6 text-center"
+          className="flex h-full flex-col items-center justify-center gap-3 bg-[#e8f1fa] px-6 text-center"
         >
           <Box size={32} className="text-teal" aria-hidden="true" />
           <p className="font-semibold text-navy">The 3D renderer could not be started.</p>
@@ -40,7 +40,7 @@ export function LaboratoryCanvas() {
     <section
       aria-labelledby="3d-workspace-title"
       aria-describedby="bench-description"
-      className="relative size-full min-h-0 min-w-0 overflow-hidden bg-[#dde9e9]"
+      className="relative size-full min-h-0 min-w-0 overflow-hidden bg-[#e8f1fa]"
     >
       <h2 id="3d-workspace-title" className="sr-only">
         Interactive 3D laboratory
@@ -51,7 +51,7 @@ export function LaboratoryCanvas() {
             fallback={
               <div
                 role="status"
-                className="flex size-full items-center justify-center bg-[#e6eef0] text-sm text-navy"
+                className="flex size-full items-center justify-center bg-[#e8f1fa] text-sm text-navy"
               >
                 Preparing 3D laboratory…
               </div>

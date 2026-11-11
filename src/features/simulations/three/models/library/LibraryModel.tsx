@@ -24,7 +24,7 @@ interface MaterialLook {
 
 /** Our own neutral palette; no textures or downloaded assets. */
 const LOOKS: Readonly<Record<MaterialKey, MaterialLook>> = {
-  glassSolid: { color: '#e3efec', roughness: 0.08, opacity: 0.42 },
+  glassSolid: { color: '#e8f1fa', roughness: 0.08, opacity: 0.42 },
   amberGlass: { color: '#a5672a', roughness: 0.12, opacity: 0.6 },
   steel: { color: '#b9c1c6', metalness: 0.85, roughness: 0.3 },
   castIron: { color: '#2f3a44', metalness: 0.45, roughness: 0.62 },
@@ -32,25 +32,25 @@ const LOOKS: Readonly<Record<MaterialKey, MaterialLook>> = {
   aluminium: { color: '#d3d8dc', metalness: 0.75, roughness: 0.32 },
   rubber: { color: '#26292d', roughness: 0.92 },
   rubberRed: { color: '#a9432f', roughness: 0.8 },
-  plasticWhite: { color: '#eef2f3', roughness: 0.5, opacity: 0.94 },
-  plasticBlue: { color: '#2f6fb3', roughness: 0.45 },
-  plasticDark: { color: '#30363c', roughness: 0.55 },
+  plasticWhite: { color: '#e8f1fa', roughness: 0.5, opacity: 0.94 },
+  plasticBlue: { color: '#1b3a6b', roughness: 0.45 },
+  plasticDark: { color: '#0d1b2a', roughness: 0.55 },
   plasticYellow: { color: '#e2b324', roughness: 0.5 },
-  ceramic: { color: '#f6f5f0', roughness: 0.22 },
+  ceramic: { color: '#ffffff', roughness: 0.22 },
   wood: { color: '#b98a55', roughness: 0.82 },
-  paper: { color: '#f8f6ef', roughness: 0.95 },
+  paper: { color: '#ffffff', roughness: 0.95 },
   graphite: { color: '#2b2d31', metalness: 0.3, roughness: 0.6 },
-  acrylic: { color: '#d8edf3', roughness: 0.1, opacity: 0.3 },
+  acrylic: { color: '#e8f1fa', roughness: 0.1, opacity: 0.3 },
   cobalt: { color: '#2342b0', roughness: 0.15, opacity: 0.78 },
   copper: { color: '#b8693a', metalness: 0.8, roughness: 0.35 },
   cork: { color: '#a8794a', roughness: 0.95 },
-  display: { color: '#a3c19d', roughness: 0.4, emissive: '#3c5a35', emissiveIntensity: 0.25 },
+  display: { color: '#cde1f2', roughness: 0.4, emissive: '#1b3a6b', emissiveIntensity: 0.25 },
   wireRed: { color: '#c0392b', roughness: 0.55 },
   wireBlack: { color: '#1f2124', roughness: 0.55 },
-  spirit: { color: '#cfe6f2', roughness: 0.1, opacity: 0.3 },
+  spirit: { color: '#cde1f2', roughness: 0.1, opacity: 0.3 },
   thermoLiquid: { color: '#d0342c', roughness: 0.3 },
-  pellets: { color: '#f4f4f0', roughness: 0.6 },
-  gauze: { color: '#8d949a', metalness: 0.6, roughness: 0.5, opacity: 0.75 },
+  pellets: { color: '#ffffff', roughness: 0.6 },
+  gauze: { color: '#6b8cae', metalness: 0.6, roughness: 0.5, opacity: 0.75 },
   sandpaper: { color: '#4b4640', roughness: 1 },
   lamp: {
     color: '#fff4c4',
@@ -62,7 +62,7 @@ const LOOKS: Readonly<Record<MaterialKey, MaterialLook>> = {
   gasCylinder: { color: '#3d7a5a', metalness: 0.4, roughness: 0.45 },
 }
 
-const SELECTED_EMISSIVE = '#4b817c'
+const SELECTED_EMISSIVE = '#3d5a80'
 
 function SolidPart({
   part,

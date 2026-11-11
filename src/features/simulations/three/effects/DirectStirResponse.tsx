@@ -36,7 +36,7 @@ export function DirectStirResponse() {
       {[0, 1, 2].map((index) => (
         <mesh key={index} rotation={[-Math.PI / 2, 0, 0]} raycast={() => undefined}>
           <torusGeometry args={[0.2, 0.0018, 4, 40]} />
-          <meshBasicMaterial color="#b2edf4" transparent opacity={0} depthWrite={false} />
+          <meshBasicMaterial color="#a8c5e0" transparent opacity={0} depthWrite={false} />
         </mesh>
       ))}
     </group>

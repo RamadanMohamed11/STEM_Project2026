@@ -32,8 +32,8 @@ export function VesselMarkings({
     const context = canvas.getContext('2d')!
     const pixelsPerUnit = canvas.height / printedHeight
     const physicalWidth = ((radiusBottom + radiusTop) / 2) * 1.9
-    context.strokeStyle = '#344d4b'
-    context.fillStyle = '#344d4b'
+    context.strokeStyle = '#0d1b2a'
+    context.fillStyle = '#0d1b2a'
     context.lineWidth = Math.max(2, pixelsPerUnit * 0.0022)
     context.font = `500 ${pixelsPerUnit * textHeight}px Arial, sans-serif`
     context.textAlign = 'left'

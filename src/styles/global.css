@@ -481,7 +481,7 @@ a {
 /* I17: field boundaries must be distinguishable on the light student/admin surfaces.
    The immersive lab keeps its own dark controls. Decorative separators stay light. */
 :where(main:not(:has([data-lab-workspace]))) :where(input:not([type="checkbox"]):not([type="radio"]), select, textarea):not(:disabled):not([aria-invalid="true"]) {
-  border-color: #74838d;
+  border-color: var(--color-line-strong);
 }
 main:not(:has([data-lab-workspace])) :is(input, textarea)::placeholder {
   color: var(--color-slate);

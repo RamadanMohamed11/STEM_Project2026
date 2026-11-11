@@ -23,7 +23,7 @@ export function LiquidFill({
   bottomY,
   maxHeight,
   radius,
-  color = '#69c9dc',
+  color = '#a8c5e0',
 }: LiquidFillProps) {
   const targetHeight = boundedFraction(volumeMl, capacityMl) * maxHeight
   const currentHeight = useRef(targetHeight)
@@ -97,7 +97,7 @@ export function LiquidFill({
       >
         {/* Narrow glancing reflection along the outer front of the liquid column. */}
         <cylinderGeometry args={[radius + 0.001, radius + 0.001, 1, 16, 1, true, 0.4, 0.35]} />
-        <meshBasicMaterial color="#b9f4ff" transparent opacity={0.2} depthWrite={false} />
+        <meshBasicMaterial color="#e8f1fa" transparent opacity={0.2} depthWrite={false} />
       </mesh>
       <mesh
         ref={surface}
@@ -107,7 +107,7 @@ export function LiquidFill({
       >
         <cylinderGeometry args={[radius, radius, 0.004, 36]} />
         <meshPhysicalMaterial
-          color="#b5eef6"
+          color="#cde1f2"
           roughness={0.09}
           transparent
           opacity={0.84}
@@ -124,7 +124,7 @@ export function LiquidFill({
       >
         <torusGeometry args={[radius - 0.004, 0.0038, 6, 40]} />
         <meshStandardMaterial
-          color="#edfaff"
+          color="#e8f1fa"
           transparent
           opacity={0.94}
           depthWrite={false}
