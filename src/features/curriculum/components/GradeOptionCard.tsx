@@ -26,10 +26,10 @@ export function GradeOptionCard({ grade, detail, isSelected, onSelect, index }: 
           onSelect(grade.id)
         }
       }}
-      className={`group relative flex cursor-pointer flex-col justify-between rounded-2xl border p-5 transition-all duration-300 ease-out select-none sm:p-6 hover:-translate-y-1.5 hover:shadow-xl animate-card-reveal ${staggerClass} ${
+      className={`group relative flex cursor-pointer flex-col justify-between rounded-2xl border-2 p-5 transition-all duration-300 ease-out select-none sm:p-6 hover:-translate-y-1.5 hover:shadow-xl animate-card-reveal ${staggerClass} ${
         isSelected
-          ? 'border-teal bg-teal-soft/20 shadow-md ring-2 ring-teal/30'
-          : 'border-line bg-white shadow-card hover:border-teal/40'
+          ? 'border-teal bg-teal-soft/30 shadow-md ring-2 ring-teal/20'
+          : 'border-line-strong/40 bg-white shadow-card hover:border-teal/60'
       } focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2 active:scale-[0.99]`}
     >
       <div>
@@ -39,46 +39,57 @@ export function GradeOptionCard({ grade, detail, isSelected, onSelect, index }: 
             {Icon && (
               <span
                 className={`flex size-12 items-center justify-center rounded-xl shadow-xs transition-all duration-300 ${
-                  isSelected ? 'bg-teal text-white scale-105' : 'bg-teal-soft text-teal-dark group-hover:bg-teal group-hover:text-white group-hover:scale-105'
+                  isSelected
+                    ? 'bg-teal text-white scale-105 shadow-sm'
+                    : 'bg-surface-muted text-navy border border-line-strong/30 group-hover:bg-teal group-hover:text-white group-hover:border-transparent group-hover:scale-105'
                 }`}
               >
-                <Icon size={24} strokeWidth={1.8} aria-hidden="true" />
+                <Icon size={24} strokeWidth={1.9} aria-hidden="true" />
               </span>
             )}
             <div>
-              <span className="rounded-md border border-line bg-canvas px-2.5 py-0.5 text-xs font-semibold text-slate transition-colors group-hover:border-teal/20">
+              <span
+                className={`rounded-md border px-2.5 py-0.5 text-xs font-bold transition-colors ${
+                  isSelected
+                    ? 'border-teal/30 bg-teal/10 text-teal'
+                    : 'border-line-strong/40 bg-surface-muted text-navy group-hover:border-teal/30'
+                }`}
+              >
                 {detail?.levelBadge ?? `Order ${grade.order}`}
               </span>
-              <p className="mt-1 text-xs font-semibold text-teal-dark">
+              <p
+                className={`mt-1 text-xs font-semibold transition-colors ${
+                  isSelected ? 'text-teal' : 'text-slate group-hover:text-navy'
+                }`}
+              >
                 {detail?.subtitle}
               </p>
             </div>
           </div>
 
-          {/* Radio / Selection Check Circle */}
-          <div
-            className={`flex size-6 shrink-0 items-center justify-center rounded-full border transition-all duration-200 ${
-              isSelected
-                ? 'border-teal bg-teal text-white shadow-sm scale-110'
-                : 'border-line-strong bg-canvas text-transparent group-hover:border-teal/50 group-hover:scale-105'
-            }`}
-            aria-hidden="true"
-          >
-            {isSelected ? <Check size={14} strokeWidth={3} className="animate-celebrate-pop" /> : <Circle size={10} className="opacity-0" />}
-          </div>
+          {/* Radio / Selection Badge or Circle */}
+          {isSelected ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-teal bg-teal px-2.5 py-1 text-xs font-bold text-white shadow-xs animate-celebrate-pop">
+              <Check size={13} strokeWidth={3} aria-hidden="true" />
+              Selected
+            </span>
+          ) : (
+            <div
+              className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-slate/35 bg-white text-transparent transition-all duration-200 group-hover:border-teal group-hover:scale-105"
+              aria-hidden="true"
+            >
+              <Circle size={8} className="fill-slate/25 group-hover:fill-teal/30 transition-colors" />
+            </div>
+          )}
         </div>
 
         {/* Grade Title */}
-        <h2
-          className={`mt-5 text-xl font-bold tracking-tight transition-colors ${
-            isSelected ? 'text-teal-dark' : 'text-navy group-hover:text-navy'
-          }`}
-        >
+        <h2 className="mt-5 text-xl font-bold tracking-tight text-navy">
           {grade.title}
         </h2>
 
         {/* Short Description */}
-        <p className="mt-2 text-xs leading-relaxed text-ink/75 sm:text-sm">
+        <p className="mt-2 text-xs leading-relaxed text-ink sm:text-sm">
           {detail?.description ?? 'Curriculum topics and interactive laboratory experiments.'}
         </p>
 
@@ -88,7 +99,11 @@ export function GradeOptionCard({ grade, detail, isSelected, onSelect, index }: 
             {detail.topics.map((topic) => (
               <span
                 key={topic}
-                className="rounded-md border border-line/70 bg-canvas/70 px-2 py-0.5 text-[11px] font-medium text-slate"
+                className={`rounded-md border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                  isSelected
+                    ? 'border-teal/20 bg-teal-soft text-teal'
+                    : 'border-line bg-surface-muted/60 text-slate group-hover:text-navy group-hover:border-line-strong'
+                }`}
               >
                 {topic}
               </span>
@@ -98,14 +113,21 @@ export function GradeOptionCard({ grade, detail, isSelected, onSelect, index }: 
       </div>
 
       {/* Selected Status Text */}
-      <div className="mt-5 border-t border-line/60 pt-3 text-xs font-semibold">
+      <div
+        className={`mt-5 border-t pt-3 text-xs font-semibold transition-colors ${
+          isSelected ? 'border-teal/20 text-teal' : 'border-line text-slate'
+        }`}
+      >
         {isSelected ? (
-          <span className="inline-flex items-center gap-1.5 text-teal-dark">
-            <span className="size-2 rounded-full bg-teal" aria-hidden="true" />
-            Selected Grade
+          <span className="inline-flex items-center gap-2 font-bold text-teal">
+            <span className="size-2 rounded-full bg-teal animate-pulse" aria-hidden="true" />
+            Selected Grade · Click continue below
           </span>
         ) : (
-          <span className="text-slate group-hover:text-ink">Click or press Enter to select</span>
+          <div className="flex items-center justify-between text-slate group-hover:text-navy">
+            <span>Click or press Enter to select</span>
+            <span className="text-[11px] font-medium text-slate group-hover:text-teal">Choose →</span>
+          </div>
         )}
       </div>
     </article>
