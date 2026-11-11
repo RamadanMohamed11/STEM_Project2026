@@ -23,7 +23,7 @@ export function Header({ onMenuOpen, menuOpen }: HeaderProps) {
             aria-label="Open navigation"
             aria-controls="mobile-navigation"
             aria-expanded={menuOpen}
-            className="-ms-2 inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-navy transition-colors hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2 md:hidden"
+            className="-ms-2 inline-flex size-11 shrink-0 items-center justify-center rounded-xl text-navy transition-all duration-200 hover:bg-teal-soft hover:text-teal active:scale-95 focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2 md:hidden"
           >
             <Menu size={23} aria-hidden="true" />
           </button>

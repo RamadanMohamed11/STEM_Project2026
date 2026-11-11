@@ -259,6 +259,36 @@ a {
   }
 }
 
+@keyframes drawerSlideInLeft {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes drawerBackdropFadeIn {
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    backdrop-filter: blur(4px);
+  }
+}
+
+.mobile-drawer-left[open] {
+  animation: drawerSlideInLeft 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.mobile-drawer-left[open]::backdrop {
+  animation: drawerBackdropFadeIn 0.28s ease-out forwards;
+}
+
 /* Route Page, Section, and Card Entrance Animations */
 @keyframes pageEnter {
   0% {
@@ -454,7 +484,9 @@ a {
   .animate-pulse-ring,
   .animate-gradient-flow,
   .animate-celebrate-pop,
-  .animate-sparkle-twinkle {
+  .animate-sparkle-twinkle,
+  .mobile-drawer-left[open],
+  .mobile-drawer-left[open]::backdrop {
     animation: none !important;
     transition: none !important;
     opacity: 1 !important;

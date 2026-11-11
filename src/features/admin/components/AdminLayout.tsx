@@ -149,7 +149,7 @@ export function AdminLayout() {
                 aria-label="Open admin navigation"
                 aria-controls="admin-mobile-navigation"
                 aria-expanded={mobileMenuOpen}
-                className="-ms-2 inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-navy transition-colors hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2 md:hidden"
+                className="-ms-2 inline-flex size-11 shrink-0 items-center justify-center rounded-xl text-navy transition-all duration-200 hover:bg-teal-soft hover:text-teal active:scale-95 focus-visible:outline-3 focus-visible:outline-teal focus-visible:outline-offset-2 md:hidden"
               >
                 <Menu size={22} aria-hidden="true" />
               </button>
@@ -210,12 +210,12 @@ export function AdminLayout() {
         onClick={(event) => {
           if (event.target === event.currentTarget) setMobileMenuOpen(false)
         }}
-        className="ms-auto me-0 h-dvh max-h-dvh w-[min(21rem,calc(100vw-2rem))] max-w-none border-0 bg-navy p-0 text-white shadow-elevated backdrop:bg-navy/65 md:hidden"
+        className="mobile-drawer-left ms-0 me-auto h-dvh max-h-dvh w-[min(22rem,calc(100vw-2.5rem))] max-w-none border-0 border-e border-white/10 bg-navy p-0 text-white shadow-2xl rounded-e-2xl backdrop:bg-navy/70 backdrop:backdrop-blur-sm md:hidden"
       >
         <div className="flex h-full flex-col overflow-y-auto px-5 py-6">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
             <div className="flex items-center gap-2.5">
-              <span className="flex size-9 items-center justify-center rounded-lg bg-teal text-white">
+              <span className="flex size-9 items-center justify-center rounded-lg bg-teal text-white shadow-sm">
                 <FlaskConical size={18} aria-hidden="true" />
               </span>
               <div>
@@ -230,7 +230,7 @@ export function AdminLayout() {
               type="button"
               onClick={() => setMobileMenuOpen(false)}
               aria-label="Close admin navigation"
-              className="inline-flex size-11 items-center justify-center rounded-lg text-white/85 transition-colors hover:bg-white/12 focus-visible:outline-2 focus-visible:outline-teal-light focus-visible:outline-offset-2"
+              className="inline-flex size-11 items-center justify-center rounded-xl text-white/85 transition-all duration-200 hover:rotate-90 hover:bg-white/15 active:scale-95 focus-visible:outline-2 focus-visible:outline-teal-light focus-visible:outline-offset-2"
             >
               <X size={22} aria-hidden="true" />
             </button>

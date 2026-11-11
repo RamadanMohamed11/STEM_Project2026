@@ -48,7 +48,7 @@ export function NavigationLinks({ variant, onNavigate }: NavigationLinksProps) {
                   >
                     {active && (
                       <span
-                        className="absolute inset-y-2.5 start-0 w-[3px] rounded-e-full bg-teal-light shadow-[0_0_8px_rgba(118,213,203,0.8)]"
+                        className="absolute inset-y-2.5 start-0 w-[3px] rounded-e-full bg-teal-light shadow-[0_0_8px_rgba(168,197,224,0.8)]"
                         aria-hidden="true"
                       />
                     )}

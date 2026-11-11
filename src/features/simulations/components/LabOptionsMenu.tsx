@@ -93,7 +93,7 @@ export function LabOptionsMenu({
           role="dialog"
           aria-modal="false"
           aria-label="Lab options"
-          className="absolute right-0 top-full mt-2 flex max-h-[calc(100dvh-80px)] w-[min(260px,calc(100vw-24px))] flex-col gap-2 overflow-y-auto rounded-xl border border-white/15 bg-[#0d1b2a] p-2 text-white shadow-2xl"
+          className="animate-scale-in origin-top-right absolute right-0 top-full mt-2 flex max-h-[calc(100dvh-80px)] w-[min(260px,calc(100vw-24px))] flex-col gap-2 overflow-y-auto rounded-xl border border-white/15 bg-[#0d1b2a] p-2 text-white shadow-2xl"
         >
           <div className="flex flex-col gap-2 border-b border-white/10 pb-2">{controls}</div>
           <ul className="flex flex-col">
